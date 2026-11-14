@@ -1,0 +1,17 @@
+export const FIELD_WIDTH = 800;
+export const FIELD_HEIGHT = 500;
+export const PADDLE_WIDTH = 12;
+export const PADDLE_HEIGHT = 90;
+export const BALL_SIZE = 12;
+export const PLAYER_SPEED = 420;
+export const AI_MAX_SPEED = 300;
+export const AI_REACTION_SECONDS = 0.2;
+export const AI_DEAD_ZONE = 10;
+export const BASE_BALL_SPEED = 360;
+export const MAX_BALL_SPEED = 900;
+export const SPEED_UP = 1.05;
+export const MAX_BOUNCE_ANGLE = (60 * Math.PI) / 180;
+export const WIN_SCORE = 10;
+export const MAX_DT = 1 / 30;
+export const LEFT_PADDLE_X = 0;
+export const RIGHT_PADDLE_X = FIELD_WIDTH - PADDLE_WIDTH;

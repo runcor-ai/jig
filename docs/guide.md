@@ -607,8 +607,8 @@ The full safety model and its known limits are in [safety.md](safety.md).
 
 ## 14. Worked example: the game factory
 
-[`factory/game.jig`](../factory/game.jig) builds one browser game from a requirements file, and
-[`factory/games.yaml`](../factory/games.yaml) lists three games. This runs all three at once:
+[`factory/game.jig`](https://github.com/runcor-ai/jig/blob/master/factory/game.jig) builds one browser game from a requirements file, and
+[`factory/games.yaml`](https://github.com/runcor-ai/jig/blob/master/factory/games.yaml) lists three games. This runs all three at once:
 
 ```bash
 py -m jig batch factory/games.yaml --script factory/game.jig --parallel 3 --continue-on-error

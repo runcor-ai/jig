@@ -14,6 +14,9 @@ verify(spec)
 
 Commands are plugins. The five built-ins use exactly the format you use to add your own.
 
+**Website:** <https://runcor-ai.github.io/jig/>, with the guide, the white paper
+([Abstraction for AI work](docs/whitepaper.md)) and three games Jig built that you can play.
+
 ## Quick start
 
 Requirements: Python 3.11+ with `pyyaml` and `jsonschema`, and the `claude` CLI logged in. You also need
@@ -159,6 +162,18 @@ py -m jig batch-status games
 ```
 
 Each game lands in `apps/<ID>/` (for example `apps/PONG-001/`), with every step recorded under `.jig/`.
+
+First run, 14 November 2026: all three completed side by side in 5.5 minutes (reported usage $2.50).
+
+| Game | Requirements | Tests | Verdict | Fix rounds | Review findings |
+|---|---|---|---|---|---|
+| `PONG-001` | 11 (9 must) | 36 passed | pass | 0 | 4 low |
+| `TETRIS-001` (falling blocks) | 13 (11 must) | 41 passed | pass | 0 | 2 low |
+| `SNAKE-001` | 10 (8 must) | 26 passed | pass | 0 | 2 low, 1 info |
+
+The fix loop was not needed in this run. The review still found real defects that the tests passed,
+for example a Pong ball that can be bounced back after it has passed the paddle.
+[Play them on the website](https://runcor-ai.github.io/jig/).
 
 ## Earlier Pong example
 
