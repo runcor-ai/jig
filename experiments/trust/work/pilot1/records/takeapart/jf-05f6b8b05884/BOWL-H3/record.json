@@ -1,0 +1,14 @@
+{
+ "build": "jf-05f6b8b05884-BOWL",
+ "app_id": "BOWLLP-001",
+ "pipeline_status": "completed",
+ "fixes": 2,
+ "cost_usd": 0.7457,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D02",
+ "item": "BOWL-H3",
+ "stage": "takeapart"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-24e062f1978f-CONN4",
+ "app_id": "CONN4OP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.9158,
+ "builder": "opus",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_PROSE",
+ "item": "CONN4-H2",
+ "stage": "compare"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-G2048",
+ "app_id": "G2048LF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.393,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_FACTS",
+ "item": "G2048-H1",
+ "stage": "compare"
+}

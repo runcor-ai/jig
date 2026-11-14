@@ -1,0 +1,14 @@
+{
+ "build": "jf-05f6b8b05884-MINES",
+ "app_id": "MINESLP-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.5858,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_PROSE",
+ "item": "MINES-H4",
+ "stage": "compare"
+}

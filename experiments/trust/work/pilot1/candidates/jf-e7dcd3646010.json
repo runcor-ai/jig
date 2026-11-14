@@ -1,0 +1,8 @@
+{
+ "id": "jf-e7dcd3646010",
+ "spec_guidance": "",
+ "build_guidance": "Before coding, turn every rule in the spec into a numbered checklist. Keep game logic (state, moves, scoring, win/lose, edge cases) in pure functions separate from rendering and input, so it can be tested without a browser. Write one test per rule, plus boundary cases: first and last turn, invalid moves, ties, wrap-around, reset. Run the tests and fix any failures before finishing. Then re-read the checklist and confirm each rule has matching code and a passing test.",
+ "format": "prose",
+ "builder": "luna",
+ "pipeline": "trial.jig"
+}

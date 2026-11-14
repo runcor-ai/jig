@@ -4,6 +4,7 @@
     $<param>                                       every parameter of the command
                                                    (lists of strings -> bullet lines; path params -> file content)
     $spec $tests $expected_ids                     from the artifact's specify / test stages
+    $build_spec                                    the spec as the builder reads it (FACTS notes if any)
     $context                                       all stage outputs of the artifact (JSON)
     $workspace_state                               what is in the workspace already
 """
@@ -63,6 +64,17 @@ def artifact_context(rt: "Runtime", ctx: "ExecContext") -> str:
     return text[:MAX_CONTEXT_CHARS] + ("\n...[truncated]" if len(text) > MAX_CONTEXT_CHARS else "")
 
 
+def build_spec(spec: dict | None) -> str:
+    """What the builder reads: the FACTS notes when the spec was written in that format, else the full spec."""
+    if isinstance(spec, dict) and isinstance(spec.get("facts"), str) and spec["facts"].strip():
+        index = "\n".join(f"- {r.get('id')}: {r.get('title')} ({r.get('priority')})"
+                          for r in spec.get("requirements", []) if isinstance(r, dict))
+        return ("Notes (FACTS format: one short fact per line, under THINGS, VALUES, RULES, LINKS, TIMING):\n"
+                + spec["facts"].strip()
+                + "\n\nRequirement ids (report each in requirements_implemented):\n" + index)
+    return _j(spec)
+
+
 def render(rt: "Runtime", ctx: "ExecContext") -> tuple[str, str]:
     cmd = ctx.cmd
     tpl = cmd.prompt or ""
@@ -72,6 +84,7 @@ def render(rt: "Runtime", ctx: "ExecContext") -> tuple[str, str]:
         "target": ctx.target if isinstance(ctx.target, str) else _j(ctx.target),
         "parameters": _j({k: v for k, v in ctx.params.items() if cmd["parameters"][k].get("type") != "path"}),
         "spec": _j(ctx.spec),
+        "build_spec": build_spec(ctx.spec),
         "tests": tests_summary(ctx.test),
         "expected_ids": ", ".join(requirement_ids(ctx.spec)) or "none",
         "workspace_state": workspace_state(ctx),

@@ -1,0 +1,14 @@
+{
+ "build": "jf-4610ac42795c-CONN4",
+ "app_id": "CONN4OF-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 1.2315,
+ "builder": "opus",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_FACTS",
+ "item": "CONN4-H3",
+ "stage": "compare"
+}

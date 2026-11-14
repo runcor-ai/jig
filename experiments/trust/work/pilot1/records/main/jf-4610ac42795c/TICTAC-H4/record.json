@@ -1,0 +1,14 @@
+{
+ "build": "jf-4610ac42795c-TICTAC",
+ "app_id": "TICTACOF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.6686,
+ "builder": "opus",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_FACTS",
+ "item": "TICTAC-H4",
+ "stage": "compare"
+}

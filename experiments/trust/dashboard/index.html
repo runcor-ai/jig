@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Reality Engine Dashboard</title>
+<style>
+:root {
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --g1: #2a78d6; --g2: #eb6834; --g3: #1baf7a; --g4: #8a5cf6; --good: #0ca30c; --warn: #fab219; --crit: #d03b3b;
+  --goodtext: #006300; --band: rgba(42,120,214,0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+    --g1: #3987e5; --g2: #d95926; --g3: #199e70; --g4: #9b72f8; --goodtext: #0ca30c; --band: rgba(57,135,229,0.12);
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+  --g1: #3987e5; --g2: #d95926; --g3: #199e70; --g4: #9b72f8; --goodtext: #0ca30c; --band: rgba(57,135,229,0.12);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { padding: 16px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
+h1 { font-size: 24px; margin: 0; letter-spacing: -0.2px; }
+.tagline { color: var(--ink2); font-size: 14px; font-weight: 600; margin: 2px 0; }
+h2 { font-size: 15px; margin: 0 0 4px; }
+.sub { color: var(--ink2); font-size: 13px; margin: 0 0 10px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--ring); background: var(--surface); font-size: 13px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+main { padding: 0 16px 24px; max-width: 1200px; margin: 0 auto; }
+.panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.kpi { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 12px; }
+.kpi .v { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kpi .l { color: var(--ink2); font-size: 12px; }
+.bar { height: 6px; background: var(--grid); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.bar i { display: block; height: 100%; background: var(--g1); }
+.steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.step { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--ring); color: var(--muted); font-size: 13px; }
+.step.done { color: var(--ink2); }
+.step.now { color: var(--ink); border-color: var(--ink); font-weight: 600; }
+.step.skip { opacity: .45; text-decoration: line-through; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--ink2); }
+.tile .h { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+.tile .n { font-size: 22px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--ink2); font-weight: 600; }
+td.n, th.n { text-align: right; }
+.scroll { overflow-x: auto; }
+.mute { color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink2); margin: 4px 0 8px; }
+svg text { fill: var(--ink2); font-size: 12px; }
+svg .lab { fill: var(--ink); font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+.cell { display: inline-block; min-width: 54px; padding: 3px 6px; border-radius: 6px; font-size: 12px; text-align: center; font-variant-numeric: tabular-nums; border: 1px solid var(--ring); }
+.cell.run { border-color: var(--g1); color: var(--g1); }
+.cell.ok { background: rgba(12,163,12,.12); color: var(--goodtext); }
+.cell.mid { background: rgba(250,178,25,.18); }
+.cell.bad { background: rgba(208,59,59,.14); color: var(--crit); }
+.events { max-height: 300px; overflow: auto; font-size: 12.5px; }
+.events div { padding: 3px 0; border-bottom: 1px solid var(--grid); }
+.events .t { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 8px; }
+.badge { font-size: 11px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--ring); color: var(--ink2); margin-left: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>The Reality Engine</h1>
+    <div class="tagline" id="tag">Run dashboard</div>
+    <div class="sub" id="plan"></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <span class="chip"><span class="dot" id="livedot" style="background:var(--good)"></span><span id="now">loading</span></span>
+    <span class="chip" id="spend"></span>
+  </div>
+</header>
+<main>
+  <div class="panel"><h2>Where the run is</h2><div class="steps" id="steps"></div><div class="sub" id="stepnote" style="margin-top:8px"></div></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="grid2">
+    <div class="panel"><h2>How often each way of working is right <span class="badge" id="folderbadge"></span></h2>
+      <div class="sub">Share of hidden acceptance checks passed, with the 95% range over briefs (live; the final analysis uses more resamples).</div>
+      <div id="chart"></div></div>
+    <div class="panel"><h2>Events</h2><div class="events" id="events"></div></div>
+  </div>
+  <div class="panel"><h2>Builds</h2>
+    <div class="sub">One Jig pipeline run per way of working and brief; the cell shows the hidden checks passed out of 6.</div>
+    <div class="scroll" id="builds"></div></div>
+  <div class="panel" id="trustpanel" hidden><h2>Trust report</h2><div class="sub">The final design on the sealed briefs.</div><div class="tiles" id="trust"></div></div>
+</main>
+<script>
+const COLORS = {OPUS_PROSE: 'var(--g1)', OPUS_FACTS: 'var(--g3)', LUNA_PROSE: 'var(--g2)', LUNA_FACTS: 'var(--g4)'};
+const NAMES = {OPUS_PROSE: 'Opus builds from prose', OPUS_FACTS: 'Opus builds from FACTS', LUNA_PROSE: 'Luna builds from prose', LUNA_FACTS: 'Luna builds from FACTS'};
+const STEPS = [['lock', 'Lock'], ['compare', 'Compare'], ['takeapart', 'Take apart'], ['round', 'Build out'], ['final', 'Confirm'], ['done', 'Report']];
+const pct = (x) => x == null ? '–' : Math.round(x * 100) + '%';
+const theme = new URLSearchParams(location.search).get('theme');
+if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
+const esc = (s) => String(s ?? '').replace(/[&<>]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+
+function steps(d) {
+  const at = d.state.step || 'compare';
+  const order = ['lock', 'compare', 'takeapart', 'round', 'final', 'done'];
+  const idx = order.findIndex((k) => at.startsWith(k));
+  const skip = (k) => (k === 'takeapart' && !d.plan.sets?.takeapart) || (k === 'round' && !(d.plan.sets?.rounds || []).length);
+  document.getElementById('steps').innerHTML = STEPS.map(([k, n], i) =>
+    `<span class="step ${skip(k) ? 'skip' : i < idx ? 'done' : i === idx ? 'now' : ''}">${i + 1} ${n}</span>`).join('');
+  const p = d.state.progress || {};
+  let note = p.stage ? `${p.stage}: ${p.done} of ${p.planned} scored checks` : '';
+  if (d.state.halted) note += ` · halted: ${esc(d.state.halted)}`;
+  if (d.state.paused) note += ` · paused: ${esc(d.state.paused)}`;
+  if (at === 'done') note = 'The run is complete; the trust report is below.';
+  document.getElementById('stepnote').innerHTML = note;
+}
+
+function kpis(d) {
+  const p = Object.assign({}, d.state.progress || {});
+  if (!p.planned) {             // between engine updates: count the scored checks in the records
+    const stage = (d.state.step || '').startsWith('compare') ? 'main' : null;
+    const live = stage ? d.live[stage] || {} : {};
+    p.done = Object.values(live).reduce((a, r) => a + r.n, 0);
+    p.planned = stage ? 4 * ((d.plan.sets && 36) || 0) : 0;
+    p.stage = p.stage || d.state.step;
+  }
+  const running = d.builds.filter((b) => b.state === 'running').length;
+  const done = d.builds.filter((b) => b.state === 'done').length;
+  const fixes = d.builds.reduce((a, b) => a + (b.fixes || 0), 0);
+  const items = [
+    ['Stage', (p.stage || d.state.step || '–'), `${p.done ?? 0} / ${p.planned ?? 0} checks scored`, p.planned ? p.done / p.planned : 0],
+    ['Builds', `${done}`, `${running} running now`, null],
+    ['Fix rounds used', `${fixes}`, 'rebuilds fed by verify and the tests', null],
+    ['Reported Claude usage', `$${d.spent_usd.toFixed(2)}`, d.cost_cap_usd ? `cap $${d.cost_cap_usd}` : '', d.cost_cap_usd ? d.spent_usd / d.cost_cap_usd : null],
+  ];
+  if (d.state.winner) items.push(['Compare winner', NAMES[d.state.winner] || d.state.winner, `runner-up: ${NAMES[d.state.runner_up] || d.state.runner_up}`, null]);
+  document.getElementById('kpis').innerHTML = items.map(([l, v, s, f]) =>
+    `<div class="kpi"><div class="l">${l}</div><div class="v">${esc(v)}</div><div class="l">${esc(s)}</div>${f != null ? `<div class="bar"><i style="width:${Math.min(100, f * 100)}%"></i></div>` : ''}</div>`).join('');
+}
+
+function chart(d) {
+  const folders = Object.keys(d.live);
+  const folder = folders.includes('final') && Object.keys(d.live.final || {}).length ? 'final' : (folders.includes('main') ? 'main' : folders[0]);
+  document.getElementById('folderbadge').textContent = folder === 'final' ? 'sealed briefs' : 'comparison briefs';
+  const rows = Object.entries(d.live[folder] || {}).sort((a, b) => (b[1].mean ?? 0) - (a[1].mean ?? 0));
+  if (!rows.length) { document.getElementById('chart').innerHTML = '<div class="mute">No scored checks yet.</div>'; return; }
+  const W = 560, rowH = 46, L = 190, R = 20, H = rows.length * rowH + 34;
+  const x = (v) => L + v * (W - L - R);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="share of hidden checks passed per way of working">`;
+  for (let t = 0; t <= 1.0001; t += 0.25) s += `<line x1="${x(t)}" x2="${x(t)}" y1="6" y2="${H - 24}" stroke="var(--grid)"/><text x="${x(t)}" y="${H - 8}" text-anchor="middle">${Math.round(t * 100)}%</text>`;
+  rows.forEach(([lab, r], i) => {
+    const y = 14 + i * rowH, c = COLORS[lab] || 'var(--ink2)';
+    s += `<text class="lab" x="0" y="${y + 12}">${esc(NAMES[lab] || lab)}${lab === d.plan.control ? ' (control)' : ''}</text>`;
+    s += `<text x="0" y="${y + 28}">${r.n} checks · ${pct(r.mean)}</text>`;
+    if (r.range) s += `<rect x="${x(r.range[0])}" y="${y + 8}" width="${Math.max(2, x(r.range[1]) - x(r.range[0]))}" height="14" rx="3" fill="${c}" opacity="0.22"/>`;
+    if (r.mean != null) s += `<circle cx="${x(r.mean)}" cy="${y + 15}" r="6" fill="${c}"/>`;
+  });
+  document.getElementById('chart').innerHTML = s + '</svg>';
+}
+
+function builds(d) {
+  const briefs = [...new Set(d.builds.map((b) => b.brief))];
+  const sealed = new Set((d.analysis?.final ? [] : []));
+  const ways = ['OPUS_PROSE', 'OPUS_FACTS', 'LUNA_PROSE', 'LUNA_FACTS'];
+  const key = (b) => `${b.builder === 'opus' ? 'OPUS' : 'LUNA'}_${b.format === 'facts' ? 'FACTS' : 'PROSE'}`;
+  const by = {};
+  d.builds.forEach((b) => { by[`${b.brief}|${key(b)}`] = b; });
+  let h = '<table><thead><tr><th>Brief</th>' + ways.map((w) => `<th>${NAMES[w]}</th>`).join('') + '</tr></thead><tbody>';
+  briefs.sort().forEach((br) => {
+    h += `<tr><td>${esc(br)}</td>` + ways.map((w) => {
+      const b = by[`${br}|${w}`];
+      if (!b) return '<td><span class="mute">–</span></td>';
+      if (b.state === 'running') return `<td><span class="cell run">building ${b.minutes ?? ''}m</span></td>`;
+      const n = b.hidden_passed ?? 0, cls = b.failure === 'infra' ? 'mid' : n === 6 ? 'ok' : n >= 3 ? 'mid' : 'bad';
+      const extra = [b.fixes ? `${b.fixes} fix` : '', b.minutes ? `${b.minutes}m` : '', b.cost_usd ? `$${b.cost_usd.toFixed(2)}` : ''].filter(Boolean).join(' · ');
+      return `<td><span class="cell ${cls}" title="${esc(b.failure_type || '')}">${b.failure && b.failure !== 'infra' && !b.hidden_passed ? esc(b.failure_type || 'failed') : n + ' / 6'}</span> <span class="mute" style="font-size:11px">${extra}</span></td>`;
+    }).join('') + '</tr>';
+  });
+  document.getElementById('builds').innerHTML = briefs.length ? h + '</tbody></table>' : '<div class="mute">No builds yet.</div>';
+}
+
+function trust(d) {
+  const r = d.report;
+  document.getElementById('trustpanel').hidden = !r;
+  if (!r) return;
+  const v = (r.verdict || [])[0] || {};
+  const fails = Object.entries(r.why_it_fails || {}).map(([k, n]) => `${n} ${k}`).join(', ') || 'none';
+  const tiles = [
+    ['How often it is right', pct(r.right?.mean), `range ${pct(r.right?.range?.[0])} to ${pct(r.right?.range?.[1])} on ${r.n_sealed} sealed checks (${r.clusters} briefs)`],
+    ['Reliability', pct(r.reliability?.finished_cleanly), 'runs that finished without a design failure'],
+    ['Why it fails', Object.values(r.why_it_fails || {}).reduce((a, b) => a + b, 0), fails],
+    ['Verdict', NAMES[r.final_design] || r.final_design, v.rival ? `vs ${NAMES[v.rival] || v.rival}: ${v.lead >= 0 ? '+' : ''}${pct(v.lead)} [${pct(v.range?.[0])}, ${pct(v.range?.[1])}] ${v.counted ? 'counted' : 'not counted'}` : ''],
+    ['How hard we looked', r.effort?.runs, `${r.effort?.founders} ways of working, ${r.effort?.stages} stages`],
+    ['Headroom', r.headroom?.closest_rival ? (NAMES[r.headroom.closest_rival.rival] || r.headroom.closest_rival.rival) : '–', 'the closest rival'],
+  ];
+  document.getElementById('trust').innerHTML = tiles.map(([h, n, s]) => `<div class="tile"><div class="h">${h}</div><div class="n">${esc(n)}</div><div>${esc(s)}</div></div>`).join('');
+}
+
+async function tick() {
+  try {
+    const d = await (await fetch('status.json', {cache: 'no-store'})).json();
+    document.getElementById('tag').textContent = `Run: ${d.plan.name}`;
+    document.getElementById('plan').textContent = 'Jig ways of working, scored by hidden acceptance tests on game briefs';
+    document.getElementById('now').textContent = `live · ${d.now}`;
+    document.getElementById('spend').textContent = `Claude usage $${d.spent_usd.toFixed(2)}`;
+    document.getElementById('events').innerHTML = d.events.slice().reverse().map((e) => `<div><span class="t">${esc(e.t.slice(11))}</span>${esc(e.msg)}</div>`).join('');
+    steps(d); kpis(d); chart(d); builds(d); trust(d);
+    document.getElementById('livedot').style.background = 'var(--good)';
+  } catch (e) {
+    document.getElementById('livedot').style.background = 'var(--crit)';
+    document.getElementById('now').textContent = 'no connection';
+  }
+}
+tick();
+setInterval(tick, 3000);
+</script>
+</body>
+</html>

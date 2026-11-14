@@ -1,0 +1,352 @@
+<title>Abstraction for AI Work</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of serif text; tables and figures may run a little wider;
+   mono, letter-spaced labels for structure, as in the Runcor Lattice white paper. */
+:root{
+  --ink:#1b1d23; --text:#25282f; --muted:#5a5e68; --faint:#8a8e99;
+  --rule:#d6d8dd; --rule2:#c4c7cf; --wash:#f6f8fb; --wash2:#ebecef;
+  --navy:#1e4f8c; --navy-soft:#e9eff7; --todo:#8a5a00; --todo-bg:#fbf3e2; --paper:#ffffff;
+  --serif:Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:light;
+}
+body{background:var(--paper);color:var(--text);font-family:var(--serif);font-size:17px;line-height:1.62;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 64px}
+.page{max-width:760px;margin:0 auto}
+p,li{text-wrap:pretty}
+a{color:var(--navy)}
+strong{color:var(--ink)}
+.eyebrow,.mono{font-family:var(--mono);font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+
+/* Cover */
+.cover{min-height:min(88vh,780px);display:flex;flex-direction:column;justify-content:space-between;padding-block:56px 32px;
+  border-bottom:1px solid var(--rule)}
+.cover h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,7vw,68px);line-height:1.04;
+  color:var(--ink);margin:28px 0 18px;letter-spacing:-.01em;text-wrap:balance}
+.cover .sub{font-size:clamp(20px,2.6vw,26px);line-height:1.35;color:var(--text);max-width:30ch;margin:0 0 36px}
+.cover .lede{border-top:2px solid var(--navy);padding-top:18px;max-width:46ch;color:var(--muted);font-size:17px}
+.cover .lede p{margin:0 0 8px}
+.cover .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:40px}
+.status{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--navy);background:var(--navy-soft);padding:4px 10px;border-radius:2px}
+
+/* Contents */
+.toc{padding-block:40px 24px;border-bottom:1px solid var(--rule)}
+.toc ol{list-style:none;margin:16px 0 0;padding:0;columns:2;column-gap:40px}
+.toc li{break-inside:avoid;display:flex;gap:12px;padding:5px 0;border-bottom:1px dotted var(--rule);font-size:15px;line-height:1.35}
+.toc .n{font-family:var(--mono);font-size:11.5px;color:var(--navy);min-width:7.4em;white-space:nowrap;padding-top:2px}
+.toc a{color:var(--text);text-decoration:none}
+.toc a:hover{color:var(--navy);text-decoration:underline}
+
+/* Sections */
+h2.sec{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.15;color:var(--ink);
+  margin:72px 0 20px;padding-top:20px;border-top:1px solid var(--rule2);text-wrap:balance}
+h2.sec .secnum{display:block;font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--navy);margin-bottom:10px}
+h3{font-family:var(--serif);font-weight:700;font-size:19px;color:var(--ink);margin:36px 0 10px;text-wrap:balance}
+p{margin:0 0 14px}
+ul,ol{padding-left:22px;margin:0 0 14px}
+li{margin-bottom:6px} li>p{margin:0 0 6px}
+blockquote{margin:22px 0;padding:14px 20px;background:var(--wash);border-left:2px solid var(--navy);color:var(--text)}
+blockquote p:last-child{margin-bottom:0}
+code{font-family:var(--mono);font-size:.84em;background:var(--wash2);padding:1px 4px;border-radius:2px;overflow-wrap:anywhere}
+pre{font-family:var(--mono);font-size:13px;line-height:1.5;background:var(--wash);border:1px solid var(--rule);
+  padding:14px 16px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 16px}
+pre code{background:none;padding:0;font-size:inherit}
+.todo{font-family:var(--mono);font-size:.78em;color:var(--todo);background:var(--todo-bg);padding:1px 5px;border-radius:2px;
+  overflow-wrap:anywhere}
+time{font-variant-numeric:tabular-nums}
+
+/* Figures */
+figure.fig{margin:28px 0}
+figure.fig img{display:block;width:auto;max-width:100%;height:auto;margin:0 auto;border:1px solid var(--rule);background:#fff}
+figcaption{font-size:14px;line-height:1.45;color:var(--muted);margin-top:8px}
+.figlab{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--navy);margin-right:6px}
+
+/* Tables: always fit the column. */
+.tblwrap{margin:20px 0 22px}
+table.tbl{width:100%;border-collapse:collapse;table-layout:auto;font-size:14px;line-height:1.42;
+  font-variant-numeric:tabular-nums;border-top:2px solid var(--ink)}
+.tbl th{font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);text-align:left;vertical-align:bottom;padding:9px 10px 7px;border-bottom:1px solid var(--rule2)}
+.tbl td{vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--rule);overflow-wrap:break-word;hyphens:auto}
+.tbl td:first-child{color:var(--ink)}
+.tbl td.num{text-align:center;white-space:nowrap}
+.tbl tbody tr:nth-child(even) td{background:var(--wash)}
+.tbl td p{margin:0 0 4px} .tbl td p:last-child{margin:0}
+.tbl td ul{margin:0;padding-left:16px}
+table.dense{font-size:12px} .dense th{font-size:9px;letter-spacing:.04em;padding:7px 5px;hyphens:auto;overflow-wrap:break-word} .dense td{padding:6px 5px} .dense td:first-child{width:24%;min-width:9em}
+table.roomy{font-size:13.5px}
+/* Stacked cards: one card per row, header labels beside each value. */
+table.stack, table.stack tbody, table.stack tr, table.stack td{display:block;width:100%}
+table.stack{border-top:none}
+table.stack thead{display:none}
+table.stack tr{border-top:2px solid var(--ink);padding:10px 0 6px;margin-bottom:12px;break-inside:avoid}
+table.stack tbody tr:nth-child(even) td{background:none}
+table.stack td{border:none;padding:3px 0;display:grid;grid-template-columns:minmax(8em,30%) 1fr;gap:14px}
+table.stack td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);padding-top:3px}
+table.stack td:first-child{display:block;font-weight:700;font-size:15.5px;padding-bottom:6px}
+table.stack td:first-child::before{display:none}
+
+/* Phones: every table becomes cards. */
+@media (max-width:640px){
+  body{font-size:16px}
+  .toc ol{columns:1}
+  h2.sec{font-size:27px;margin-top:56px}
+  table.tbl, table.tbl tbody, table.tbl tr, table.tbl td{display:block;width:100%}
+  table.tbl{border-top:none}
+  table.tbl thead{display:none}
+  table.tbl tr{border-top:2px solid var(--ink);padding:8px 0 4px;margin-bottom:10px}
+  table.tbl tbody tr:nth-child(even) td{background:none}
+  table.tbl td{border:none;padding:3px 0;display:grid;grid-template-columns:42% 1fr;gap:10px}
+  table.tbl td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);padding-top:3px}
+  table.tbl td:first-child{display:block;font-weight:700}
+  table.tbl td:first-child::before{display:none}
+}
+
+/* Print / PDF */
+@page{size:A4;margin:20mm 18mm 20mm 18mm;
+  @bottom-left{content:"DESCRIBING REALITY FOR AI";font-family:"IBM Plex Mono",Consolas,monospace;font-size:7pt;letter-spacing:.25em;color:#8a8e99}
+  @bottom-right{content:counter(page);font-family:"IBM Plex Mono",Consolas,monospace;font-size:8pt;color:#8a8e99}}
+@page :first{@bottom-left{content:none}@bottom-right{content:none}}
+@media print{
+  body{font-size:10.4pt;line-height:1.5;padding:0}
+  .page{max-width:none}
+  .cover{min-height:250mm;break-after:page;border-bottom:none;padding-block:10mm 0}
+  .toc{break-after:page;border-bottom:none}
+  h2.sec{break-before:page;margin-top:0;border-top:none;font-size:24pt}
+  h3{break-after:avoid;font-size:12.5pt}
+  figure.fig,blockquote,pre{break-inside:avoid}
+  figure.fig img{max-height:205mm;width:auto;max-width:100%;margin:0 auto}
+  table.tbl{font-size:8.6pt} .tbl th{font-size:6.8pt} table.dense{font-size:7.6pt} .dense th{font-size:6.2pt}
+  .tbl tr{break-inside:avoid}
+  .tbl thead{display:table-header-group}
+  table.stack thead{display:none}
+  table.stack td:first-child{font-size:10pt}
+  a{color:inherit;text-decoration:none}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+<div class="page">
+<header class="cover">
+  <div>
+    <div class="eyebrow">Jig &nbsp;·&nbsp; White paper &nbsp;·&nbsp; Draft, v0.2.0</div>
+    <h1>Abstraction for AI Work</h1>
+    <p class="sub">Controlling complexity by working with AI at the right level, and measuring that the level holds</p>
+    <div class="lede">
+      <p>A biologist explaining a heartbeat does not talk about quantum physics. Every field controls complexity by working at the right level. Jig gives AI work such a level: requirements, steps, results and checks.</p>
+      <p>The Reality Engine then measures whether the level holds: four ways of building software, scored by hidden tests on sealed briefs.</p>
+    </div>
+  </div>
+  <div class="foot">
+    <span class="mono">Pilot 1 &nbsp;·&nbsp; 14 Nov 2026</span>
+    <span class="status">Updated 14 Nov 2026</span>
+  </div>
+</header>
+<nav class="toc" aria-label="Contents">
+  <div class="eyebrow">Contents</div>
+  <ol><li><span class="n">&nbsp;</span><a href="#summary">Summary</a></li><li><span class="n">01</span><a href="#01-the-problem-complexity-not-capability">The problem: complexity, not capability</a></li><li><span class="n">02</span><a href="#02-the-idea-levels-of-description">The idea: levels of description</a></li><li><span class="n">03</span><a href="#03-jig-a-level-of-description-for-ai-work">Jig: a level of description for AI work</a></li><li><span class="n">04</span><a href="#04-how-the-experiment-works">How the experiment works</a></li><li><span class="n">05</span><a href="#05-how-we-kept-it-honest">How we kept it honest</a></li><li><span class="n">06</span><a href="#06-the-run-at-a-glance">The run at a glance</a></li><li><span class="n">07</span><a href="#07-results">Results</a></li><li><span class="n">08</span><a href="#08-what-can-be-improved">What can be improved</a></li><li><span class="n">09</span><a href="#09-related-work">Related work</a></li><li><span class="n">10</span><a href="#10-conclusion-and-what-comes-next">Conclusion and what comes next</a></li><li><span class="n">Appendix A</span><a href="#appendix-a-jig-use-it-yourself">Jig: use it yourself</a></li><li><span class="n">Appendix B</span><a href="#appendix-b-the-data-and-the-code">The data and the code</a></li><li><span class="n">Appendix C</span><a href="#appendix-c-related-work-in-detail">Related work in detail</a></li><li><span class="n">&nbsp;</span><a href="#references">References</a></li></ol>
+</nav>
+<main>
+<h2 id="summary" class="sec">Summary</h2>
+<p>A biologist explaining how a heart pumps does not talk about quantum physics. Quantum physics is not wrong, and every heartbeat depends on it, but at the level of cells, muscles and blood its detail is summed up in a few reliable rules. Working at that level is what makes the problem possible to think about. Every mature field controls complexity this way, and each level can be trusted only as far as the level below has been measured to behave as assumed.</p>
+<p>Work with AI has no such levels yet. Every interaction happens at the bottom: prompt wording, tool permissions, model versions, and the agent's own account of what it did. This paper proposes a higher level, and a way to test it.</p>
+<p><strong>The level.</strong> <a href="https://github.com/runcor-ai/jig">Jig</a> is a small scripting language that describes AI work in terms of <em>requirements</em>, <em>steps</em>, <em>results</em> and <em>checks</em>. A step such as <code>build(spec)</code> is a contract: what the agent may do, what its answer must contain, and how code checks the answer before the next step may use it. The prompts, tools, retries and records sit one level down, written once.</p>
+<p><strong>The measurement.</strong> <a href="https://therealityengine.ca">The Reality Engine</a> tests AI systems "the way science tests ideas": every option on the same unseen cases, with the rules locked in advance and a sealed final check. Here it measures Jig itself. Four ways of building software from a requirements brief (the builder reading the spec as prose or as the FACTS notes that won the engine's first case study, built by Claude Opus or by the small, cheap GPT-6 Luna) were scored by hidden acceptance tests that no builder ever saw.</p>
+<p><strong>The result.</strong> <span class="todo"><span class="todo">[TO FILL from the pilot's trust report: the trust score, the verdict and the main comparison.]</span></span></p>
+<p>The pilot is small, 12 briefs and 72 hidden checks, and its ranges are wide. What it shows is the bridge working end to end: a way of working, defined precisely enough by Jig to be a candidate, measured by the Reality Engine with a trust score and a stated range.</p>
+
+<h2 id="01-the-problem-complexity-not-capability" class="sec"><span class="secnum">01</span><span class="sectitle">The problem: complexity, not capability</span></h2>
+<p>Modern AI agents are capable. Given a one-line brief, an agent can produce a working browser game in a few minutes. The difficulty is everything around that capability. To use an agent well, a person has to manage the wording of the prompt, the tools the agent may use and what it could do with them, whether its report ("all tests pass") is true, what went wrong when something did, how often the same request gives a good result, and which model, version and settings were used.</p>
+<p>Each of these is manageable alone. Together, across many tasks, people and teams, they are not. The usual answer is to tune by opinion: change a prompt, try a few demos, keep what looks better. A good demo does not make a reliable system, and a system nobody can reason about cannot be made reliable.</p>
+<p>The limiting factor is not what the model can do. It is how much complexity a person must hold in mind to use it, and how little of what the agent claims has been checked.</p>
+
+<h2 id="02-the-idea-levels-of-description" class="sec"><span class="secnum">02</span><span class="sectitle">The idea: levels of description</span></h2>
+<p>Every mature field handles complexity the same way: it works at a level of description with its own vocabulary, and sums up the level below in rules it can rely on. Anderson made the argument for science in 1972: each level has its own laws, and knowing the level below does not remove the need for them (Anderson, 1972). Software engineering made the same move with layered systems and information hiding (Dijkstra, 1968; Parnas, 1972), and with contracts that say what a component promises (Meyer, 1992).</p>
+<div class="tblwrap"><table class="tbl">
+<thead><tr><th>Field</th><th>Lower level</th><th>Higher level</th><th>What the higher level says</th></tr></thead>
+<tbody>
+<tr><td data-label="Field"><div class="v">Science</div></td><td data-label="Lower level"><div class="v">Quantum physics</div></td><td data-label="Higher level"><div class="v">Chemistry, then biology</div></td><td data-label="What the higher level says"><div class="v">"This enzyme speeds up this reaction"</div></td></tr>
+<tr><td data-label="Field"><div class="v">Computing</div></td><td data-label="Lower level"><div class="v">Transistors, machine code</div></td><td data-label="Higher level"><div class="v">Programming languages</div></td><td data-label="What the higher level says"><div class="v">"Sort this list"</div></td></tr>
+<tr><td data-label="Field"><div class="v">Engineering</div></td><td data-label="Lower level"><div class="v">Material behaviour</div></td><td data-label="Higher level"><div class="v">Components with ratings</div></td><td data-label="What the higher level says"><div class="v">"This bolt holds 10 kN"</div></td></tr>
+<tr><td data-label="Field"><div class="v">AI work (this paper)</div></td><td data-label="Lower level"><div class="v">Prompts, tools, tokens, models</div></td><td data-label="Higher level"><div class="v">Requirements, steps, results, checks</div></td><td data-label="What the higher level says"><div class="v">"Built, tested and verified against these requirements"</div></td></tr>
+</tbody>
+</table>
+</div><p>Three properties make a level useful: its own <strong>vocabulary</strong>, <strong>hidden detail</strong> (summed up, not removed: one can always go down a level and look), and <strong>known limits</strong>. A bolt is rated; a chemical rule holds over a range of conditions. The third property is the one most often missed. A level of description is only as good as the evidence that it holds, and that evidence comes from measurement on cases nobody chose to make it look good.</p>
+<p>This paper therefore has two halves. Jig supplies the level (section 03). The Reality Engine supplies the measurement (sections 04 to 07).</p>
+
+<h2 id="03-jig-a-level-of-description-for-ai-work" class="sec"><span class="secnum">03</span><span class="sectitle">Jig: a level of description for AI work</span></h2>
+<p>A Jig script talks only about the things a person cares about. This is the core of the game factory used in this paper (Appendix A gives the whole script):</p>
+<pre><code>spec = specify("Build the browser game described in the brief", brief=brief,
+               constraints=STACK, format=format, agent="opus")
+build(spec, test_run=TEST, agent=builder)
+t = test(spec, run=TEST, expect_files=["dist/index.html"])
+v = verify(spec, agent="opus")
+for attempt in range(MAX_FIXES):
+    if t.status == "completed" and v.output.verdict.result == "pass":
+        break
+    build(spec, notes=gaps_found_by_verify, agent=builder)</code></pre>
+<p>The script never mentions a prompt, a tool permission, a retry or a log file. Those exist one level down, in each step's definition: a prompt template, a tool policy (for example, <code>verify</code> may read code but not change it, and <code>build</code> cannot run <code>docker</code> or read system information), the exact format the answer must have, and the code checks that run on it. Only a step reaches an AI agent, and a step is always its own line, so every AI interaction is visible to a reader. Everything else (the ifs, loops, lists and text handling) runs locally and costs nothing.</p>
+<p>Each word at this level is backed by code, not by the agent's word:</p>
+<ul>
+<li><strong>Built</strong>: every file the agent says it created exists, and no secrets were written.</li>
+<li><strong>Tested</strong>: the real test commands ran and the real JUnit reports say they passed. No AI takes part in this step.</li>
+<li><strong>Verified</strong>: every requirement was checked against the code; every function cited as evidence appears in the file named, and every test cited exists in the recorded run. The verdict is computed by code: "pass" only if every must-have requirement is satisfied and the tests passed.</li>
+</ul>
+<p>Two features were added to connect Jig to the Reality Engine. A step can name its agent, <code>agent="luna"</code>, so the same script runs with Claude Opus through Claude Code or GPT-6 Luna through Codex, each inside its own tool boundary. And <code>specify(format="facts")</code> writes the spec as FACTS notes, the winning format of the Reality Engine's first case study: one short fact per line under THINGS, VALUES, RULES, LINKS and TIMING (Appendix A). The build step then reads the notes instead of the prose spec.</p>
+
+<h2 id="04-how-the-experiment-works" class="sec"><span class="secnum">04</span><span class="sectitle">How the experiment works</span></h2>
+<p>The question is the one the Reality Engine asks of any system: how far can this way of working be trusted, and what makes it better? Here a <em>way of working</em> is the trial pipeline of Appendix A with two choices.</p>
+<div class="tblwrap"><table class="tbl">
+<thead><tr><th>Way of working</th><th>The builder reads</th><th>The builder is</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td data-label="Way of working"><div class="v">OPUS_PROSE</div></td><td data-label="The builder reads"><div class="v">the prose spec</div></td><td data-label="The builder is"><div class="v">Claude Opus</div></td><td data-label="Role"><div class="v">control: the game factory as it works today</div></td></tr>
+<tr><td data-label="Way of working"><div class="v">OPUS_FACTS</div></td><td data-label="The builder reads"><div class="v">FACTS notes</div></td><td data-label="The builder is"><div class="v">Claude Opus</div></td><td data-label="Role"><div class="v">does FACTS help a strong builder?</div></td></tr>
+<tr><td data-label="Way of working"><div class="v">LUNA_PROSE</div></td><td data-label="The builder reads"><div class="v">the prose spec</div></td><td data-label="The builder is"><div class="v">GPT-6 Luna</div></td><td data-label="Role"><div class="v">can a small, cheap builder do the work?</div></td></tr>
+<tr><td data-label="Way of working"><div class="v">LUNA_FACTS</div></td><td data-label="The builder reads"><div class="v">FACTS notes</div></td><td data-label="The builder is"><div class="v">GPT-6 Luna</div></td><td data-label="Role"><div class="v">does FACTS close the gap, as it did for reasoning?</div></td></tr>
+</tbody>
+</table>
+</div><p>Everything else is held the same: Claude Opus always writes the spec and does the verification, the stack and the test commands are the same, and every way of working gets up to two fix rounds fed by what the tests and verification found.</p>
+<p><strong>Items.</strong> Twelve short briefs for browser games (tic-tac-toe, bowling, minesweeper, 2048, four in a row, hangman; and, sealed, the game of life, a code breaker, a box pusher, blackjack, lights out and dice poker). Each brief asks for a playable game and for its rules as named functions in <code>src/logic.ts</code>. Each brief has six hidden acceptance checks, 72 in all. The six checks of a brief share one build and form a cluster, so ranges resample briefs, not checks.</p>
+<p><strong>Scoring.</strong> After the pipeline finishes, the hidden checks are copied into the built app and run with the Reality Engine pack's own test configuration. A check scores 1 if it passes. A build that failed, has no <code>src/logic.ts</code> or does not compile scores 0 on all six: the way of working did not deliver. The user interface is not scored.</p>
+<p><strong>Stages.</strong> The engine's compare step runs all four ways of working on the six comparison briefs (36 checks). The best one then meets the control and its closest rival on the six sealed briefs (36 checks), opened once. The designer stages (take apart and build out) are not used in this pilot.</p>
+<p><span class="todo"><span class="todo">[FIGURE: the bridge between Jig and the Reality Engine]</span></span></p>
+
+<h2 id="05-how-we-kept-it-honest" class="sec"><span class="secnum">05</span><span class="sectitle">How we kept it honest</span></h2>
+<p>The Reality Engine's rules apply unchanged; this pack adds four of its own.</p>
+<ul>
+<li><strong>Locked in advance.</strong> The plan, the engine and the pack's code were fingerprinted before the first build (lock <code>c26f60c19057c895</code>, 14 November 2026, 14:14). The engine's lock covers only code files, so the pack ships <code>frozen.py</code>, the sha256 of every brief, hidden test, reference implementation and the trial pipeline; the pack refuses to start if any of them has changed.</li>
+<li><strong>Hidden tests proven first.</strong> Every hidden test was run against a reference implementation of its brief, and all 72 pass (<code>check_references.py</code>). A wrong test would otherwise punish a correct build.</li>
+<li><strong>The builder never sees the exam.</strong> Hidden tests are copied in only after the pipeline has finished, and the pack voids any build whose agent event logs mention the hidden tests' folder or file names.</li>
+<li><strong>A fixed control and a sealed check.</strong> The control is the game factory as it works today. The sealed briefs were written with the others, frozen, and run only in the final check.</li>
+<li><strong>Failures count.</strong> A build that fails scores 0 on all its checks and is never dropped. Infrastructure failures (a service outage or a usage limit) stop the run for a person and are never scored.</li>
+</ul>
+<p>One rule could not be kept as strictly as in the engine's own case study: the author wrote the briefs, the hidden tests and the pipeline, and also saw the one live test build (on a comparison brief, through a separate folder) that checked the wiring before the lock. Nothing was tuned on it.</p>
+
+<h2 id="06-the-run-at-a-glance" class="sec"><span class="secnum">06</span><span class="sectitle">The run at a glance</span></h2>
+<p><span class="todo"><span class="todo">[FIGURE: dashboard screenshot during the run, and run totals]</span></span></p>
+
+<h2 id="07-results" class="sec"><span class="secnum">07</span><span class="sectitle">Results</span></h2>
+<p><span class="todo"><span class="todo">[TO FILL from the pilot's analysis and trust report]</span></span></p>
+
+<h2 id="08-what-can-be-improved" class="sec"><span class="secnum">08</span><span class="sectitle">What can be improved</span></h2>
+<ul>
+<li><strong>Size.</strong> Twelve briefs is a pilot. With six sealed briefs, only a large difference can be told apart from chance.</li>
+<li><strong>Logic, not play.</strong> The hidden checks test the game rules through a stated interface. They say nothing about whether the game is pleasant to play, looks right, or handles the keyboard well.</li>
+<li><strong>Briefs that state an interface.</strong> Every brief spells out the functions it wants. Real requirements rarely do, and a brief that leaves the interface open would need a different kind of hidden test, such as driving the page in a browser.</li>
+<li><strong>One author.</strong> The same person wrote the briefs, the tests and the pipeline. An independent set of briefs and tests would be stronger evidence.</li>
+<li><strong>Coarser boundaries for Luna.</strong> Codex cannot express Jig's per-command allow and deny lists, so Luna's build ran in a workspace-write sandbox, a coarser boundary than Claude Code's. This does not change the scoring, but it is a difference between the two builders.</li>
+<li><strong>The designer stages were not run.</strong> Taking the winner apart and building out new versions of the spec prompt, the build prompt or the fix-round policy is the obvious next step.</li>
+</ul>
+
+<h2 id="09-related-work" class="sec"><span class="secnum">09</span><span class="sectitle">Related work</span></h2>
+<p>Others have built agent pipelines for software, scored code with hidden tests, and let models correct their own output. As far as the author is aware, no earlier work measures a whole <em>way of working with AI</em> as a pre-registered candidate, on a sealed set, with a trust score and its range.</p>
+<div class="tblwrap"><table class="tbl">
+<thead><tr><th>What this work does</th><th>Closest other work</th></tr></thead>
+<tbody>
+<tr><td data-label="What this work does"><div class="v">Describes AI work as steps with contracts: tool boundaries, an exact answer format, and code checks that must pass before a result is used</div></td><td data-label="Closest other work"><div class="v">DSPy declares typed signatures for model calls and optimises their prompts (Khattab et al., 2023); LMQL constrains generation in a query language (Beurer-Kellner et al., 2023). Neither checks claims against the workspace or a recorded test run.</div></td></tr>
+<tr><td data-label="What this work does"><div class="v">Fixed, readable pipelines for building software</div></td><td data-label="Closest other work"><div class="v">MetaGPT encodes standard operating procedures as roles that pass documents (Hong et al., 2023); ChatDev runs a team of chatting agents through a waterfall (Qian et al., 2023). Both organise the agents; neither makes the steps checkable contracts.</div></td></tr>
+<tr><td data-label="What this work does"><div class="v">Fix rounds driven by code checks and real tests</div></td><td data-label="Closest other work"><div class="v">Reflexion and Self-Refine improve output with the model's own feedback (Shinn et al., 2023; Madaan et al., 2023). Here the feedback comes from tests that really ran and from verification checked against the code.</div></td></tr>
+<tr><td data-label="What this work does"><div class="v">Scoring by hidden tests the builder never sees</div></td><td data-label="Closest other work"><div class="v">HumanEval and SWE-bench score code by tests (Chen et al., 2021; Jimenez et al., 2023), and SWE-agent shows the interface shapes the result (Yang et al., 2024). They rank models and agents on fixed public benchmarks; this work ranks ways of working, with rules locked before the run.</div></td></tr>
+<tr><td data-label="What this work does"><div class="v">A pre-registered, sealed, clustered trust score for a way of working</div></td><td data-label="Closest other work"><div class="v">The Reality Engine's first case study did this for note formats (Describing Reality for AI, 2026). Judges built from models (Zheng et al., 2023) are not used for the score here; hidden tests are.</div></td></tr>
+</tbody>
+</table>
+</div><p>Appendix C discusses each in more detail.</p>
+
+<h2 id="10-conclusion-and-what-comes-next" class="sec"><span class="secnum">10</span><span class="sectitle">Conclusion and what comes next</span></h2>
+<p><span class="todo"><span class="todo">[TO FILL after the results]</span></span></p>
+<p>Next steps: a larger set of briefs written by someone other than the author; briefs that leave the interface open, scored in a browser; the designer stages on the winning way of working; other kinds of work (research memos, policy answers, contract reviews), where the Reality Engine already lists policy, compliance and operations among its uses; and small spot checks after a full run, as the Reality Engine proposes, to see that a way of working stays within tolerance as models change.</p>
+
+<h2 id="appendix-a-jig-use-it-yourself" class="sec"><span class="secnum">Appendix A</span><span class="sectitle">Jig: use it yourself</span></h2>
+<h3>A.1 The trial pipeline</h3>
+<p>This is the exact script every way of working ran (<code>experiments/trust/jig_trust/trial.jig</code>). Only <code>format</code> and <code>builder</code> differ between them.</p>
+<pre><code>STACK = ["React + TypeScript + Vite, no backend",
+         "Vitest + @testing-library/react with jsdom for tests",
+         "Game logic in pure functions separate from rendering, so it can be unit tested"]
+TEST = ["npm install --no-audit --no-fund",
+        "npx vitest run --reporter=junit --outputFile=test-results/junit.xml",
+        "npm run build"]
+MAX_FIXES = 2
+
+spec = specify(f"Build the browser game described in the brief ({id})", brief=brief,
+               constraints=STACK, id=id, format=format, agent="opus")
+if spec.status != "completed":
+    fail(f"{id}: specify failed")
+b = build(spec, test_run=TEST, agent=builder)
+if b.status != "completed":
+    fail(f"{id}: build failed")
+t = test(spec, run=TEST, expect_files=["dist/index.html"])
+v = verify(spec, agent="opus")
+
+fixes = 0
+for attempt in range(MAX_FIXES):
+    if t.status == "completed" and v.output and v.output.verdict.result == "pass":
+        break
+    gaps = []
+    if v.output:
+        for item in v.output.items:
+            if item.status != "satisfied":
+                gaps.append(f"{item.id}: {item.notes}")
+    if t.status != "completed":
+        gaps.append("the test run failed; make every test and the production build pass")
+    build(spec, test_run=TEST, notes="; ".join(gaps), agent=builder)
+    t = test(spec, run=TEST, expect_files=["dist/index.html"])
+    v = verify(spec, agent="opus")
+    fixes += 1</code></pre>
+<h3>A.2 FACTS notes in a spec</h3>
+<p>With <code>format="facts"</code>, <code>specify</code> also writes the spec as FACTS notes, using the Reality Engine's published rule: "Write every fact as one short bullet in key-value form: 'name: value' or 'a -&gt; b: relation'. One fact per bullet, no prose, no repetition. Put each fact under the section it belongs to." Jig checks that the notes have all five headings and name every requirement. An excerpt from the live test build of tic-tac-toe:</p>
+<pre><code>## THINGS
+- logic: src/logic.ts
+- Mark: 'X' | 'O'
+- Game: { board: Cell[]; turn: Mark }
+- new_game_button: button 'New game'
+## VALUES
+- board.length: 9
+- board.order: row by row, index 0 = top left</code></pre>
+<h3>A.3 Running it</h3>
+<pre><code>py -m jig run trial.jig --var id=TICTAC-001 --var brief=requirements/tictac.md \
+    --var format=facts --var builder=luna --continue-on-error</code></pre>
+
+<h2 id="appendix-b-the-data-and-the-code" class="sec"><span class="secnum">Appendix B</span><span class="sectitle">The data and the code</span></h2>
+<ul>
+<li><strong>Jig</strong>, with the language, the commands, the Codex adapter and the FACTS option: <a href="https://github.com/runcor-ai/jig">github.com/runcor-ai/jig</a>.</li>
+<li><strong>The pack</strong> (<code>experiments/trust/jig_trust/</code>): the briefs, the hidden tests, the reference implementations, the trial pipeline, <code>frozen.py</code> and <code>pack.py</code>. <code>check_references.py</code> proves the hidden tests; <code>plan_offline.json</code> runs the whole engine with stand-ins at no cost.</li>
+<li><strong>The run</strong> (<code>experiments/trust/work/pilot1/</code>): the lock, the state with every decision as an event, every record, the analysis and the trust report.</li>
+<li><strong>The dashboard</strong> (<code>experiments/trust/dashboard/</code>): a read-only view of any Reality Engine work folder.</li>
+<li><strong>The Reality Engine</strong>: <a href="https://github.com/LLMJester/reality-engine">github.com/LLMJester/reality-engine</a>, run unchanged; the pack is loaded from the Jig repository.</li>
+</ul>
+
+<h2 id="appendix-c-related-work-in-detail" class="sec"><span class="secnum">Appendix C</span><span class="sectitle">Related work in detail</span></h2>
+<p><strong>Levels of description.</strong> Anderson (1972) argued that each level of science has its own laws, and that "the ability to reduce everything to simple fundamental laws does not imply the ability to start from those laws and reconstruct the universe". Dijkstra (1968) built an operating system as a hierarchy of layers, each using only the one below. Parnas (1972) proposed dividing a system so that each module hides a design decision. Meyer (1992) made the promises between components explicit as contracts. Jig applies the same ideas to steps done by AI agents.</p>
+<p><strong>Programming with language models.</strong> DSPy (Khattab et al., 2023) declares what a model call takes and returns, and compiles pipelines by optimising prompts against a metric. It is the closest in spirit, but it tunes prompts against a score rather than checking each claim against the real workspace, and it does not report a pre-registered trust score. LMQL (Beurer-Kellner et al., 2023) constrains what a model may generate.</p>
+<p><strong>Agent teams for software.</strong> MetaGPT (Hong et al., 2023) gives agents roles and standard operating procedures, and passes structured documents between them. ChatDev (Qian et al., 2023) runs chatting agents through design, coding and testing. SWE-agent (Yang et al., 2024) shows that the interface an agent works through changes how well it does.</p>
+<p><strong>Self-correction.</strong> Reflexion (Shinn et al., 2023) and Self-Refine (Madaan et al., 2023) let a model critique and revise its own output. In Jig, fix rounds are driven by external facts: tests that really ran, and verification whose citations are checked.</p>
+<p><strong>Evaluation.</strong> HumanEval (Chen et al., 2021) and SWE-bench (Jimenez et al., 2023) score code with tests. Judges built from language models (Zheng et al., 2023) are common, and agree with people reasonably well, but they are not used for scores here. The Reality Engine adds what these benchmarks do not set out to do: rules locked in advance, a fixed control, a sealed final check opened once, and corrections that allow for luck among many candidates.</p>
+
+<h2 id="references" class="sec">References</h2>
+<ul>
+<li>Anderson, P. W. (1972). More is different. <em>Science</em>, 177(4047), 393–396.</li>
+<li>Beurer-Kellner, L., Fischer, M., &amp; Vechev, M. (2023). Prompting is programming: A query language for large language models. <em>PLDI 2023</em>. arXiv:2212.06094.</li>
+<li>Chen, M., et al. (2021). Evaluating large language models trained on code. arXiv:2107.03374.</li>
+<li>Describing Reality for AI (2026). White paper, final v0.1.0, run 5 (29–31 October 2026, updated 1 November 2026). <a href="https://therealityengine.ca/paper/">therealityengine.ca/paper</a>.</li>
+<li>Dijkstra, E. W. (1968). The structure of the "THE"-multiprogramming system. <em>Communications of the ACM</em>, 11(5), 341–346.</li>
+<li>Hong, S., et al. (2023). MetaGPT: Meta programming for a multi-agent collaborative framework. arXiv:2308.00352.</li>
+<li>Jimenez, C. E., et al. (2023). SWE-bench: Can language models resolve real-world GitHub issues? arXiv:2310.06770.</li>
+<li>Khattab, O., et al. (2023). DSPy: Compiling declarative language model calls into self-improving pipelines. arXiv:2310.03714.</li>
+<li>Madaan, A., et al. (2023). Self-Refine: Iterative refinement with self-feedback. arXiv:2303.17651.</li>
+<li>Meyer, B. (1992). Applying "design by contract". <em>IEEE Computer</em>, 25(10), 40–51.</li>
+<li>Parnas, D. L. (1972). On the criteria to be used in decomposing systems into modules. <em>Communications of the ACM</em>, 15(12), 1053–1058.</li>
+<li>Qian, C., et al. (2023). ChatDev: Communicative agents for software development. arXiv:2307.07924.</li>
+<li>Shinn, N., et al. (2023). Reflexion: Language agents with verbal reinforcement learning. arXiv:2303.11366.</li>
+<li>The Reality Engine (2026). How it works. <a href="https://therealityengine.ca/how-it-works.html">therealityengine.ca/how-it-works.html</a>.</li>
+<li>Yang, J., et al. (2024). SWE-agent: Agent-computer interfaces enable automated software engineering. arXiv:2405.15793.</li>
+<li>Zheng, L., et al. (2023). Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. arXiv:2306.05685.</li>
+</ul>
+
+</main>
+</div>

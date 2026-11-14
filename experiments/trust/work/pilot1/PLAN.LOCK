@@ -1,0 +1,20 @@
+{
+ "t": "2026-11-14T14:54:57",
+ "reason": "lock 3: take apart the script itself at the user's request (spec format, test step, verify step, fix rounds; 16 combinations on the comparison briefs); first take apart stopped and kept in void/; build out kept",
+ "sha256": "178cb9bc483f1a702436174b5f69f2e1166438858b81f726000f4bf5bfd35f2f",
+ "files": {
+  "engine/__init__.py": "18a38b2bb33b624f",
+  "engine/__main__.py": "f1ca3c25cd0c8734",
+  "engine/brief.py": "e7ae3a4c63e61e15",
+  "engine/pack.py": "ddebf126b660cf40",
+  "engine/plan.py": "8222ed303c45c9ed",
+  "engine/report.py": "d58ae55ea3b1a458",
+  "engine/runner.py": "8025e5a8543688a3",
+  "engine/stages.py": "936e275f1dc59e1f",
+  "engine/stats.py": "3f8a4bdcdbd199c0",
+  "pack/__init__.py": "e3b0c44298fc1c14",
+  "pack/frozen.py": "6fd590ad890cd966",
+  "pack/pack.py": "4ee1229b89944457",
+  "plan": "d43ae32c797a8633"
+ }
+}

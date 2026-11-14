@@ -1,8 +1,9 @@
 from .base import AgentAdapter, AgentRequest, AgentResponse, ToolPolicy
 from .claude_code import ClaudeCodeAdapter
+from .codex import CodexAdapter
 from .fixture import FixtureAdapter
 
-ADAPTERS = {"claude_code": ClaudeCodeAdapter}
+ADAPTERS = {"claude_code": ClaudeCodeAdapter, "codex": CodexAdapter}
 
 
 def make_adapter(name: str):
@@ -11,5 +12,5 @@ def make_adapter(name: str):
     return ADAPTERS[name]()
 
 
-__all__ = ["AgentAdapter", "AgentRequest", "AgentResponse", "ToolPolicy", "ClaudeCodeAdapter", "FixtureAdapter",
+__all__ = ["AgentAdapter", "AgentRequest", "AgentResponse", "ToolPolicy", "ClaudeCodeAdapter", "CodexAdapter", "FixtureAdapter",
            "make_adapter"]

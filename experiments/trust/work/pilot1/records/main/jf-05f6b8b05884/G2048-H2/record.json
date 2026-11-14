@@ -1,0 +1,14 @@
+{
+ "build": "jf-05f6b8b05884-G2048",
+ "app_id": "G2048LP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.3708,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_PROSE",
+ "item": "G2048-H2",
+ "stage": "compare"
+}

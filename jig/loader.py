@@ -44,7 +44,8 @@ import yaml
 
 BUILTIN_DIR = Path(__file__).resolve().parent / "commands"
 # Placeholders every template may use besides its own parameters (see jig/prompts.py).
-CONTEXT_PLACEHOLDERS = {"command", "artifact_id", "target", "parameters", "spec", "tests", "expected_ids",
+CONTEXT_PLACEHOLDERS = {"command", "artifact_id", "target", "parameters", "spec", "build_spec", "tests",
+                        "expected_ids",
                         "context", "workspace_state"}
 NAME_RE = re.compile(r"^[a-z][a-z0-9_]{0,39}$")
 TARGET_TYPES = {"text", "artifact", "artifact_or_text", "none"}

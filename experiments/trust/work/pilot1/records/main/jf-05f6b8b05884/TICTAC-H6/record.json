@@ -1,0 +1,14 @@
+{
+ "build": "jf-05f6b8b05884-TICTAC",
+ "app_id": "TICTACLP-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.3664,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_PROSE",
+ "item": "TICTAC-H6",
+ "stage": "compare"
+}

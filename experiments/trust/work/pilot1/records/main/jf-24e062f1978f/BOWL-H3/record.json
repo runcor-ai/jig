@@ -1,0 +1,14 @@
+{
+ "build": "jf-24e062f1978f-BOWL",
+ "app_id": "BOWLOP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.88,
+ "builder": "opus",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_PROSE",
+ "item": "BOWL-H3",
+ "stage": "compare"
+}

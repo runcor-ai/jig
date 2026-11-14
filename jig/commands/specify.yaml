@@ -5,6 +5,11 @@ parameters:
   constraints: {type: list, items: string, default: [], description: "Free-text constraints, e.g. ['React + TypeScript', 'no backend']"}
   brief: {type: path, default: null, description: Optional file with extra requirements (untrusted data)}
   id: {type: string, default: null, description: Explicit artifact id, e.g. PONG-001}
+  format:
+    type: string
+    enum: [prose, facts]
+    default: prose
+    description: "facts: also write the spec as FACTS notes (THINGS, VALUES, RULES, LINKS, TIMING), which build then reads instead of the prose spec"
 artifact: create
 tool_policy: none
-validators: [unique_ids, constraints_reflected]
+validators: [unique_ids, constraints_reflected, facts_format]

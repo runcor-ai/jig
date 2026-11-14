@@ -1,0 +1,59 @@
+{
+ "step": "takeapart_run",
+ "events": [
+  {
+   "t": "2026-11-14T14:16:21",
+   "msg": "compare: 4 founders x 36 items"
+  },
+  {
+   "t": "2026-11-14T14:26:34",
+   "msg": "compare: 4 founders x 36 items"
+  },
+  {
+   "t": "2026-11-14T14:49:42",
+   "msg": "compare done: winner LUNA_FACTS, runner-up LUNA_PROSE (tied at the top)"
+  },
+  {
+   "t": "2026-11-14T14:49:56",
+   "msg": "takeapart: 3 new versions written and frozen (hash ab80d89ce7322d1a)"
+  },
+  {
+   "t": "2026-11-14T14:49:56",
+   "msg": "take apart: versions approved; the factorial starts"
+  },
+  {
+   "t": "2026-11-14T14:49:56",
+   "msg": "take apart: 8 designs x 36 items"
+  },
+  {
+   "t": "2026-11-14T14:54:57",
+   "msg": "take apart restarted (lock 3): the script itself is taken apart (spec format, test step, verify step, fix rounds); the first take apart (spec and build guidance) was stopped and moved to void/"
+  },
+  {
+   "t": "2026-11-14T14:55:06",
+   "msg": "takeapart: 4 new versions written and frozen (hash 8efe82550ae77ce0)"
+  },
+  {
+   "t": "2026-11-14T14:55:06",
+   "msg": "take apart: versions approved; the factorial starts"
+  },
+  {
+   "t": "2026-11-14T14:55:06",
+   "msg": "take apart: 16 designs x 36 items"
+  }
+ ],
+ "history": [],
+ "progress": {},
+ "winner": "LUNA_FACTS",
+ "winner_id": "jf-644ca21fc68b",
+ "runner_up": "LUNA_PROSE",
+ "top": {},
+ "best": {
+  "label": "LUNA_FACTS",
+  "id": "jf-644ca21fc68b",
+  "folder": "main",
+  "items": "compare",
+  "from": "compare"
+ },
+ "round": 1
+}

@@ -47,6 +47,7 @@ A later definition with the same name replaces an earlier one, and `jig commands
 | `$<param>` | Each parameter. Lists of strings render as bullets; `path` parameters render as the file's content (fence it in `<data>`). |
 | `$parameters` | All parameters as JSON |
 | `$spec` | The artifact's `specify` output |
+| `$build_spec` | The spec as a builder reads it: the FACTS notes when `specify` wrote them (`format="facts"`), otherwise the full spec |
 | `$tests` | The artifact's recorded test results |
 | `$expected_ids` | The requirement ids from the spec |
 | `$context` | Every stage output of the artifact (only computed if used) |
@@ -67,6 +68,7 @@ A later definition with the same name replaces an earlier one, and `jig commands
 | `evidence_files_exist`, `evidence_symbols_exist` | Cited files exist and the cited symbols occur in them |
 | `test_evidence_matches_results` | Cited test names exist in the recorded test run |
 | `research_findings_sourced`, `research_min_sources`, `research_sources_retrieved` | Every finding cites a listed source; enough sources; every URL appears in the session's own WebSearch/WebFetch log |
+| `facts_format` | With `format="facts"`: the FACTS notes have all five headings, are one-line bullets, and name every requirement id |
 
 ## Built-in commands
 

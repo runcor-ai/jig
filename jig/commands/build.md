@@ -3,7 +3,7 @@
 You are working in the artifact workspace (your current directory). Implement the specification below as working software. Write every file inside the current directory. Do not create or modify a `.claude` directory.
 
 Specification:
-<data name="spec">$spec</data>
+<data name="spec">$build_spec</data>
 
 Caller notes:
 <data name="notes">$notes</data>

@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-CONN4",
+ "app_id": "CONN4LF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.33,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D01",
+ "item": "CONN4-H6",
+ "stage": "takeapart"
+}

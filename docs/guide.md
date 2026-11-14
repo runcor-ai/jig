@@ -145,6 +145,7 @@ Run `py -m jig commands` to see every loaded command and where it came from.
 | `constraints=[...]` | Rules the spec must follow, e.g. `["React + TypeScript", "no backend"]`. Each must be restated in the spec, and this is checked. |
 | `brief="path.md"` | A file with fuller requirements, inside the project. It is given to the agent as data, not as instructions. |
 | `id="ABC-001"` | The exact id to create. Without it, the id comes from the agent's short code and the next free number. |
+| `format="facts"` | Also write the spec as FACTS notes: one short fact per line under THINGS, VALUES, RULES, LINKS and TIMING, the format that won [The Reality Engine](https://therealityengine.ca)'s first case study. `build` then reads the notes instead of the prose spec. Jig checks that all five headings are there and that every requirement id appears. Default `prose`. |
 
 **Result fields** (`spec.output.<field>`): `title`, `summary`, `requirements` (each with `id` such as
 `R-01`, `title`, `description`, `priority` = `must`/`should`/`could`, `acceptance`), `constraints_applied`,
@@ -258,6 +259,13 @@ own.
 | Parameter | Meaning |
 |---|---|
 | `max_attempts=N` | How many tries the agent gets (default 2; `build` gets 1, because a second try would run on top of half-written code) |
+| `agent="luna"` | Which AI does this step. Named agents are defined in `jig.yaml` under `agents:`; the defaults are `opus` and `sonnet` (Claude Code) and `luna` (GPT-6 Luna through the Codex CLI). Without it, the step uses the default agent. |
+
+**Named agents and their boundaries.** A Claude Code agent gets exactly the tools and allow/deny rules of the
+command's tool policy. A Codex agent runs in Codex's own sandbox instead: read-only for commands that only read,
+and workspace-write (with network, so `npm install` works) for commands that write or run commands. That
+boundary is coarser, because Codex cannot express per-command allow and deny lists, and Codex agents cannot do
+`research` (web search is off).
 
 ---
 

@@ -1,0 +1,319 @@
+{
+ "compare": {
+  "main": {
+   "n_items": 36,
+   "dropped": 0,
+   "mcb_q95": 0.0,
+   "designs": {
+    "OPUS_PROSE": {
+     "mean": 1.0,
+     "mean_exact": 1.0,
+     "range": [
+      1.0,
+      1.0
+     ],
+     "behind_best": 0.0,
+     "mcb_margin": 0.0,
+     "could_be_best": true
+    },
+    "OPUS_FACTS": {
+     "mean": 1.0,
+     "mean_exact": 1.0,
+     "range": [
+      1.0,
+      1.0
+     ],
+     "behind_best": 0.0,
+     "mcb_margin": 0.0,
+     "could_be_best": true
+    },
+    "LUNA_PROSE": {
+     "mean": 1.0,
+     "mean_exact": 1.0,
+     "range": [
+      1.0,
+      1.0
+     ],
+     "behind_best": 0.0,
+     "mcb_margin": 0.0,
+     "could_be_best": true
+    },
+    "LUNA_FACTS": {
+     "mean": 1.0,
+     "mean_exact": 1.0,
+     "range": [
+      1.0,
+      1.0
+     ],
+     "behind_best": 0.0,
+     "mcb_margin": 0.0,
+     "could_be_best": true
+    }
+   },
+   "leads_over_control": {
+    "OPUS_FACTS": {
+     "lead": 0.0,
+     "range": [
+      0.0,
+      0.0
+     ],
+     "p": 1.0,
+     "p_holm": 1.0,
+     "reject": false
+    },
+    "LUNA_PROSE": {
+     "lead": 0.0,
+     "range": [
+      0.0,
+      0.0
+     ],
+     "p": 1.0,
+     "p_holm": 1.0,
+     "reject": false
+    },
+    "LUNA_FACTS": {
+     "lead": 0.0,
+     "range": [
+      0.0,
+      0.0
+     ],
+     "p": 1.0,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "ranking": [
+    "LUNA_FACTS",
+    "LUNA_PROSE",
+    "OPUS_FACTS",
+    "OPUS_PROSE"
+   ]
+  },
+  "also": {},
+  "winner": "LUNA_FACTS",
+  "runner_up": "LUNA_PROSE",
+  "tie_at_top": true,
+  "top": {},
+  "by_level": {},
+  "pack": {
+   "builds": {
+    "jf-05f6b8b05884-BOWL": {
+     "app_id": "BOWLLP-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.7457,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-CONN4": {
+     "app_id": "CONN4LP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3386,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-G2048": {
+     "app_id": "G2048LP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3708,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-HANG": {
+     "app_id": "HANGLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3355,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-MINES": {
+     "app_id": "MINESLP-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.5858,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-TICTAC": {
+     "app_id": "TICTACLP-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.3664,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-BOWL": {
+     "app_id": "BOWLOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.88,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CONN4": {
+     "app_id": "CONN4OP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9158,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-G2048": {
+     "app_id": "G2048OP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.982,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-HANG": {
+     "app_id": "HANGOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.7574,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-MINES": {
+     "app_id": "MINESOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.8628,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-TICTAC": {
+     "app_id": "TICTACOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.7632,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-BOWL": {
+     "app_id": "BOWLOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9029,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CONN4": {
+     "app_id": "CONN4OF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 1.2315,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-G2048": {
+     "app_id": "G2048OF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0118,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-HANG": {
+     "app_id": "HANGOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.817,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-MINES": {
+     "app_id": "MINESOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.8186,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-TICTAC": {
+     "app_id": "TICTACOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.6686,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-BOWL": {
+     "app_id": "BOWLLF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6454,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CONN4": {
+     "app_id": "CONN4LF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.33,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-G2048": {
+     "app_id": "G2048LF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.393,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-HANG": {
+     "app_id": "HANGLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3893,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-MINES": {
+     "app_id": "MINESLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.383,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-TICTAC": {
+     "app_id": "TICTACLF-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.6565,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    }
+   }
+  }
+ }
+}

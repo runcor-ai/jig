@@ -1,0 +1,14 @@
+{
+ "build": "jf-4610ac42795c-HANG",
+ "app_id": "HANGOF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.817,
+ "builder": "opus",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_FACTS",
+ "item": "HANG-H5",
+ "stage": "compare"
+}

@@ -47,7 +47,7 @@ def main() -> int:
     calls = [s for s in walk(stmts) if isinstance(s, Statement)]
     for s in calls:
         c = cmds[s.command]
-        allowed = set(c["parameters"]) | {"max_attempts", "approval_required"}   # accepted by every command
+        allowed = set(c["parameters"]) | {"max_attempts", "approval_required", "agent"}   # accepted by every command
         for k in s.kwargs:
             if k not in allowed:
                 problems.append(f"line {s.line}: {s.command}() has no parameter '{k}' "

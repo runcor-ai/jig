@@ -1,0 +1,61 @@
+{
+ "name": "jig_trust_pilot1",
+ "about": "First live pilot of the Jig factory pack (2026-11-14): how far can a Jig way of building software be trusted, and does the builder reading the spec as FACTS notes (The Reality Engine's first case-study winner), or the builder being GPT-6 Luna instead of Claude Opus, change it? Four founders = spec format (prose, facts) x builder (opus, luna); Claude Opus always writes the spec and does the checking. OPUS_PROSE is the control: the game factory as it works today. Items: 12 game briefs, each with six hidden acceptance checks written, frozen (jig_trust/frozen.py) and proven on a reference implementation (check_references.py) before any run; 6 briefs (36 checks) for the comparison and 6 (36) sealed for the final check. Score: 1 per hidden check passed. Lock 1 had no designer stages. Too small to be a result: a test that the bridge works end to end, and a first trust score with wide ranges. LOCK 2 (14 Nov 2026, after 6 of 24 comparison builds had finished and 8 records were stored): the designer stages were added at the user's request. Take apart uses the comparison briefs (as The Reality Engine's pilot1 did); one build-out round uses 6 new briefs written then (3 to screen, 3 to confirm, hidden tests proven on references); the usage cap rose from $45 to $150. While pausing, 8 queued builds ran the new trial.jig with the old pack code and stopped at parse time; they were voided before any record was stored (C:/dev/jig-trials/builds/void/REASON.md) and are rebuilt. LOCK 3 (14 Nov 2026, after the comparison: all four founders scored 36/36, winner LUNA_FACTS on the tie-break): at the user's request the script itself is taken apart instead of guidance text: four parts (spec format, the test step, the verify step, the fix rounds), each alternative the step switched off, all 16 combinations on the comparison briefs. The first take apart was stopped and kept in work/pilot1/void/. Build out (designer text parts) is kept. trial.jig gained the three switches; with every step on it runs the same steps as before.",
+ "pack": "jig_trust.pack:JigFactoryPack",
+ "pack_options": {
+  "trials_dir": "C:/dev/jig-trials",
+  "max_builds": 5,
+  "max_cost_usd": 150.0
+ },
+ "work": "C:/dev/Lattice Script/experiments/trust/work/pilot1",
+ "control": "OPUS_PROSE",
+ "sets": {
+  "compare": "compare",
+  "takeapart": "compare",
+  "rounds": [
+   {
+    "screen": "r1_screen",
+    "confirm": "r1_confirm"
+   }
+  ],
+  "sealed": "sealed"
+ },
+ "final": {
+  "rivals": [
+   "control",
+   "runner_up"
+  ]
+ },
+ "run": {
+  "workers": 24,
+  "retries": 1,
+  "backoff": [
+   120,
+   600
+  ]
+ },
+ "stats": {
+  "boot": 10000,
+  "seed": 20261114,
+  "alpha": 0.05
+ },
+ "approval": "auto",
+ "takeapart": {
+  "slots": [
+   "format",
+   "tests",
+   "verify",
+   "fixes"
+  ]
+ },
+ "buildout": {
+  "slots": [
+   "spec_guidance",
+   "build_guidance"
+  ],
+  "per_slot": 2,
+  "screen_gate": 0.03,
+  "max_advance": 2,
+  "converge": 0.005
+ }
+}

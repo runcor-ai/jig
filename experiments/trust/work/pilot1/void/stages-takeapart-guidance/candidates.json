@@ -1,0 +1,25 @@
+{
+ "step": "takeapart",
+ "alts": {
+  "format": [
+   {
+    "value": "prose",
+    "rationale": "the other spec format (prose)"
+   }
+  ],
+  "spec_guidance": [
+   {
+    "value": "For every game rule, write a numbered requirement with one exact expected outcome: name the pure function that enforces it, its inputs and its return value, and the state before and after. List edge cases explicitly: boundaries such as the first and last moves, edges of the board or limits, empty and full states, ties, invalid or repeated input, and actions after the game is over. Use concrete example values. Never write 'etc.' or 'handle appropriately'.",
+    "rationale": "The score is already 1.0, so the only measured cost left is fix rounds (2 of 6 builds needed them). Fix rounds usually come from vague or missing edge-case rules that the builder's tests and the verifier read differently. Pinning each rule to a named function with exact inputs and outputs, before and after states, and concrete examples gives the builder and the verifier one clear reading. That sho"
+   }
+  ],
+  "build_guidance": [
+   {
+    "value": "Before coding, turn every rule in the spec into a numbered checklist. Keep game logic (state, moves, scoring, win/lose, edge cases) in pure functions separate from rendering and input, so it can be tested without a browser. Write one test per rule, plus boundary cases: first and last turn, invalid moves, ties, wrap-around, reset. Run the tests and fix any failures before finishing. Then re-read the checklist and confirm each rule has matching code and a passing test.",
+    "rationale": "The score is already 1.0, so the room left is fewer fix rounds (2 of 6 builds needed them). Checking each rule up front, keeping game logic separate from the display, and testing edge cases should catch the gaps the verifier now finds after the first build. That should cut fix rounds without lowering the score."
+   }
+  ]
+ },
+ "extras": {},
+ "hash": "ab80d89ce7322d1a"
+}

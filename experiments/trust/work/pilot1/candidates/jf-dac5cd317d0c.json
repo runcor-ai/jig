@@ -1,0 +1,8 @@
+{
+ "id": "jf-dac5cd317d0c",
+ "spec_guidance": "For every game rule, write a numbered requirement with one exact expected outcome: name the pure function that enforces it, its inputs and its return value, and the state before and after. List edge cases explicitly: boundaries such as the first and last moves, edges of the board or limits, empty and full states, ties, invalid or repeated input, and actions after the game is over. Use concrete example values. Never write 'etc.' or 'handle appropriately'.",
+ "build_guidance": "Before coding, turn every rule in the spec into a numbered checklist. Keep game logic (state, moves, scoring, win/lose, edge cases) in pure functions separate from rendering and input, so it can be tested without a browser. Write one test per rule, plus boundary cases: first and last turn, invalid moves, ties, wrap-around, reset. Run the tests and fix any failures before finishing. Then re-read the checklist and confirm each rule has matching code and a passing test.",
+ "format": "facts",
+ "builder": "luna",
+ "pipeline": "trial.jig"
+}

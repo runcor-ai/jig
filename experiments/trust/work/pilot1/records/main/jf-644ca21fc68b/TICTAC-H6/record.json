@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-TICTAC",
+ "app_id": "TICTACLF-001",
+ "pipeline_status": "completed",
+ "fixes": 2,
+ "cost_usd": 0.6565,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_FACTS",
+ "item": "TICTAC-H6",
+ "stage": "compare"
+}

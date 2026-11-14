@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-BOWL",
+ "app_id": "BOWLLF-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.6454,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_FACTS",
+ "item": "BOWL-H6",
+ "stage": "compare"
+}

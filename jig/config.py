@@ -47,6 +47,12 @@ DEFAULT_CONFIG: dict[str, Any] = {
                   "deny": ["Write(./.claude/**)", "Edit(./.claude/**)", "Bash(docker:*)",
                            "Bash(git push:*)", *INFO_LEAK_DENY]},
     },
+    # Named agents a script can pick per step: build(spec, agent="luna"). A step without agent= uses `agent` above.
+    "agents": {
+        "opus": {"adapter": "claude_code", "model": "opus"},
+        "sonnet": {"adapter": "claude_code", "model": "sonnet"},
+        "luna": {"adapter": "codex", "model": "gpt-6-luna"},      # GPT-6 Luna through the Codex CLI
+    },
     "retries": {"max_attempts": 2},
     "script": {
         "max_while_iterations": 10,   # a while loop whose condition is still true after this fails the script

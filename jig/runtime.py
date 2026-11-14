@@ -24,7 +24,7 @@ from .sandbox import make_sandbox
 from .store import ID_RE, Store, write_json
 from .validators import VALIDATORS, ValidationContext, finding
 
-CONTROL_KEYS = {"approval_required", "max_attempts"}
+CONTROL_KEYS = {"approval_required", "max_attempts", "agent"}
 FILE_TOOLS = {"Read", "Grep", "Glob", "Write", "Edit", "Bash"}
 MAX_UNTRUSTED_CHARS = 200_000
 
@@ -70,7 +70,9 @@ class Runtime:
         self.config = config or load_config(self.project_dir)
         self.commands = commands if commands is not None else load_commands(self.project_dir)
         self.store = Store(self.project_dir / self.config["store"])
+        self.injected_adapter = adapter is not None      # tests pass a fixture adapter: it serves every agent
         self.adapter = adapter or make_adapter(self.config["agent"]["adapter"])
+        self._adapters = {self.adapter.name: self.adapter}
         self.sandbox = make_sandbox(sandbox) if isinstance(sandbox, str) or sandbox is None else sandbox
         self.echo = echo
 
@@ -310,6 +312,26 @@ class Runtime:
         if self.echo:
             self.echo(f"    · {msg}")
 
+    def agent_for(self, ctx: ExecContext) -> tuple[Any, str | None, str | None]:
+        """(adapter, model, agent name) for this step: a named agent (agent="luna") or the default."""
+        name = ctx.controls.get("agent")
+        s = self.agent_settings(ctx.cmd)
+        if not name:
+            return self.adapter, s.get("model"), None
+        prof = (self.config.get("agents") or {}).get(name)
+        if not isinstance(prof, dict) or not prof.get("adapter"):
+            raise JigError("E_PARAM", f"unknown agent '{name}'. Known: "
+                                      f"{', '.join(sorted(self.config.get('agents') or {})) or 'none'} "
+                                      f"(define more under agents: in jig.yaml)")
+        if self.injected_adapter:
+            return self.adapter, prof.get("model"), name
+        if prof["adapter"] not in self._adapters:
+            try:
+                self._adapters[prof["adapter"]] = make_adapter(prof["adapter"])
+            except ValueError as e:
+                raise JigError("E_PARAM", str(e)) from None
+        return self._adapters[prof["adapter"]], prof.get("model"), name
+
     def invoke_agent(self, ctx: ExecContext, label: str, feedback: str | None = None):
         system, prompt = prompts.render(self, ctx)
         if feedback:
@@ -320,21 +342,23 @@ class Runtime:
         else:
             cwd = ctx.run_dir / "sandbox"   # empty dir: agents without workspace access see nothing
         s = self.agent_settings(ctx.cmd)
+        adapter, model, _ = self.agent_for(ctx)
         (ctx.run_dir / f"prompt-{label}.md").write_text(f"<!-- system -->\n{system}\n<!-- prompt -->\n{prompt}",
                                                         encoding="utf-8")
         req = AgentRequest(prompt=prompt, system=system, output_schema=ctx.cmd.schema, policy=policy, cwd=cwd,
-                           model=s.get("model"), effort=s.get("effort"), timeout_s=int(s.get("timeout_s", 1200)),
+                           model=model, effort=s.get("effort"), timeout_s=int(s.get("timeout_s", 1200)),
                            env=ctx.env(), sandbox=self.sandbox,
                            events_path=ctx.run_dir / f"agent-events-{label}.jsonl",
                            on_event=lambda m: self.progress(ctx, m), label=label)
-        return self.adapter.invoke(req)
+        return adapter.invoke(req)
 
     def _run_agent(self, ctx: ExecContext) -> tuple[Any, dict, dict]:
         cmd = ctx.cmd
         max_attempts = int(ctx.controls.get("max_attempts") or
                            (self.config["retries"]["max_attempts"] if cmd["idempotent"] else 1))
+        adapter, _, agent_name = self.agent_for(ctx)
         execution = {"model": None, "duration_ms": None, "token_usage": None, "cost_usd": None,
-                     "adapter": self.adapter.name, "attempts": 0, "permission_denials": []}
+                     "adapter": adapter.name, "agent": agent_name, "attempts": 0, "permission_denials": []}
         feedback, output, validation = None, None, {"passed": False, "findings": []}
         for attempt in range(1, max_attempts + 1):
             execution["attempts"] = attempt

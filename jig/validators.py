@@ -91,6 +91,31 @@ def constraints_reflected(ctx):
 
 
 
+FACTS_HEADINGS = ("THINGS", "VALUES", "RULES", "LINKS", "TIMING")
+
+
+@validator
+def facts_format(ctx):
+    """specify(format="facts"): the FACTS notes exist, use the five headings, and name every requirement."""
+    if (ctx.params or {}).get("format") != "facts":
+        return []
+    notes = ctx.output.get("facts") if isinstance(ctx.output, dict) else None
+    if not isinstance(notes, str) or not notes.strip():
+        return [finding("facts_format", "format is facts but `facts` is empty")]
+    out = []
+    heads = re.findall(r"^\s*#{1,3}\s*([A-Z]+)\s*$", notes, re.M)
+    for h in FACTS_HEADINGS:
+        if h not in heads:
+            out.append(finding("facts_format", f"FACTS notes have no '## {h}' section"))
+    bullets = [ln for ln in notes.splitlines() if ln.strip().startswith(("-", "*"))]
+    if len(bullets) < 3:
+        out.append(finding("facts_format", "FACTS notes must be one-line bullet facts"))
+    for rid in requirement_ids(ctx.output):
+        if rid not in notes:
+            out.append(finding("facts_format", f"requirement {rid} does not appear in the FACTS notes"))
+    return out
+
+
 @validator
 def unique_ids(ctx):
     dup = [i for i, n in Counter(_ids(ctx.output)).items() if n > 1]

@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# TRIAL PIPELINE: one way of working, used to build ONE game from ONE brief.
+#
+# The Reality Engine runs this script for every candidate and every brief, then
+# scores the finished game with hidden acceptance tests the builder never sees.
+#
+# A candidate is a set of choices, passed in as variables:
+#   format       "prose": the builder reads the normal spec
+#                "facts": the builder reads the spec as FACTS notes (short one-line
+#                         facts under THINGS, VALUES, RULES, LINKS, TIMING), the
+#                         format that won The Reality Engine's first case study
+#   builder      which AI writes the code: "opus" (Claude Opus) or "luna" (GPT-6 Luna)
+# The script's own steps, which the engine switches off one at a time and in every
+# combination to see what each one contributes (lock 3: taking the script apart):
+#   tests        "on": run the builder's tests for real and feed failures back; "off": skip
+#   verify_step  "on": Claude Opus checks every requirement against the code; "off": skip
+#   max_fixes    how many fix rounds are allowed (2 today; 0 = one build, as it comes)
+# Two text parts the engine's designer may rewrite in build out (empty today):
+#   spec_guidance    one extra rule for the spec writer, added to the constraints
+#   build_guidance   extra notes for the builder, given with every build
+# Other variables: id (the game's folder, e.g. TICTACLF-001) and brief (its file).
+#
+# With every step on and no guidance, this is exactly the game factory's way of working.
+#
+# Run (the engine does this):
+#   py -m jig --project <trials folder> run trial.jig --vars <vars.json> --continue-on-error --replace
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Rules every game follows (the same as the game factory, factory/game.jig).
+STACK = ["React + TypeScript + Vite, no backend",
+         "Vitest + @testing-library/react with jsdom for tests",
+         "Game logic in pure functions separate from rendering, so it can be unit tested"]
+
+# How the builder's own tests are run: install, run its unit tests, make the production build.
+# Without the test step, the builder is only asked to make the install and the production build work.
+TEST = ["npm install --no-audit --no-fund",
+        "npx vitest run --reporter=junit --outputFile=test-results/junit.xml",
+        "npm run build"]
+BUILD_ONLY = ["npm install --no-audit --no-fund", "npm run build"]
+RUN = TEST if tests == "on" else BUILD_ONLY
+
+
+# ── Step 1: the spec, always written by Claude Opus ──────────────────────────
+# With format "facts" the spec also carries FACTS notes, and the build step reads those instead.
+# Extra spec guidance (if any) is added to the constraints; when it is empty, the constraints are just STACK.
+CONSTRAINTS = STACK + ([spec_guidance] if spec_guidance else [])
+spec = specify(f"Build the browser game described in the brief ({id})", brief=brief,
+               constraints=CONSTRAINTS, id=id, format=format, agent="opus")
+if spec.status != "completed":
+    fail(f"{id}: specify failed")
+
+# The must-have requirements, used to decide whether verify found anything that has to be fixed.
+musts = []
+for r in spec.output.requirements:
+    if r.priority == "must":
+        musts.append(r.id)
+
+
+# ── Step 2: build with the chosen builder ────────────────────────────────────
+# Extra build guidance (if any) goes to the builder as notes; when it is empty, no notes are given.
+b = build(spec, test_run=RUN, notes=build_guidance if build_guidance else None, agent=builder)
+if b.status != "completed":
+    fail(f"{id}: build failed")
+
+
+# ── Steps 3-5: check, then fix what the checks found (each step can be switched off) ──
+fixes = 0
+for attempt in range(max_fixes + 1):
+
+    # Step 3, the test step: run the builder's tests for real (skipped when switched off).
+    tests_ok = true
+    if tests == "on":
+        t = test(spec, run=TEST, expect_files=["dist/index.html"])
+        tests_ok = t.status == "completed"
+
+    # Step 4, the verify step: Claude Opus checks every requirement (skipped when switched off).
+    # "Passes" means every must-have requirement is satisfied; any unsatisfied requirement is a gap.
+    verify_ok = true
+    gaps = []
+    if verify_step == "on":
+        v = verify(spec, agent="opus")
+        if v.output:
+            for item in v.output.items:
+                if item.status != "satisfied":
+                    gaps.append(f"{item.id}: {item.notes}")
+                    if item.id in musts:
+                        verify_ok = false
+        else:
+            verify_ok = false
+    if not tests_ok:
+        gaps.append("the test run failed; make every test and the production build pass")
+
+    # Done when every check that is switched on passes, when no fix rounds are left,
+    # or when no check is switched on (there is nothing to feed a fix round).
+    if (tests_ok and verify_ok) or attempt == max_fixes or len(gaps) == 0:
+        break
+
+    # Step 5, a fix round: the builder gets the to-do list, e.g. "R-02: winner not detected on diagonals".
+    todo = "; ".join(gaps)
+    build(spec, test_run=RUN, notes=(build_guidance + " | Fix: " + todo) if build_guidance else todo, agent=builder)
+    fixes += 1
+
+
+# ── Result: a line for the record. The engine's hidden tests decide the score. ─
+print(f"{id}: format {format}, builder {builder}, tests {tests}, verify {verify_step}, "
+      f"{fixes} of {max_fixes} fix round(s) used, checks passed: {tests_ok and verify_ok}")

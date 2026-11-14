@@ -1,0 +1,20 @@
+{
+ "t": "2026-11-14T15:03:03",
+ "reason": "pilot 2: the only lock; pre-registered before any build; design fixed (compare on 6 hard briefs, script take apart, one build-out round, 6 sealed briefs never opened)",
+ "sha256": "2660f8ee5c4e8f2f183afaa5e75e39d9382477e739894fdad9390fa05298cb43",
+ "files": {
+  "engine/__init__.py": "18a38b2bb33b624f",
+  "engine/__main__.py": "f1ca3c25cd0c8734",
+  "engine/brief.py": "e7ae3a4c63e61e15",
+  "engine/pack.py": "ddebf126b660cf40",
+  "engine/plan.py": "8222ed303c45c9ed",
+  "engine/report.py": "d58ae55ea3b1a458",
+  "engine/runner.py": "8025e5a8543688a3",
+  "engine/stages.py": "936e275f1dc59e1f",
+  "engine/stats.py": "3f8a4bdcdbd199c0",
+  "pack/__init__.py": "e3b0c44298fc1c14",
+  "pack/frozen.py": "24f93ff06fe13413",
+  "pack/pack.py": "8d47b1ac4f4f1f36",
+  "plan": "bf123bdd97b77cce"
+ }
+}

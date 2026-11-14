@@ -1,0 +1,67 @@
+{
+ "name": "jig_trust_offline",
+ "about": "Offline wiring test of the Jig factory pack: seeded stand-ins replace every build, so the engine and the pack can be checked end to end at no cost. Its numbers mean nothing.",
+ "pack": "jig_trust.pack:JigFactoryPack",
+ "pack_options": {
+  "offline": true,
+  "trials_dir": "C:/dev/Lattice Script/experiments/trust/work/offline-trials",
+  "compare_briefs": [
+   "POKER",
+   "REVERS",
+   "CHECKR",
+   "GOCAP",
+   "CRIB",
+   "CHESS"
+  ]
+ },
+ "work": "C:/dev/Lattice Script/experiments/trust/work/offline",
+ "control": "OPUS_PROSE",
+ "sets": {
+  "compare": "compare",
+  "takeapart": "compare",
+  "rounds": [
+   {
+    "screen": "r1_screen",
+    "confirm": "r1_confirm"
+   }
+  ],
+  "sealed": "sealed"
+ },
+ "final": {
+  "rivals": [
+   "control",
+   "runner_up"
+  ]
+ },
+ "run": {
+  "workers": 8,
+  "retries": 0,
+  "backoff": [
+   0
+  ]
+ },
+ "stats": {
+  "boot": 2000,
+  "seed": 20261114,
+  "alpha": 0.05
+ },
+ "approval": "auto",
+ "takeapart": {
+  "slots": [
+   "format",
+   "tests",
+   "verify",
+   "fixes"
+  ]
+ },
+ "buildout": {
+  "slots": [
+   "spec_guidance",
+   "build_guidance"
+  ],
+  "per_slot": 2,
+  "screen_gate": 0.03,
+  "max_advance": 2,
+  "converge": 0.005
+ }
+}

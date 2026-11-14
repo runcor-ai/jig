@@ -1,0 +1,8 @@
+{
+ "id": "jf-a7a55603a2ad",
+ "spec_guidance": "For every game rule, write a numbered requirement with one exact expected outcome: name the pure function that enforces it, its inputs and its return value, and the state before and after. List edge cases explicitly: boundaries such as the first and last moves, edges of the board or limits, empty and full states, ties, invalid or repeated input, and actions after the game is over. Use concrete example values. Never write 'etc.' or 'handle appropriately'.",
+ "build_guidance": "",
+ "format": "prose",
+ "builder": "luna",
+ "pipeline": "trial.jig"
+}
