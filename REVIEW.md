@@ -34,7 +34,7 @@ review(spec, criteria=["correctness", "readability"])   # a project-defined comm
 | Block unintended read-only auto-approvals with `--disallowedTools` | Yes, best-effort: a deny-list of information-leaking read-only commands. It is documented as a list, not a boundary. | `INFO_LEAK_DENY` in `lattice/config.py` |
 | Remove `bench.py` and dead code | Yes (`bench.py`, suites, results, decision and stack validators) | — |
 | `lattice commands` / `check` reflect loaded commands | Yes: source, overrides, searched directories; `check` validates definitions and tool policies | `lattice/cli.py` |
-| Tests pass against the new loader, variable syntax and batch runner | **72 tests pass** | `tests/` |
+| Tests pass against the new loader, variable syntax and batch runner | **85 tests pass** | `tests/` |
 
 ## Decisions made during the refactor (approved by the user)
 
@@ -54,12 +54,24 @@ review(spec, criteria=["correctness", "readability"])   # a project-defined comm
   uid 1000; `CapEff 0`; cannot write `/etc`. `sandbox.check()` correctly reports the missing token.
 - **New `specify`:** passed on the first attempt in 23s; 6 requirements; both constraints restated and checked.
 
+### After the follow-up hardening (also live, 2026-11-14)
+
+- **Hardening:** missing dotted paths fail with the exact path; templates are checked for undefined
+  `$placeholders`; the sandbox root filesystem is read-only (live: `/`, `/etc` and `/usr/local` refuse writes,
+  while `npm install`, `npx` and `claude` still work).
+- **Full Pong pipeline from an empty workspace:** specify → build → test → verify → review all passed on the
+  first attempt in about 3.5 min. Lattice's own test run: 36 tests and the production build passed. `verify`
+  covered all 10 requirements with checked evidence (verdict pass). `review` (the project command) found a
+  real ball-tunnelling bug.
+- **Live 3-way parallel research batch:** 3/3 completed in 36.5s, each first-attempt, with every cited URL
+  verified against its own session.
+
 ## Not verified
 
 - **No full agent run inside the sandbox yet.** It needs the user's `claude setup-token`. The launch path is
   tested by intercepting the real `Popen` call.
-- **No live run yet of the new `build`/`test`/`verify` prompts or of a live parallel batch.** These are tested
-  offline only. The v0.1 Pong pipeline did run live end to end, but with the older prompts.
+- **No live parallel *app* batch yet**, and nothing run with `--sandbox docker` end to end. Both need the
+  user's token and are being run by the user.
 - The sandbox still has network access (needed for the model API).
 
 ## Questions for the reviewer

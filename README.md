@@ -20,7 +20,7 @@ Requirements: Python 3.11+ with `pyyaml` and `jsonschema`, and the `claude` CLI 
 Node.js for the example apps, and Docker for `--sandbox docker`.
 
 ```bash
-py -m pytest -q                                  # 72 offline tests, no model calls
+py -m pytest -q                                  # 85 offline tests, no model calls
 py -m lattice check                              # command definitions, agent, sandbox
 py -m lattice commands                           # loaded commands and where they came from
 py -m lattice run examples/pong.lat --replace    # build Pong (about 5 min)
