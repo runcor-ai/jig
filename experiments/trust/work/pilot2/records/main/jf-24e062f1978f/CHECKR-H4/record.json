@@ -1,0 +1,14 @@
+{
+ "build": "jf-24e062f1978f-CHECKR",
+ "app_id": "CHECKROP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 1.3894,
+ "builder": "opus",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_PROSE",
+ "item": "CHECKR-H4",
+ "stage": "compare"
+}

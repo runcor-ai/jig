@@ -1,0 +1,14 @@
+{
+ "build": "jf-24e062f1978f-LIFE",
+ "app_id": "LIFEOP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.6951,
+ "builder": "opus",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_PROSE",
+ "item": "LIFE-H5",
+ "stage": "final"
+}

@@ -1,0 +1,63 @@
+{
+ "evidence": {
+  "n_items": 36,
+  "mean": 1.0,
+  "by_level": {},
+  "failure_types": {},
+  "pack": {
+   "builds": 6,
+   "builds_needing_fix_rounds": 2,
+   "mean_fix_rounds": 0.5,
+   "builds_that_failed_outright": 0,
+   "hidden_check_failures_by_type": {}
+  },
+  "history": [
+   {
+    "where": "take apart",
+    "slot": "format",
+    "effect": 0.0625,
+    "range": [
+     -0.0107,
+     0.1357
+    ],
+    "value": "prose",
+    "verdict": "not kept"
+   },
+   {
+    "where": "take apart",
+    "slot": "tests",
+    "effect": -0.0417,
+    "range": [
+     -0.1019,
+     0.0186
+    ],
+    "value": "off",
+    "verdict": "not kept"
+   },
+   {
+    "where": "take apart",
+    "slot": "verify",
+    "effect": -0.0208,
+    "range": [
+     -0.0761,
+     0.0345
+    ],
+    "value": "off",
+    "verdict": "not kept"
+   },
+   {
+    "where": "take apart",
+    "slot": "fixes",
+    "effect": 0.0,
+    "range": [
+     -0.1132,
+     0.1132
+    ],
+    "value": 0,
+    "verdict": "not kept"
+   }
+  ]
+ },
+ "text": "WHAT EARLIER STAGES MEASURED (scores only; no test case is shown)\nCurrent best: mean score 1.0 on 36 test cases.\nbuilds: 6\nbuilds_needing_fix_rounds: 2\nmean_fix_rounds: 0.5\nbuilds_that_failed_outright: 0\nhidden_check_failures_by_type: {}\n\nVersions tried before (effect = change in mean score against the design it changed; a range that includes 0 means no clear effect):\n- take apart, part format: effect 0.0625 (range -0.0107 to 0.1357); not kept\n  version: prose\n- take apart, part tests: effect -0.0417 (range -0.1019 to 0.0186); not kept\n  version: off\n- take apart, part verify: effect -0.0208 (range -0.0761 to 0.0345); not kept\n  version: off\n- take apart, part fixes: effect 0.0 (range -0.1132 to 0.1132); not kept\n  version: 0",
+ "round": 1
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-24e062f1978f-YAHTZ",
+ "app_id": "YAHTZOP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 1.2079,
+ "builder": "opus",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_PROSE",
+ "item": "YAHTZ-H6",
+ "stage": "final"
+}

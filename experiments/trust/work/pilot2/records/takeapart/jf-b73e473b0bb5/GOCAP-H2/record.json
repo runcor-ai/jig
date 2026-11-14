@@ -1,0 +1,14 @@
+{
+ "build": "jf-b73e473b0bb5-GOCAP",
+ "app_id": "GOCAPLF-817",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1987,
+ "builder": "luna",
+ "format": "facts",
+ "score": 0.0,
+ "failure_type": "hidden test failed",
+ "design": "D07",
+ "item": "GOCAP-H2",
+ "stage": "takeapart"
+}

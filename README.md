@@ -14,8 +14,9 @@ verify(spec)
 
 Commands are plugins. The five built-ins use exactly the format you use to add your own.
 
-**Website:** <https://runcor-ai.github.io/jig/>, with the guide, the white paper
-([Abstraction for AI work](docs/whitepaper.md)) and three games Jig built that you can play.
+**Website:** <https://runcor-ai.github.io/jig/>, with the guide, the pilot study
+([Abstraction for AI Work](https://runcor-ai.github.io/jig/paper/): Jig measured by The Reality Engine) and three games Jig built
+that you can play.
 
 ## Quick start
 

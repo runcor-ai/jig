@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-LIFE",
+ "app_id": "LIFELF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.442,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "FINAL",
+ "item": "LIFE-H3",
+ "stage": "final"
+}

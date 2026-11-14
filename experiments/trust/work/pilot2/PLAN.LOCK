@@ -1,7 +1,7 @@
 {
- "t": "2026-11-14T15:03:03",
- "reason": "pilot 2: the only lock; pre-registered before any build; design fixed (compare on 6 hard briefs, script take apart, one build-out round, 6 sealed briefs never opened)",
- "sha256": "2660f8ee5c4e8f2f183afaa5e75e39d9382477e739894fdad9390fa05298cb43",
+ "t": "2026-11-14T15:54:07",
+ "reason": "fix: unique game ids for designed versions (a hash collision let two take-apart versions share a game folder); both versions' builds and 13 engine records voided and rebuilt; no other result affected",
+ "sha256": "dbafc5365a8a4759772009143bcc9ed4fa467144e5c6d726db28e4d1de8b7d9a",
  "files": {
   "engine/__init__.py": "18a38b2bb33b624f",
   "engine/__main__.py": "f1ca3c25cd0c8734",
@@ -14,7 +14,7 @@
   "engine/stats.py": "3f8a4bdcdbd199c0",
   "pack/__init__.py": "e3b0c44298fc1c14",
   "pack/frozen.py": "24f93ff06fe13413",
-  "pack/pack.py": "8d47b1ac4f4f1f36",
-  "plan": "bf123bdd97b77cce"
+  "pack/pack.py": "dbcfbbc6c2be71b3",
+  "plan": "d43cb0a039c54f70"
  }
 }

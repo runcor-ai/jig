@@ -1,0 +1,14 @@
+{
+ "build": "jf-3009a4445f1e-REVERS",
+ "app_id": "REVERSLP-334",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.3588,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D04",
+ "item": "REVERS-H1",
+ "stage": "takeapart"
+}

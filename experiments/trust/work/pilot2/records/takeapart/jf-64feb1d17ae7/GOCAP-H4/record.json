@@ -1,0 +1,14 @@
+{
+ "build": "jf-64feb1d17ae7-GOCAP",
+ "app_id": "GOCAPLF-503",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4884,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D03",
+ "item": "GOCAP-H4",
+ "stage": "takeapart"
+}

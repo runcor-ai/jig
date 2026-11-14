@@ -1,0 +1,14 @@
+{
+ "build": "jf-dc10afc79816-POKER",
+ "app_id": "POKERLP-554",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.3645,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D10",
+ "item": "POKER-H2",
+ "stage": "takeapart"
+}

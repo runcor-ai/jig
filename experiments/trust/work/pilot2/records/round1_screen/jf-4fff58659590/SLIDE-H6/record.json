@@ -1,0 +1,14 @@
+{
+ "build": "jf-4fff58659590-SLIDE",
+ "app_id": "SLIDELF-616",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.3442,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "build_guidance.2",
+ "item": "SLIDE-H6",
+ "stage": "round1_screen"
+}

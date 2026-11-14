@@ -1,0 +1,14 @@
+{
+ "build": "jf-605a962b2ba0-REVERS",
+ "app_id": "REVERSLP-952",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1338,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D06",
+ "item": "REVERS-H6",
+ "stage": "takeapart"
+}

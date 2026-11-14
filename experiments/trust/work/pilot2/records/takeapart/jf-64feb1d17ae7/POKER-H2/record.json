@@ -1,0 +1,14 @@
+{
+ "build": "jf-64feb1d17ae7-POKER",
+ "app_id": "POKERLF-503",
+ "pipeline_status": "completed",
+ "fixes": 2,
+ "cost_usd": 0.7138,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D03",
+ "item": "POKER-H2",
+ "stage": "takeapart"
+}

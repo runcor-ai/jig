@@ -154,6 +154,24 @@ class JigFactoryPack(Pack):
         return {**rec, "score": 1.0 if passed else 0.0,
                 "failure_type": None if passed else "hidden test failed"}
 
+    def _variant(self, cand) -> int:
+        """A game number unique to this designed candidate among those with the same format and builder (lock 3 fix:
+        the earlier hash-based number let two candidates share a game id and each other's folder). Numbers are
+        recorded in <trials>/variants.json, so a candidate keeps its number for every brief."""
+        code = CODES[(cand["format"], cand["builder"])]
+        path = self.trials / "variants.json"
+        with self.locks_guard:
+            reg = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+            if cand["id"] not in reg:
+                taken = {v for cid, v in reg.items() if not cid.startswith("_") and reg.get("_code_" + cid) == code}
+                want = 100 + int(cand["id"][3:], 16) % 900
+                while want in taken:
+                    want = 100 + (want - 99) % 900
+                reg[cand["id"]] = want
+                reg["_code_" + cand["id"]] = code
+                path.write_text(json.dumps(reg, indent=1), encoding="utf-8")
+            return reg[cand["id"]]
+
     def _cached(self, key):
         p = self.trials / "builds" / f"{key}.json"
         return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
@@ -172,7 +190,7 @@ class JigFactoryPack(Pack):
         # founders are <BRIEF><CODE>-001; a designed version gets its own number from its id
         designed = bool(cand.get("spec_guidance") or cand.get("build_guidance")) or any(
             cand.get(k, SWITCHES[k][0]) != SWITCHES[k][0] for k in SWITCHES)
-        variant = 100 + int(cand["id"][3:], 16) % 900 if designed else 1
+        variant = self._variant(cand) if designed else 1
         app_id = f"{brief}{CODES[(cand['format'], cand['builder'])]}-{variant:03d}"
         out = {"key": key, "app_id": app_id, "started": time.time()}
         if self.offline:

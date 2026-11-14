@@ -1,0 +1,14 @@
+{
+ "build": "jf-8ae024561877-CHESS",
+ "app_id": "CHESSLP-727",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4641,
+ "builder": "luna",
+ "format": "prose",
+ "score": 0.0,
+ "failure_type": "hidden test failed",
+ "design": "D12",
+ "item": "CHESS-H6",
+ "stage": "takeapart"
+}

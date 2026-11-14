@@ -1,0 +1,31 @@
+{
+ "step": "takeapart",
+ "alts": {
+  "format": [
+   {
+    "value": "prose",
+    "rationale": "the other spec format (prose)"
+   }
+  ],
+  "tests": [
+   {
+    "value": "off",
+    "rationale": "no test step: the builder's own tests are not run and do not feed the fix rounds"
+   }
+  ],
+  "verify": [
+   {
+    "value": "off",
+    "rationale": "no verify step: no AI check of the requirements, so fix rounds see only the tests"
+   }
+  ],
+  "fixes": [
+   {
+    "value": 0,
+    "rationale": "no fix rounds: one build, as it comes"
+   }
+  ]
+ },
+ "extras": {},
+ "hash": "8efe82550ae77ce0"
+}

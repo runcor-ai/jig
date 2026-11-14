@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-CHECKR",
+ "app_id": "CHECKRLF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4496,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D01",
+ "item": "CHECKR-H3",
+ "stage": "takeapart"
+}

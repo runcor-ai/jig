@@ -1,0 +1,14 @@
+{
+ "build": "jf-dc10afc79816-GOCAP",
+ "app_id": "GOCAPLP-554",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.3712,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D10",
+ "item": "GOCAP-H2",
+ "stage": "takeapart"
+}

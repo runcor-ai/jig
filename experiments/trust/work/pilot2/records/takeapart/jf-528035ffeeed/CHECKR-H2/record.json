@@ -1,0 +1,14 @@
+{
+ "build": "jf-528035ffeeed-CHECKR",
+ "app_id": "CHECKRLP-613",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1654,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D08",
+ "item": "CHECKR-H2",
+ "stage": "takeapart"
+}

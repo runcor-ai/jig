@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-CHESS",
+ "app_id": "CHESSLF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4355,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_FACTS",
+ "item": "CHESS-H4",
+ "stage": "compare"
+}

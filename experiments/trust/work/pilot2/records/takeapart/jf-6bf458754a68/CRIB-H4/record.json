@@ -1,0 +1,14 @@
+{
+ "build": "jf-6bf458754a68-CRIB",
+ "app_id": "CRIBLF-324",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1816,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D15",
+ "item": "CRIB-H4",
+ "stage": "takeapart"
+}

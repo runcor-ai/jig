@@ -1,0 +1,14 @@
+{
+ "build": "jf-4fff58659590-HANOI",
+ "app_id": "HANOILF-616",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.5935,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "build_guidance.2",
+ "item": "HANOI-H5",
+ "stage": "round1_screen"
+}

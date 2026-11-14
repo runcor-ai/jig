@@ -1,0 +1,11 @@
+{
+ "id": "jf-4fff58659590",
+ "spec_guidance": "",
+ "build_guidance": "Before finishing, re-read the brief and spec line by line and check each rule against your code. Test edge cases: first and last move, board edges, ties, invalid or repeated input, actions after game over, and restart returning to the exact initial state. Make sure the score and game-over state change at the right moment. Fix any mismatch in the code rather than explaining it away.",
+ "tests": "on",
+ "verify": "on",
+ "fixes": 2,
+ "format": "facts",
+ "builder": "luna",
+ "pipeline": "trial.jig"
+}

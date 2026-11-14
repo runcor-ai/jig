@@ -1,0 +1,1 @@
+{"reason": "design-induced failure after retries", "error": "the build did not produce src/logic.ts ({'code': 'E_SCRIPT', 'message': 'line 50: fail(): CRIBLF-234: specify failed'})"}

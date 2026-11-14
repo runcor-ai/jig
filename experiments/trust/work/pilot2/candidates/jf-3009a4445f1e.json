@@ -1,0 +1,11 @@
+{
+ "id": "jf-3009a4445f1e",
+ "spec_guidance": "",
+ "build_guidance": "",
+ "tests": "off",
+ "verify": "on",
+ "fixes": 2,
+ "format": "prose",
+ "builder": "luna",
+ "pipeline": "trial.jig"
+}

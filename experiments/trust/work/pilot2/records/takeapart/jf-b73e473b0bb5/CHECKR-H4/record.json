@@ -1,0 +1,14 @@
+{
+ "build": "jf-b73e473b0bb5-CHECKR",
+ "app_id": "CHECKRLF-817",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1994,
+ "builder": "luna",
+ "format": "facts",
+ "score": 0.0,
+ "failure_type": "hidden test failed",
+ "design": "D07",
+ "item": "CHECKR-H4",
+ "stage": "takeapart"
+}

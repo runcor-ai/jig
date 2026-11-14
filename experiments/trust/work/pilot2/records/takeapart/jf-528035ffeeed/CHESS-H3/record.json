@@ -1,0 +1,14 @@
+{
+ "build": "jf-528035ffeeed-CHESS",
+ "app_id": "CHESSLP-613",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1372,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D08",
+ "item": "CHESS-H3",
+ "stage": "takeapart"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-24e062f1978f-CRIB",
+ "app_id": "CRIBOP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 1.1155,
+ "builder": "opus",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_PROSE",
+ "item": "CRIB-H2",
+ "stage": "compare"
+}

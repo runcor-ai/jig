@@ -1,4 +1,4 @@
-"""Build the designed edition of the Jig white paper (adapted from the Describing Reality for AI edition builder).
+"""Build the designed edition of the Jig pilot study (adapted from the Describing Reality for AI edition builder).
 
 Usage: python paper/build.py   (reads paper/src/paper.html, writes paper/index.html, paper/print.html and the PDF)
 
@@ -351,8 +351,8 @@ def extra_css():
 
 
 # The cover's status: the byline's date is the paper's as-of date, not when the run started, so the run is named here.
-STATUS = "Draft, v0.2.0"
-RUN_LINE = "Pilot 1 &nbsp;·&nbsp; 14 Nov 2026"
+STATUS = "Version 0.2"
+RUN_LINE = "Pilot 2 complete &nbsp;·&nbsp; 14 Nov 2026"
 
 
 def page(body, toc, subtitle, started, updated):
@@ -369,7 +369,7 @@ def page(body, toc, subtitle, started, updated):
 <div class="page">
 <header class="cover">
   <div>
-    <div class="eyebrow">Jig &nbsp;·&nbsp; White paper &nbsp;·&nbsp; {STATUS}</div>
+    <div class="eyebrow">Jig &nbsp;·&nbsp; Pilot study &nbsp;·&nbsp; {STATUS}</div>
     <h1>Abstraction for AI Work</h1>
     <p class="sub">{htmlmod.escape(subtitle or "Controlling complexity by working with AI at the right level, and measuring that the level holds")}</p>
     <div class="lede">

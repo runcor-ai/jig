@@ -1,0 +1,14 @@
+{
+ "build": "jf-24e062f1978f-POKER",
+ "app_id": "POKEROP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 1.0069,
+ "builder": "opus",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_PROSE",
+ "item": "POKER-H4",
+ "stage": "compare"
+}

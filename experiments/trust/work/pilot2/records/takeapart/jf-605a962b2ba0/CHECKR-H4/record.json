@@ -1,0 +1,14 @@
+{
+ "build": "jf-605a962b2ba0-CHECKR",
+ "app_id": "CHECKRLP-952",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.2819,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D06",
+ "item": "CHECKR-H4",
+ "stage": "takeapart"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-64feb1d17ae7-CRIB",
+ "app_id": "CRIBLF-503",
+ "pipeline_status": "completed",
+ "fixes": 2,
+ "cost_usd": 0.9574,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D03",
+ "item": "CRIB-H2",
+ "stage": "takeapart"
+}

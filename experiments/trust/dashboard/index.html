@@ -80,18 +80,32 @@ svg .lab { fill: var(--ink); font-weight: 600; }
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <span class="chip"><span class="dot" id="livedot" style="background:var(--good)"></span><span id="now">loading</span></span>
-    <span class="chip" id="spend"></span>
   </div>
 </header>
 <main>
   <div class="panel"><h2>Where the run is</h2><div class="steps" id="steps"></div><div class="sub" id="stepnote" style="margin-top:8px"></div></div>
   <div class="kpis" id="kpis"></div>
+  <div class="panel"><h2>Ways of working on the comparison briefs</h2>
+    <div class="sub">Mean share of hidden checks passed, with its 95% range over briefs. <span id="foundernote"></span>
+      <span class="legend" style="display:inline-flex;margin:0 0 0 6px"><span><span class="dot" style="background:var(--g1)"></span> Opus builds</span><span><span class="dot" style="background:var(--g2)"></span> Luna builds</span></span></div>
+    <div id="chart"></div></div>
   <div class="grid2">
-    <div class="panel"><h2>How often each way of working is right <span class="badge" id="folderbadge"></span></h2>
-      <div class="sub">Share of hidden acceptance checks passed, with the 95% range over briefs (live; the final analysis uses more resamples).</div>
-      <div id="chart"></div></div>
+    <div class="panel"><h2>Leads over the control</h2>
+      <div class="sub">Each way of working minus Opus building from prose (today's game factory), paired by brief; Holm-corrected.</div>
+      <div id="leads"></div></div>
     <div class="panel"><h2>Events</h2><div class="events" id="events"></div></div>
   </div>
+  <div class="grid2">
+    <div class="panel"><h2>What each part of the script does</h2>
+      <div class="sub">The winner's script taken apart: each part changed alone and in every combination. <span id="effectnote"></span></div>
+      <div id="effects"></div></div>
+    <div class="panel"><h2>The script versions</h2>
+      <div class="sub">The 16 versions of the script in the take-apart, with their hidden checks so far.</div>
+      <div class="scroll" id="versions"></div></div>
+  </div>
+  <div class="panel" id="finalpanel" hidden><h2>Final check on the sealed briefs</h2>
+    <div class="sub">Opened once. Mean share of hidden checks passed, with its 95% range over briefs.</div>
+    <div id="final"></div></div>
   <div class="panel"><h2>Builds</h2>
     <div class="sub">One Jig pipeline run per way of working and brief; the cell shows the hidden checks passed out of 6.</div>
     <div class="scroll" id="builds"></div></div>
@@ -102,6 +116,7 @@ const COLORS = {OPUS_PROSE: 'var(--g1)', OPUS_FACTS: 'var(--g3)', LUNA_PROSE: 'v
 const NAMES = {OPUS_PROSE: 'Opus builds from prose', OPUS_FACTS: 'Opus builds from FACTS', LUNA_PROSE: 'Luna builds from prose', LUNA_FACTS: 'Luna builds from FACTS'};
 const STEPS = [['lock', 'Lock'], ['compare', 'Compare'], ['takeapart', 'Take apart'], ['round', 'Build out'], ['final', 'Confirm'], ['done', 'Report']];
 const pct = (x) => x == null ? '–' : Math.round(x * 100) + '%';
+const fmtTok = (n) => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : String(n);
 const theme = new URLSearchParams(location.search).get('theme');
 if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
 const esc = (s) => String(s ?? '').replace(/[&<>]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
@@ -114,7 +129,7 @@ function steps(d) {
   document.getElementById('steps').innerHTML = STEPS.map(([k, n], i) =>
     `<span class="step ${skip(k) ? 'skip' : i < idx ? 'done' : i === idx ? 'now' : ''}">${i + 1} ${n}</span>`).join('');
   const p = d.state.progress || {};
-  let note = p.stage ? `${p.stage}: ${p.done} of ${p.planned} scored checks` : '';
+  let note = '';
   if (d.state.halted) note += ` · halted: ${esc(d.state.halted)}`;
   if (d.state.paused) note += ` · paused: ${esc(d.state.paused)}`;
   if (at === 'done') note = 'The run is complete; the trust report is below.';
@@ -123,54 +138,130 @@ function steps(d) {
 
 function kpis(d) {
   const p = Object.assign({}, d.state.progress || {});
-  if (!p.planned) {             // between engine updates: count the scored checks in the records
-    const stage = (d.state.step || '').startsWith('compare') ? 'main' : null;
+  if (!p.planned || !(d.state.step || '').startsWith(p.stage || '#')) {   // stale or between engine updates: count the records
+    const step = d.state.step || '';
+    const stage = step.startsWith('compare') ? 'main' : step.startsWith('takeapart') ? 'takeapart' : step.startsWith('final') ? 'final' : null;
     const live = stage ? d.live[stage] || {} : {};
     p.done = Object.values(live).reduce((a, r) => a + r.n, 0);
-    p.planned = stage ? 4 * ((d.plan.sets && 36) || 0) : 0;
-    p.stage = p.stage || d.state.step;
+    p.planned = stage === 'main' ? 4 * 36 : stage === 'takeapart' ? 16 * 36 : 0;
+    p.stage = step;
   }
   const running = d.builds.filter((b) => b.state === 'running').length;
   const done = d.builds.filter((b) => b.state === 'done').length;
-  const fixes = d.builds.reduce((a, b) => a + (b.fixes || 0), 0);
+  const ct = Object.values(d.claude_tokens || {}).reduce((a, b) => a + b, 0);
+  const lt = (d.luna_tokens?.input || 0) + (d.luna_tokens?.output || 0);
+  const s = d.stopped || {};
+  const stoppedUsd = (s.claude_reported_usd || 0) + (s.claude_cut_est_usd || 0) + (s.luna_usd || 0);
+  const scoredUsd = d.spent_usd + (d.luna_usd || 0);
   const items = [
-    ['Stage', (p.stage || d.state.step || '–'), `${p.done ?? 0} / ${p.planned ?? 0} checks scored`, p.planned ? p.done / p.planned : 0],
-    ['Builds', `${done}`, `${running} running now`, null],
-    ['Fix rounds used', `${fixes}`, 'rebuilds fed by verify and the tests', null],
-    ['Reported Claude usage', `$${d.spent_usd.toFixed(2)}`, d.cost_cap_usd ? `cap $${d.cost_cap_usd}` : '', d.cost_cap_usd ? d.spent_usd / d.cost_cap_usd : null],
+    ['Progress', stageName(d.state.step), `${p.done ?? 0} / ${p.planned ?? 0} checks scored`, p.planned ? p.done / p.planned : 0],
+    ['Builds', `${done}`, `${running} running`, null],
+    ['Claude', `$${d.spent_usd.toFixed(2)}`, `${fmtTok(ct)} tokens`, null],
+    ['Luna', `≈ $${(d.luna_usd || 0).toFixed(2)}`, `${fmtTok(lt)} tokens · at API list price`, null],
+    ['Total', `≈ $${scoredUsd.toFixed(2)}`, 'scored builds', d.cost_cap_usd ? (d.spent_usd + stoppedUsd) / d.cost_cap_usd : null],
+    ['Stopped or voided', `≈ $${stoppedUsd.toFixed(2)}`, 'not in any score; deducted from the total', null],
   ];
-  if (d.state.winner) items.push(['Compare winner', NAMES[d.state.winner] || d.state.winner, `runner-up: ${NAMES[d.state.runner_up] || d.state.runner_up}`, null]);
   document.getElementById('kpis').innerHTML = items.map(([l, v, s, f]) =>
     `<div class="kpi"><div class="l">${l}</div><div class="v">${esc(v)}</div><div class="l">${esc(s)}</div>${f != null ? `<div class="bar"><i style="width:${Math.min(100, f * 100)}%"></i></div>` : ''}</div>`).join('');
 }
 
-function chart(d) {
-  const folders = Object.keys(d.live);
-  const folder = folders.includes('final') && Object.keys(d.live.final || {}).length ? 'final' : (folders.includes('main') ? 'main' : folders[0]);
-  document.getElementById('folderbadge').textContent = folder === 'final' ? 'sealed briefs' : 'comparison briefs';
-  const rows = Object.entries(d.live[folder] || {}).sort((a, b) => (b[1].mean ?? 0) - (a[1].mean ?? 0));
-  if (!rows.length) { document.getElementById('chart').innerHTML = '<div class="mute">No scored checks yet.</div>'; return; }
-  const W = 560, rowH = 46, L = 190, R = 20, H = rows.length * rowH + 34;
-  const x = (v) => L + v * (W - L - R);
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="share of hidden checks passed per way of working">`;
-  for (let t = 0; t <= 1.0001; t += 0.25) s += `<line x1="${x(t)}" x2="${x(t)}" y1="6" y2="${H - 24}" stroke="var(--grid)"/><text x="${x(t)}" y="${H - 8}" text-anchor="middle">${Math.round(t * 100)}%</text>`;
-  rows.forEach(([lab, r], i) => {
-    const y = 14 + i * rowH, c = COLORS[lab] || 'var(--ink2)';
-    s += `<text class="lab" x="0" y="${y + 12}">${esc(NAMES[lab] || lab)}${lab === d.plan.control ? ' (control)' : ''}</text>`;
-    s += `<text x="0" y="${y + 28}">${r.n} checks · ${pct(r.mean)}</text>`;
-    if (r.range) s += `<rect x="${x(r.range[0])}" y="${y + 8}" width="${Math.max(2, x(r.range[1]) - x(r.range[0]))}" height="14" rx="3" fill="${c}" opacity="0.22"/>`;
-    if (r.mean != null) s += `<circle cx="${x(r.mean)}" cy="${y + 15}" r="6" fill="${c}"/>`;
+// A forest plot in the style of the run 5 dashboard: one row per design, dot = mean, line = 95% range,
+// shaded rows could still be the best, the value in a right-hand column, an optional zero line.
+function niceStep(span) {
+  const raw = span / 5, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p;
+  return (m < 1.5 ? 1 : m < 3 ? 2 : m < 7 ? 5 : 10) * p;
+}
+function forest(rows, o) {
+  if (!rows.length) return '<div class="mute">No data yet.</div>';
+  let lo = Math.min(...rows.flatMap((r) => [r.mean, ...(r.range || [])]).filter((v) => v != null));
+  let hi = Math.max(...rows.flatMap((r) => [r.mean, ...(r.range || [])]).filter((v) => v != null));
+  if (o.zero) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+  if (o.min != null) lo = Math.min(lo, o.min);
+  if (o.max != null) hi = Math.max(hi, o.max);
+  if (hi - lo < (o.minSpan || 0.1)) { const c = (hi + lo) / 2, h = (o.minSpan || 0.1) / 2; lo = c - h; hi = c + h; }
+  if (o.clamp) { lo = Math.max(lo, o.clamp[0]); hi = Math.min(hi, o.clamp[1]); }
+  const step = niceStep(hi - lo); lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+  const W = 760, L = 250, R = 90, rowH = 34, top = 26, H = top + rows.length * rowH + 44;
+  const x = (v) => L + (v - lo) / (hi - lo) * (W - L - R);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(o.aria || 'forest plot')}">`;
+  s += `<text x="${L - 12}" y="14" text-anchor="end">${esc(o.left || '')}</text><text x="${W - R + 12}" y="14">${esc(o.right || '')}</text>`;
+  rows.forEach((r, i) => { if (r.shade) s += `<rect x="${L - 4}" y="${top + i * rowH}" width="${W - L - R + 8}" height="${rowH - 4}" rx="4" fill="var(--band)"/>`; });
+  for (let t = lo; t <= hi + step / 2; t += step) {
+    const v = Math.round(t / step) * step;
+    s += `<line x1="${x(v)}" x2="${x(v)}" y1="${top - 4}" y2="${top + rows.length * rowH}" stroke="${o.zero && Math.abs(v) < 1e-9 ? 'var(--axis)' : 'var(--grid)'}" stroke-width="${o.zero && Math.abs(v) < 1e-9 ? 2 : 1}"/>`;
+    s += `<text x="${x(v)}" y="${top + rows.length * rowH + 16}" text-anchor="middle">${o.fmt ? o.fmt(v) : v.toFixed(2)}</text>`;
+  }
+  rows.forEach((r, i) => {
+    const y = top + i * rowH + rowH / 2 - 2, c = r.color || 'var(--g1)';
+    s += `<text x="${L - 12}" y="${y + 4}" text-anchor="end"${r.bold ? ' class="lab"' : ''}>${esc(r.label)}</text>`;
+    if (r.range) s += `<line x1="${x(r.range[0])}" x2="${x(r.range[1])}" y1="${y}" y2="${y}" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`;
+    if (r.mean != null) s += `<circle cx="${x(r.mean)}" cy="${y}" r="6" fill="${c}" stroke="var(--surface)" stroke-width="2"/>`;
+    s += `<text x="${W - R + 12}" y="${y + 4}">${esc(r.right ?? '')}</text>`;
   });
-  document.getElementById('chart').innerHTML = s + '</svg>';
+  s += `<text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle">${esc(o.axis || '')}</text>`;
+  return s + '</svg>';
+}
+
+const BUILDER_COLOR = { opus: 'var(--g1)', luna: 'var(--g2)' };
+const STAGE_NAME = { compare: 'Compare', takeapart: 'Take apart', round: 'Build out', final: 'Confirm', done: 'Done' };
+const stageName = (step) => Object.entries(STAGE_NAME).find(([k]) => (step || '').startsWith(k))?.[1] || (step || '–');
+const PART_LABEL = { format: 'Spec format FACTS → prose', tests: 'Test step switched off', verify: 'Verify step switched off', fixes: 'Fix rounds 2 → 0' };
+const builderOf = (lab) => (lab.startsWith('OPUS') ? 'opus' : 'luna');
+const f3 = (v) => (v == null ? '–' : v.toFixed(3));
+const fpct = (v) => Math.round(v * 100) + '%';
+
+function chart(d) {
+  // 1. The founders on the comparison briefs: the engine's analysis when it exists, live from the records before.
+  const an = d.analysis?.compare?.main;
+  const src = an ? an.designs : Object.fromEntries(Object.entries(d.live.main || {}).map(([k, v]) => [k, { mean: v.mean, range: v.range }]));
+  const rows = Object.entries(src || {}).sort((a, b) => (b[1].mean ?? 0) - (a[1].mean ?? 0)).map(([lab, v]) => ({
+    label: (NAMES[lab] || lab) + (lab === d.plan.control ? ' (control)' : ''), mean: v.mean, range: v.range,
+    color: BUILDER_COLOR[builderOf(lab)], shade: !!v.could_be_best, right: f3(v.mean), bold: lab === d.plan.control }));
+  document.getElementById('chart').innerHTML = forest(rows, { left: 'Way of working (best at top)', right: 'Average', min: 0.5, max: 1, clamp: [0, 1],
+    fmt: fpct, axis: 'Share of hidden checks passed. Dot = average, line = 95% range over briefs', aria: 'founders on the comparison briefs' });
+  document.getElementById('foundernote').innerHTML = an
+    ? `<b>Final:</b> winner ${esc(NAMES[d.analysis.compare.winner] || d.analysis.compare.winner)}, runner-up ${esc(NAMES[d.analysis.compare.runner_up] || d.analysis.compare.runner_up)}${d.analysis.compare.tie_at_top ? ' (tied at the top)' : ''}. Shaded: could still be the best.`
+    : 'Live, from the checks scored so far. Shaded: could still be the best.';
+  // 2. Leads over the control
+  const leads = an?.leads_over_control || {};
+  document.getElementById('leads').innerHTML = Object.keys(leads).length ? forest(Object.entries(leads).map(([lab, v]) => ({
+    label: NAMES[lab] || lab, mean: v.lead, range: v.range, color: BUILDER_COLOR[builderOf(lab)],
+    right: `${v.lead >= 0 ? '+' : ''}${f3(v.lead)}${v.p_holm != null ? '  p=' + v.p_holm.toFixed(2) : ''}` })),
+    { zero: true, minSpan: 0.2, left: 'Against Opus builds from prose', right: 'Lead (Holm p)', fmt: (v) => v.toFixed(2),
+      axis: 'Lead over the control (right of 0 = better). Line = 95% range', aria: 'leads over the control' })
+    : '<div class="mute">After the comparison.</div>';
+  // 3. What each part of the script does (take apart)
+  const ta = d.analysis?.takeapart?.effects;
+  const live = d.takeapart;
+  const eff = ta ? Object.fromEntries(Object.entries(ta).map(([k, v]) => [k, { effect: v.effect, range: v.range }])) : (live?.effects || {});
+  const erows = Object.keys(PART_LABEL).filter((k) => eff[k] && eff[k].effect != null).map((k) => ({
+    label: PART_LABEL[k], mean: eff[k].effect, range: eff[k].range, color: 'var(--g2)', right: `${eff[k].effect >= 0 ? '+' : ''}${f3(eff[k].effect)}` }));
+  document.getElementById('effects').innerHTML = erows.length ? forest(erows, { zero: true, minSpan: 0.2, left: 'Part of the script', right: 'Effect',
+    fmt: (v) => v.toFixed(2), axis: 'Effect on the score of changing that part (right of 0 = helps, left = hurts). Line = 95% range', aria: 'effect of each part' })
+    : '<div class="mute">During the take-apart.</div>';
+  document.getElementById('effectnote').textContent = ta ? 'Final analysis of the take-apart.'
+    : live ? `Live: per brief, versions with the part changed minus versions without it, over ${live.briefs} brief(s) so far.` : '';
+  // 4. The script versions
+  const ds = (live?.designs || []).slice().sort((a, b) => a.changed.length - b.changed.length || a.changed.join().localeCompare(b.changed.join()));
+  document.getElementById('versions').innerHTML = ds.length ? '<table><thead><tr><th>Script version</th><th class="n">Checks</th><th class="n">Passed</th></tr></thead><tbody>'
+    + ds.map((v) => `<tr><td>${v.changed.length ? esc(v.changed.map((k) => PART_LABEL[k]).join(' + ')) : '<b>The full script (the winner)</b>'}</td><td class="n">${v.n}</td><td class="n">${pct(v.mean)}</td></tr>`).join('')
+    + '</tbody></table>' : '<div class="mute">During the take-apart.</div>';
+  // 5. Final check on the sealed briefs
+  const fin = Object.entries(d.live.final || {});
+  document.getElementById('finalpanel').hidden = !fin.length;
+  if (fin.length) document.getElementById('final').innerHTML = forest(fin.sort((a, b) => (b[1].mean ?? 0) - (a[1].mean ?? 0)).map(([lab, v]) => ({
+    label: NAMES[lab] || lab, mean: v.mean, range: v.range, color: 'var(--g1)', right: f3(v.mean) })),
+    { left: 'Design', right: 'Average', min: 0.5, max: 1, clamp: [0, 1], fmt: fpct, axis: 'Share of hidden checks passed on the sealed briefs. Line = 95% range', aria: 'final check' });
 }
 
 function builds(d) {
-  const briefs = [...new Set(d.builds.map((b) => b.brief))];
+  const briefs = [...new Set(d.builds.filter((b) => /-001$/.test(b.app_id || '')).map((b) => b.brief))];
   const sealed = new Set((d.analysis?.final ? [] : []));
   const ways = ['OPUS_PROSE', 'OPUS_FACTS', 'LUNA_PROSE', 'LUNA_FACTS'];
   const key = (b) => `${b.builder === 'opus' ? 'OPUS' : 'LUNA'}_${b.format === 'facts' ? 'FACTS' : 'PROSE'}`;
   const by = {};
-  d.builds.forEach((b) => { by[`${b.brief}|${key(b)}`] = b; });
+  // the four ways of working only (ids ending -001); take-apart and build-out versions are in their own panel
+  d.builds.filter((b) => /-001$/.test(b.app_id || '')).forEach((b) => { by[`${b.brief}|${key(b)}`] = b; });
   let h = '<table><thead><tr><th>Brief</th>' + ways.map((w) => `<th>${NAMES[w]}</th>`).join('') + '</tr></thead><tbody>';
   briefs.sort().forEach((br) => {
     h += `<tr><td>${esc(br)}</td>` + ways.map((w) => {
@@ -178,7 +269,8 @@ function builds(d) {
       if (!b) return '<td><span class="mute">–</span></td>';
       if (b.state === 'running') return `<td><span class="cell run">building ${b.minutes ?? ''}m</span></td>`;
       const n = b.hidden_passed ?? 0, cls = b.failure === 'infra' ? 'mid' : n === 6 ? 'ok' : n >= 3 ? 'mid' : 'bad';
-      const extra = [b.fixes ? `${b.fixes} fix` : '', b.minutes ? `${b.minutes}m` : '', b.cost_usd ? `$${b.cost_usd.toFixed(2)}` : ''].filter(Boolean).join(' · ');
+      const usd = (b.cost_usd || 0) + (b.luna_usd || 0);
+      const extra = [b.fixes ? `${b.fixes} fix` : '', b.minutes ? `${b.minutes}m` : '', usd ? `$${usd.toFixed(2)}` : ''].filter(Boolean).join(' · ');
       return `<td><span class="cell ${cls}" title="${esc(b.failure_type || '')}">${b.failure && b.failure !== 'infra' && !b.hidden_passed ? esc(b.failure_type || 'failed') : n + ' / 6'}</span> <span class="mute" style="font-size:11px">${extra}</span></td>`;
     }).join('') + '</tr>';
   });
@@ -208,7 +300,6 @@ async function tick() {
     document.getElementById('tag').textContent = `Run: ${d.plan.name}`;
     document.getElementById('plan').textContent = 'Jig ways of working, scored by hidden acceptance tests on game briefs';
     document.getElementById('now').textContent = `live · ${d.now}`;
-    document.getElementById('spend').textContent = `Claude usage $${d.spent_usd.toFixed(2)}`;
     document.getElementById('events').innerHTML = d.events.slice().reverse().map((e) => `<div><span class="t">${esc(e.t.slice(11))}</span>${esc(e.msg)}</div>`).join('');
     steps(d); kpis(d); chart(d); builds(d); trust(d);
     document.getElementById('livedot').style.background = 'var(--good)';

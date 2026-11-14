@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 294" width="1000" height="294" font-family="Segoe UI, system-ui, sans-serif" font-size="17">
+<rect width="1000" height="294" fill="#fcfcfb"/>
+<text x="20" y="32" font-size="20" font-weight="600" fill="#0b0b0b">Final check on the sealed briefs</text>
+<text x="314" y="78" text-anchor="end" fill="#52514e">Design</text>
+<text x="896" y="78" fill="#52514e">Average</text>
+<line x1="330.0" x2="330.0" y1="92" y2="224" stroke="#e1e0d9" stroke-width="1"/>
+<text x="330.0" y="250" text-anchor="middle" fill="#52514e">50%</text>
+<line x1="440.0" x2="440.0" y1="92" y2="224" stroke="#e1e0d9" stroke-width="1"/>
+<text x="440.0" y="250" text-anchor="middle" fill="#52514e">60%</text>
+<line x1="550.0" x2="550.0" y1="92" y2="224" stroke="#e1e0d9" stroke-width="1"/>
+<text x="550.0" y="250" text-anchor="middle" fill="#52514e">70%</text>
+<line x1="660.0" x2="660.0" y1="92" y2="224" stroke="#e1e0d9" stroke-width="1"/>
+<text x="660.0" y="250" text-anchor="middle" fill="#52514e">80%</text>
+<line x1="770.0" x2="770.0" y1="92" y2="224" stroke="#e1e0d9" stroke-width="1"/>
+<text x="770.0" y="250" text-anchor="middle" fill="#52514e">90%</text>
+<line x1="880.0" x2="880.0" y1="92" y2="224" stroke="#e1e0d9" stroke-width="1"/>
+<text x="880.0" y="250" text-anchor="middle" fill="#52514e">100%</text>
+<text x="314" y="120.0" text-anchor="end" fill="#0b0b0b">FINAL</text>
+<line x1="880.0" x2="880.0" y1="114.0" y2="114.0" stroke="#2a78d6" stroke-width="4" stroke-linecap="round"/>
+<circle cx="880.0" cy="114.0" r="8" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2.5"/>
+<text x="896" y="120.0" fill="#0b0b0b">1.000</text>
+<text x="314" y="164.0" text-anchor="end" fill="#0b0b0b">Opus builds from prose</text>
+<line x1="880.0" x2="880.0" y1="158.0" y2="158.0" stroke="#2a78d6" stroke-width="4" stroke-linecap="round"/>
+<circle cx="880.0" cy="158.0" r="8" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2.5"/>
+<text x="896" y="164.0" fill="#0b0b0b">1.000</text>
+<text x="314" y="208.0" text-anchor="end" fill="#0b0b0b">Luna builds from prose</text>
+<line x1="880.0" x2="880.0" y1="202.0" y2="202.0" stroke="#2a78d6" stroke-width="4" stroke-linecap="round"/>
+<circle cx="880.0" cy="202.0" r="8" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2.5"/>
+<text x="896" y="208.0" fill="#0b0b0b">1.000</text>
+<text x="605.0" y="280" text-anchor="middle" fill="#52514e">Share of hidden checks passed on the sealed briefs. Line = 95% range</text>
+</svg>

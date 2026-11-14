@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-REVERS",
+ "app_id": "REVERSLF-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.648,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_FACTS",
+ "item": "REVERS-H1",
+ "stage": "compare"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-05f6b8b05884-YAHTZ",
+ "app_id": "YAHTZLP-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.6675,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_PROSE",
+ "item": "YAHTZ-H1",
+ "stage": "final"
+}

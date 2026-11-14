@@ -1,0 +1,76 @@
+{
+ "plan": "jig_trust_pilot2",
+ "pack": "jig_factory",
+ "final_design": "take apart D01",
+ "final_id": "jf-644ca21fc68b",
+ "sealed_set": "sealed",
+ "n_sealed": 36,
+ "clusters": 6,
+ "right": {
+  "mean": 1.0,
+  "range": [
+   1.0,
+   1.0
+  ],
+  "by_level": {}
+ },
+ "reliability": {
+  "finished_cleanly": 1.0,
+  "n": 36,
+  "weakest_level": null,
+  "pack": null
+ },
+ "why_it_fails": {},
+ "verdict": [
+  {
+   "test": "1_vs_control",
+   "rival": "OPUS_PROSE",
+   "lead": 0.0,
+   "range": [
+    0.0,
+    0.0
+   ],
+   "counted": false
+  },
+  {
+   "test": "2_vs_runner_up",
+   "rival": "LUNA_PROSE",
+   "lead": 0.0,
+   "range": [
+    0.0,
+    0.0
+   ],
+   "counted": false
+  }
+ ],
+ "effort": {
+  "founders": 4,
+  "new_versions": 8,
+  "designs_built": 22,
+  "runs": 918,
+  "stages": 4,
+  "changes_kept": 0
+ },
+ "headroom": {
+  "closest_rival": {
+   "test": "1_vs_control",
+   "rival": "OPUS_PROSE",
+   "lead": 0.0,
+   "range": [
+    0.0,
+    0.0
+   ],
+   "counted": false
+  },
+  "best_unproven": {
+   "where": "take apart",
+   "slot": "format",
+   "effect": 0.0625,
+   "range": [
+    -0.0107,
+    0.1357
+   ],
+   "verdict": "not kept"
+  }
+ }
+}

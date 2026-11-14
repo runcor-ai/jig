@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-LIGHTS",
+ "app_id": "LIGHTSLF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.3162,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "FINAL",
+ "item": "LIGHTS-H6",
+ "stage": "final"
+}

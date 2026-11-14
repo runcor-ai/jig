@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-BJACK",
+ "app_id": "BJACKLF-001",
+ "pipeline_status": "completed",
+ "fixes": 2,
+ "cost_usd": 0.7993,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "FINAL",
+ "item": "BJACK-H1",
+ "stage": "final"
+}

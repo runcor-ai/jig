@@ -1,0 +1,11 @@
+{
+ "id": "jf-24e062f1978f",
+ "spec_guidance": "",
+ "build_guidance": "",
+ "tests": "on",
+ "verify": "on",
+ "fixes": 2,
+ "format": "prose",
+ "builder": "opus",
+ "pipeline": "trial.jig"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-4610ac42795c-REVERS",
+ "app_id": "REVERSOF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.9078,
+ "builder": "opus",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_FACTS",
+ "item": "REVERS-H4",
+ "stage": "compare"
+}

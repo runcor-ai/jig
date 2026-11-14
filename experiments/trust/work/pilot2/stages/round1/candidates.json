@@ -1,0 +1,37 @@
+{
+ "step": "round1",
+ "alts": {
+  "spec_guidance": [
+   {
+    "value": "For every rule in the brief, state it as a pure function with an exact name, its inputs, and its return value, including types and units. Then list its edge cases with concrete input to output examples: boundary values, empty or zero states, ties, illegal moves (state stays the same and no error is thrown), win, lose and draw detection, and ordering when several rules trigger in one step. If the brief leaves something open, pick the simplest reading and say so.",
+    "rationale": "Hidden tests check game rules, so a spec with exact function signatures and worked edge-case examples gives the builder and verifier clear targets. This reduces guessing at boundaries and on illegal input, which is where rule tests usually fail.",
+    "label": "spec_guidance.1",
+    "archetype": 1
+   },
+   {
+    "value": "Keep all game state and rules separate from rendering. Expose a deterministic core: an initial-state function, a step or move function that returns a new state without changing the old one, and query functions for score, game over and winner. Any randomness must come from an injectable seed or RNG. Number each requirement and give each one a single checkable sentence covering both the expected result and what happens on bad input.",
+    "rationale": "A deterministic, injectable, pure core makes rule behavior testable and repeatable whatever the test harness looks like. Numbered single-sentence requirements also make the AI verify step stricter, which should cut down fix rounds.",
+    "label": "spec_guidance.2",
+    "archetype": 2
+   }
+  ],
+  "build_guidance": [
+   {
+    "value": "Before writing UI code, list every game rule in the spec as a numbered item. Implement the rules as pure functions over a plain state object, kept separate from rendering and input. Write one test per rule first, covering win, loss, scoring and turn order, then build the UI on top. Keep names and behaviour exactly as the spec states, and do not add or change rules.",
+    "rationale": "Keeping the rules apart from the UI and testing each one first makes the rule logic correct and easy to check. That logic is what the hidden acceptance tests score, and this should cut down on fix rounds.",
+    "label": "build_guidance.1",
+    "archetype": 1
+   },
+   {
+    "value": "Before finishing, re-read the brief and spec line by line and check each rule against your code. Test edge cases: first and last move, board edges, ties, invalid or repeated input, actions after game over, and restart returning to the exact initial state. Make sure the score and game-over state change at the right moment. Fix any mismatch in the code rather than explaining it away.",
+    "rationale": "This is a check at the end of the build, not a way of working at the start. It targets the edge-case and state-timing mistakes that slip past the builder's own tests but break rule-based acceptance tests.",
+    "label": "build_guidance.2",
+    "archetype": 2
+   }
+  ]
+ },
+ "extras": {
+  "best_id": "jf-644ca21fc68b"
+ },
+ "hash": "c2f22d5cbaaabacf"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-b9b1922096c2-CHESS",
+ "app_id": "CHESSLF-235",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4405,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D11",
+ "item": "CHESS-H6",
+ "stage": "takeapart"
+}

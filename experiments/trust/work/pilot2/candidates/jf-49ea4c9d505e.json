@@ -1,0 +1,11 @@
+{
+ "id": "jf-49ea4c9d505e",
+ "spec_guidance": "",
+ "build_guidance": "Before writing UI code, list every game rule in the spec as a numbered item. Implement the rules as pure functions over a plain state object, kept separate from rendering and input. Write one test per rule first, covering win, loss, scoring and turn order, then build the UI on top. Keep names and behaviour exactly as the spec states, and do not add or change rules.",
+ "tests": "on",
+ "verify": "on",
+ "fixes": 2,
+ "format": "facts",
+ "builder": "luna",
+ "pipeline": "trial.jig"
+}

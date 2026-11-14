@@ -1,0 +1,14 @@
+{
+ "build": "jf-154e434e683b-BATTLE",
+ "app_id": "BATTLELF-747",
+ "pipeline_status": "completed",
+ "fixes": 2,
+ "cost_usd": 1.179,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "spec_guidance.2",
+ "item": "BATTLE-H5",
+ "stage": "round1_screen"
+}

@@ -1,0 +1,11 @@
+{
+ "id": "jf-3afd436de7ca",
+ "spec_guidance": "For every rule in the brief, state it as a pure function with an exact name, its inputs, and its return value, including types and units. Then list its edge cases with concrete input to output examples: boundary values, empty or zero states, ties, illegal moves (state stays the same and no error is thrown), win, lose and draw detection, and ordering when several rules trigger in one step. If the brief leaves something open, pick the simplest reading and say so.",
+ "build_guidance": "",
+ "tests": "on",
+ "verify": "on",
+ "fixes": 2,
+ "format": "facts",
+ "builder": "luna",
+ "pipeline": "trial.jig"
+}

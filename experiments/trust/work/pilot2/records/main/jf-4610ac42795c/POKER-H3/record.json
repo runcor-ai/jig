@@ -1,0 +1,14 @@
+{
+ "build": "jf-4610ac42795c-POKER",
+ "app_id": "POKEROF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 1.0515,
+ "builder": "opus",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "OPUS_FACTS",
+ "item": "POKER-H3",
+ "stage": "compare"
+}

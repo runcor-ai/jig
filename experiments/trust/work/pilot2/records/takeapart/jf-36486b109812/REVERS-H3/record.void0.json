@@ -1,0 +1,15 @@
+{
+ "build": "jf-36486b109812-REVERS",
+ "app_id": "REVERSLF-234",
+ "pipeline_status": "failed",
+ "fixes": -1,
+ "cost_usd": 0.1561,
+ "builder": "luna",
+ "format": "facts",
+ "error": "the build did not produce src/logic.ts ({'code': 'E_SCRIPT', 'message': 'line 50: fail(): REVERSLF-234: specify failed'})",
+ "failure": "design",
+ "failure_type": "no src/logic.ts",
+ "design": "D13",
+ "item": "REVERS-H3",
+ "stage": "takeapart"
+}

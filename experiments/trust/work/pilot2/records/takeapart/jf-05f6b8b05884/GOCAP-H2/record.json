@@ -1,0 +1,14 @@
+{
+ "build": "jf-05f6b8b05884-GOCAP",
+ "app_id": "GOCAPLP-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4484,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D02",
+ "item": "GOCAP-H2",
+ "stage": "takeapart"
+}

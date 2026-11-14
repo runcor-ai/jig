@@ -1,0 +1,2972 @@
+{
+ "compare": {
+  "main": {
+   "n_items": 36,
+   "dropped": 0,
+   "mcb_q95": 0.0,
+   "designs": {
+    "OPUS_PROSE": {
+     "mean": 1.0,
+     "mean_exact": 1.0,
+     "range": [
+      1.0,
+      1.0
+     ],
+     "behind_best": 0.0,
+     "mcb_margin": 0.0,
+     "could_be_best": true
+    },
+    "OPUS_FACTS": {
+     "mean": 1.0,
+     "mean_exact": 1.0,
+     "range": [
+      1.0,
+      1.0
+     ],
+     "behind_best": 0.0,
+     "mcb_margin": 0.0,
+     "could_be_best": true
+    },
+    "LUNA_PROSE": {
+     "mean": 1.0,
+     "mean_exact": 1.0,
+     "range": [
+      1.0,
+      1.0
+     ],
+     "behind_best": 0.0,
+     "mcb_margin": 0.0,
+     "could_be_best": true
+    },
+    "LUNA_FACTS": {
+     "mean": 1.0,
+     "mean_exact": 1.0,
+     "range": [
+      1.0,
+      1.0
+     ],
+     "behind_best": 0.0,
+     "mcb_margin": 0.0,
+     "could_be_best": true
+    }
+   },
+   "leads_over_control": {
+    "OPUS_FACTS": {
+     "lead": 0.0,
+     "range": [
+      0.0,
+      0.0
+     ],
+     "p": 1.0,
+     "p_holm": 1.0,
+     "reject": false
+    },
+    "LUNA_PROSE": {
+     "lead": 0.0,
+     "range": [
+      0.0,
+      0.0
+     ],
+     "p": 1.0,
+     "p_holm": 1.0,
+     "reject": false
+    },
+    "LUNA_FACTS": {
+     "lead": 0.0,
+     "range": [
+      0.0,
+      0.0
+     ],
+     "p": 1.0,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "ranking": [
+    "LUNA_FACTS",
+    "LUNA_PROSE",
+    "OPUS_FACTS",
+    "OPUS_PROSE"
+   ]
+  },
+  "also": {},
+  "winner": "LUNA_FACTS",
+  "runner_up": "LUNA_PROSE",
+  "tie_at_top": true,
+  "top": {},
+  "by_level": {},
+  "pack": {
+   "builds": {
+    "jf-05f6b8b05884-CHECKR": {
+     "app_id": "CHECKRLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4012,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-CHESS": {
+     "app_id": "CHESSLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4098,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-CRIB": {
+     "app_id": "CRIBLP-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.564,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-GOCAP": {
+     "app_id": "GOCAPLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4484,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-POKER": {
+     "app_id": "POKERLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3886,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-REVERS": {
+     "app_id": "REVERSLP-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.8371,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CHECKR": {
+     "app_id": "CHECKROP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.3894,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CHESS": {
+     "app_id": "CHESSOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0792,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CRIB": {
+     "app_id": "CRIBOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.1155,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-GOCAP": {
+     "app_id": "GOCAPOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.8465,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-POKER": {
+     "app_id": "POKEROP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0069,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-REVERS": {
+     "app_id": "REVERSOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.8613,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CHECKR": {
+     "app_id": "CHECKROF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0709,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CHESS": {
+     "app_id": "CHESSOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.047,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CRIB": {
+     "app_id": "CRIBOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.178,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-GOCAP": {
+     "app_id": "GOCAPOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9061,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-POKER": {
+     "app_id": "POKEROF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0515,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-REVERS": {
+     "app_id": "REVERSOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9078,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CHECKR": {
+     "app_id": "CHECKRLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4496,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CHESS": {
+     "app_id": "CHESSLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4355,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CRIB": {
+     "app_id": "CRIBLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4607,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-GOCAP": {
+     "app_id": "GOCAPLF-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.6993,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-POKER": {
+     "app_id": "POKERLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4145,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-REVERS": {
+     "app_id": "REVERSLF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.648,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    }
+   }
+  }
+ },
+ "takeapart": {
+  "n_items": 36,
+  "dropped": 0,
+  "effects": {
+   "format": {
+    "effect": 0.0625,
+    "se": 0.0285,
+    "t": 2.196,
+    "p": 0.07952,
+    "df": 5,
+    "range": [
+     -0.0107,
+     0.1357
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.07952,
+     "p_holm": 0.7952,
+     "reject": false
+    }
+   },
+   "tests": {
+    "effect": -0.0417,
+    "se": 0.0234,
+    "t": -1.777,
+    "p": 0.13571,
+    "df": 5,
+    "range": [
+     -0.1019,
+     0.0186
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.13571,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "verify": {
+    "effect": -0.0208,
+    "se": 0.0215,
+    "t": -0.968,
+    "p": 0.37739,
+    "df": 5,
+    "range": [
+     -0.0761,
+     0.0345
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.37739,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "fixes": {
+    "effect": 0.0,
+    "se": 0.044,
+    "t": 0.0,
+    "p": 1.0,
+    "df": 5,
+    "range": [
+     -0.1132,
+     0.1132
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 1.0,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "format:tests": {
+    "effect": 0.0208,
+    "se": 0.0215,
+    "t": 0.968,
+    "p": 0.37739,
+    "df": 5,
+    "range": [
+     -0.0345,
+     0.0761
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.37739,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "format:verify": {
+    "effect": 0.0417,
+    "se": 0.0234,
+    "t": 1.777,
+    "p": 0.13571,
+    "df": 5,
+    "range": [
+     -0.0186,
+     0.1019
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.13571,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "format:fixes": {
+    "effect": -0.0208,
+    "se": 0.0285,
+    "t": -0.732,
+    "p": 0.49706,
+    "df": 5,
+    "range": [
+     -0.094,
+     0.0523
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.49706,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "tests:verify": {
+    "effect": -0.0347,
+    "se": 0.0206,
+    "t": -1.685,
+    "p": 0.1527,
+    "df": 5,
+    "range": [
+     -0.0877,
+     0.0182
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.1527,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "tests:fixes": {
+    "effect": 0.0139,
+    "se": 0.033,
+    "t": 0.421,
+    "p": 0.69144,
+    "df": 5,
+    "range": [
+     -0.071,
+     0.0988
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.69144,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   },
+   "verify:fixes": {
+    "effect": 0.0347,
+    "se": 0.0232,
+    "t": 1.494,
+    "p": 0.19539,
+    "df": 5,
+    "range": [
+     -0.025,
+     0.0945
+    ],
+    "confirmatory": true,
+    "holm": {
+     "p": 0.19539,
+     "p_holm": 1.0,
+     "reject": false
+    }
+   }
+  },
+  "kept_mains": [],
+  "kept_pairs": [],
+  "candidate": "D01",
+  "candidate_levels": {
+   "format": "-",
+   "tests": "-",
+   "verify": "-",
+   "fixes": "-"
+  },
+  "design_means": {
+   "D01": 1.0,
+   "D02": 1.0,
+   "D03": 0.9444,
+   "D04": 1.0,
+   "D05": 0.9444,
+   "D06": 1.0,
+   "D07": 0.7778,
+   "D08": 1.0,
+   "D09": 0.8889,
+   "D10": 1.0,
+   "D11": 1.0,
+   "D12": 0.9167,
+   "D13": 1.0,
+   "D14": 1.0,
+   "D15": 0.8611,
+   "D16": 1.0
+  },
+  "observed_best": "D01",
+  "final_design": "D01",
+  "replaces": false,
+  "direct": null,
+  "gain": 0.0,
+  "pack": {
+   "builds": {
+    "jf-05f6b8b05884-CHECKR": {
+     "app_id": "CHECKRLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4012,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-CHESS": {
+     "app_id": "CHESSLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4098,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-CRIB": {
+     "app_id": "CRIBLP-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.564,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-GOCAP": {
+     "app_id": "GOCAPLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4484,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-POKER": {
+     "app_id": "POKERLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3886,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-REVERS": {
+     "app_id": "REVERSLP-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.8371,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-08e340334921-CHECKR": {
+     "app_id": "CHECKRLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4118,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-08e340334921-CHESS": {
+     "app_id": "CHESSLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.5074,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-08e340334921-CRIB": {
+     "app_id": "CRIBLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4809,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-08e340334921-GOCAP": {
+     "app_id": "GOCAPLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.44,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-08e340334921-POKER": {
+     "app_id": "POKERLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4862,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-08e340334921-REVERS": {
+     "app_id": "REVERSLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3777,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CHECKR": {
+     "app_id": "CHECKROP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.3894,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CHESS": {
+     "app_id": "CHESSOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0792,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CRIB": {
+     "app_id": "CRIBOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.1155,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-GOCAP": {
+     "app_id": "GOCAPOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.8465,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-POKER": {
+     "app_id": "POKEROP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0069,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-REVERS": {
+     "app_id": "REVERSOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.8613,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-CHECKR": {
+     "app_id": "CHECKRLP-334",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4218,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-CHESS": {
+     "app_id": "CHESSLP-334",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.445,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-CRIB": {
+     "app_id": "CRIBLP-334",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6337,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-GOCAP": {
+     "app_id": "GOCAPLP-334",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6926,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-POKER": {
+     "app_id": "POKERLP-334",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.5165,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-REVERS": {
+     "app_id": "REVERSLP-334",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3588,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-CHECKR": {
+     "app_id": "CHECKRLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1896,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-CHESS": {
+     "app_id": "CHESSLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1872,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-CRIB": {
+     "app_id": "CRIBLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2119,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-GOCAP": {
+     "app_id": "GOCAPLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2038,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-POKER": {
+     "app_id": "POKERLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1954,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-REVERS": {
+     "app_id": "REVERSLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1619,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CHECKR": {
+     "app_id": "CHECKROF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0709,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CHESS": {
+     "app_id": "CHESSOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.047,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CRIB": {
+     "app_id": "CRIBOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.178,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-GOCAP": {
+     "app_id": "GOCAPOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9061,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-POKER": {
+     "app_id": "POKEROF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0515,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-REVERS": {
+     "app_id": "REVERSOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9078,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-CHECKR": {
+     "app_id": "CHECKRLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1654,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-CHESS": {
+     "app_id": "CHESSLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1372,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-CRIB": {
+     "app_id": "CRIBLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1586,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-GOCAP": {
+     "app_id": "GOCAPLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1467,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-POKER": {
+     "app_id": "POKERLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1451,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-REVERS": {
+     "app_id": "REVERSLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1211,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-CHECKR": {
+     "app_id": "CHECKRLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2819,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-CHESS": {
+     "app_id": "CHESSLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1546,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-CRIB": {
+     "app_id": "CRIBLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1741,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-GOCAP": {
+     "app_id": "GOCAPLP-952",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.159,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-POKER": {
+     "app_id": "POKERLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1371,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-REVERS": {
+     "app_id": "REVERSLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1338,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CHECKR": {
+     "app_id": "CHECKRLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4496,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CHESS": {
+     "app_id": "CHESSLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4355,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CRIB": {
+     "app_id": "CRIBLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4607,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-GOCAP": {
+     "app_id": "GOCAPLF-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.6993,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-POKER": {
+     "app_id": "POKERLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4145,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-REVERS": {
+     "app_id": "REVERSLF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.648,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-CHECKR": {
+     "app_id": "CHECKRLF-503",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.5124,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-CHESS": {
+     "app_id": "CHESSLF-503",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.55,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-CRIB": {
+     "app_id": "CRIBLF-503",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.9574,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-GOCAP": {
+     "app_id": "GOCAPLF-503",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4884,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-64feb1d17ae7-POKER": {
+     "app_id": "POKERLF-503",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.7138,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-REVERS": {
+     "app_id": "REVERSLF-503",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.778,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-6bf458754a68-CHECKR": {
+     "app_id": "CHECKRLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2066,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-6bf458754a68-CHESS": {
+     "app_id": "CHESSLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1987,
+     "hidden_passed": 2,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-6bf458754a68-CRIB": {
+     "app_id": "CRIBLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1816,
+     "hidden_passed": 5,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-6bf458754a68-GOCAP": {
+     "app_id": "GOCAPLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.205,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-6bf458754a68-POKER": {
+     "app_id": "POKERLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1829,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-6bf458754a68-REVERS": {
+     "app_id": "REVERSLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1701,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-CHECKR": {
+     "app_id": "CHECKRLF-820",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.1826,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-CHESS": {
+     "app_id": "CHESSLF-820",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1831,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-CRIB": {
+     "app_id": "CRIBLF-820",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2105,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-GOCAP": {
+     "app_id": "GOCAPLF-820",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1505,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-79b9dad936f0-POKER": {
+     "app_id": "POKERLF-820",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.179,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-REVERS": {
+     "app_id": "REVERSLF-820",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1703,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-CHECKR": {
+     "app_id": "CHECKRLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.5282,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-CHESS": {
+     "app_id": "CHESSLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4641,
+     "hidden_passed": 3,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-8ae024561877-CRIB": {
+     "app_id": "CRIBLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4952,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-GOCAP": {
+     "app_id": "GOCAPLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4002,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-POKER": {
+     "app_id": "POKERLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3953,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-REVERS": {
+     "app_id": "REVERSLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3554,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b73e473b0bb5-CHECKR": {
+     "app_id": "CHECKRLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1994,
+     "hidden_passed": 0,
+     "failure": null,
+     "failure_type": "logic does not compile or import"
+    },
+    "jf-b73e473b0bb5-CHESS": {
+     "app_id": "CHESSLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1938,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b73e473b0bb5-CRIB": {
+     "app_id": "CRIBLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.222,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b73e473b0bb5-GOCAP": {
+     "app_id": "GOCAPLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1987,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-b73e473b0bb5-POKER": {
+     "app_id": "POKERLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1602,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b73e473b0bb5-REVERS": {
+     "app_id": "REVERSLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1476,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-CHECKR": {
+     "app_id": "CHECKRLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1582,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-CHESS": {
+     "app_id": "CHESSLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1409,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-CRIB": {
+     "app_id": "CRIBLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1989,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-GOCAP": {
+     "app_id": "GOCAPLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.165,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-POKER": {
+     "app_id": "POKERLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1471,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-REVERS": {
+     "app_id": "REVERSLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1392,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-CHECKR": {
+     "app_id": "CHECKRLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4568,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-CHESS": {
+     "app_id": "CHESSLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4405,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-CRIB": {
+     "app_id": "CRIBLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4807,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-GOCAP": {
+     "app_id": "GOCAPLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4469,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-POKER": {
+     "app_id": "POKERLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4181,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-REVERS": {
+     "app_id": "REVERSLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3789,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-CHECKR": {
+     "app_id": "CHECKRLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1768,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-CHESS": {
+     "app_id": "CHESSLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1543,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-CRIB": {
+     "app_id": "CRIBLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1795,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-GOCAP": {
+     "app_id": "GOCAPLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.155,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-POKER": {
+     "app_id": "POKERLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1389,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-REVERS": {
+     "app_id": "REVERSLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1309,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-CHECKR": {
+     "app_id": "CHECKRLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4534,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-CHESS": {
+     "app_id": "CHESSLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3811,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-CRIB": {
+     "app_id": "CRIBLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4626,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-GOCAP": {
+     "app_id": "GOCAPLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3712,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-POKER": {
+     "app_id": "POKERLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3645,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-REVERS": {
+     "app_id": "REVERSLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4793,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    }
+   }
+  }
+ },
+ "round1_screen": {
+  "gate": 0.03,
+  "max_advance": 2,
+  "candidates": {
+   "spec_guidance.1": {
+    "slot": "spec_guidance",
+    "archetype": 1,
+    "estimate": 0.0,
+    "se": 0.0,
+    "t": 0.0,
+    "df": 2,
+    "p": 1.0,
+    "range": [
+     0.0,
+     0.0
+    ],
+    "n_items": 18,
+    "dropped": 0,
+    "clusters": 3,
+    "by_level": {},
+    "mean": 1.0
+   },
+   "spec_guidance.2": {
+    "slot": "spec_guidance",
+    "archetype": 2,
+    "estimate": 0.0,
+    "se": 0.0,
+    "t": 0.0,
+    "df": 2,
+    "p": 1.0,
+    "range": [
+     0.0,
+     0.0
+    ],
+    "n_items": 18,
+    "dropped": 0,
+    "clusters": 3,
+    "by_level": {},
+    "mean": 1.0
+   },
+   "build_guidance.1": {
+    "slot": "build_guidance",
+    "archetype": 1,
+    "estimate": 0.0,
+    "se": 0.0,
+    "t": 0.0,
+    "df": 2,
+    "p": 1.0,
+    "range": [
+     0.0,
+     0.0
+    ],
+    "n_items": 18,
+    "dropped": 0,
+    "clusters": 3,
+    "by_level": {},
+    "mean": 1.0
+   },
+   "build_guidance.2": {
+    "slot": "build_guidance",
+    "archetype": 2,
+    "estimate": 0.0,
+    "se": 0.0,
+    "t": 0.0,
+    "df": 2,
+    "p": 1.0,
+    "range": [
+     0.0,
+     0.0
+    ],
+    "n_items": 18,
+    "dropped": 0,
+    "clusters": 3,
+    "by_level": {},
+    "mean": 1.0
+   }
+  },
+  "slots": {
+   "spec_guidance": {
+    "best": "spec_guidance.1",
+    "difference": 0.0,
+    "passes_gate": false,
+    "advances": false
+   },
+   "build_guidance": {
+    "best": "build_guidance.1",
+    "difference": 0.0,
+    "passes_gate": false,
+    "advances": false
+   }
+  },
+  "advancing": {},
+  "capped": []
+ },
+ "final": {
+  "final_design": "take apart D01",
+  "final_id": "jf-644ca21fc68b",
+  "same_as_winner": true,
+  "rivals": {
+   "1_vs_control": "OPUS_PROSE",
+   "2_vs_runner_up": "LUNA_PROSE"
+  },
+  "sequence": {
+   "1_vs_control": {
+    "estimate": 0.0,
+    "se": 0.0,
+    "t": 0.0,
+    "df": 5,
+    "p": 1.0,
+    "range": [
+     0.0,
+     0.0
+    ],
+    "n_items": 36,
+    "dropped": 0,
+    "clusters": 6,
+    "boot": {
+     "lead": 0.0,
+     "range": [
+      0.0,
+      0.0
+     ],
+     "n_items": 36,
+     "dropped": 0,
+     "passes": false
+    },
+    "rival": "OPUS_PROSE",
+    "passes": false,
+    "counted": false
+   },
+   "2_vs_runner_up": {
+    "estimate": 0.0,
+    "se": 0.0,
+    "t": 0.0,
+    "df": 5,
+    "p": 1.0,
+    "range": [
+     0.0,
+     0.0
+    ],
+    "n_items": 36,
+    "dropped": 0,
+    "clusters": 6,
+    "boot": {
+     "lead": 0.0,
+     "range": [
+      0.0,
+      0.0
+     ],
+     "n_items": 36,
+     "dropped": 0,
+     "passes": false
+    },
+    "rival": "LUNA_PROSE",
+    "passes": false,
+    "counted": false
+   }
+  },
+  "sealed_means": {
+   "FINAL": {
+    "mean": 1.0,
+    "mean_exact": 1.0,
+    "range": [
+     1.0,
+     1.0
+    ],
+    "behind_best": 0.0,
+    "mcb_margin": 0.0,
+    "could_be_best": true
+   },
+   "OPUS_PROSE": {
+    "mean": 1.0,
+    "mean_exact": 1.0,
+    "range": [
+     1.0,
+     1.0
+    ],
+    "behind_best": 0.0,
+    "mcb_margin": 0.0,
+    "could_be_best": true
+   },
+   "LUNA_PROSE": {
+    "mean": 1.0,
+    "mean_exact": 1.0,
+    "range": [
+     1.0,
+     1.0
+    ],
+    "behind_best": 0.0,
+    "mcb_margin": 0.0,
+    "could_be_best": true
+   }
+  },
+  "by_level": {},
+  "also": {},
+  "pack": {
+   "builds": {
+    "jf-05f6b8b05884-BJACK": {
+     "app_id": "BJACKLP-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6383,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-CHECKR": {
+     "app_id": "CHECKRLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4012,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-CHESS": {
+     "app_id": "CHESSLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4098,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-CRIB": {
+     "app_id": "CRIBLP-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.564,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-GOCAP": {
+     "app_id": "GOCAPLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4484,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-LIFE": {
+     "app_id": "LIFELP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2881,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-LIGHTS": {
+     "app_id": "LIGHTSLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3152,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-MASTER": {
+     "app_id": "MASTERLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3444,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-POKER": {
+     "app_id": "POKERLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3886,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-REVERS": {
+     "app_id": "REVERSLP-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.8371,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-SOKO": {
+     "app_id": "SOKOLP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3732,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-05f6b8b05884-YAHTZ": {
+     "app_id": "YAHTZLP-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6675,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-08e340334921-CHECKR": {
+     "app_id": "CHECKRLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4118,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-08e340334921-CHESS": {
+     "app_id": "CHESSLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.5074,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-08e340334921-CRIB": {
+     "app_id": "CRIBLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4809,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-08e340334921-GOCAP": {
+     "app_id": "GOCAPLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.44,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-08e340334921-POKER": {
+     "app_id": "POKERLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4862,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-08e340334921-REVERS": {
+     "app_id": "REVERSLF-181",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3777,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-154e434e683b-BATTLE": {
+     "app_id": "BATTLELF-747",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 1.179,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-154e434e683b-HANOI": {
+     "app_id": "HANOILF-747",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.9581,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-154e434e683b-SLIDE": {
+     "app_id": "SLIDELF-747",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.6424,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-BJACK": {
+     "app_id": "BJACKOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9832,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CHECKR": {
+     "app_id": "CHECKROP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.3894,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CHESS": {
+     "app_id": "CHESSOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0792,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-CRIB": {
+     "app_id": "CRIBOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.1155,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-GOCAP": {
+     "app_id": "GOCAPOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.8465,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-LIFE": {
+     "app_id": "LIFEOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.6951,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-LIGHTS": {
+     "app_id": "LIGHTSOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.7456,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-MASTER": {
+     "app_id": "MASTEROP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9594,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-POKER": {
+     "app_id": "POKEROP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0069,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-REVERS": {
+     "app_id": "REVERSOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.8613,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-SOKO": {
+     "app_id": "SOKOOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9226,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-24e062f1978f-YAHTZ": {
+     "app_id": "YAHTZOP-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.2079,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-CHECKR": {
+     "app_id": "CHECKRLP-334",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4218,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-CHESS": {
+     "app_id": "CHESSLP-334",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.445,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-CRIB": {
+     "app_id": "CRIBLP-334",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6337,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-GOCAP": {
+     "app_id": "GOCAPLP-334",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6926,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-POKER": {
+     "app_id": "POKERLP-334",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.5165,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3009a4445f1e-REVERS": {
+     "app_id": "REVERSLP-334",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3588,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-CHECKR": {
+     "app_id": "CHECKRLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1896,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-CHESS": {
+     "app_id": "CHESSLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1872,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-CRIB": {
+     "app_id": "CRIBLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2119,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-GOCAP": {
+     "app_id": "GOCAPLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2038,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-POKER": {
+     "app_id": "POKERLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1954,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-36486b109812-REVERS": {
+     "app_id": "REVERSLF-234",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1619,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3afd436de7ca-BATTLE": {
+     "app_id": "BATTLELF-630",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.9517,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3afd436de7ca-HANOI": {
+     "app_id": "HANOILF-630",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.6681,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-3afd436de7ca-SLIDE": {
+     "app_id": "SLIDELF-630",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.7928,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CHECKR": {
+     "app_id": "CHECKROF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0709,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CHESS": {
+     "app_id": "CHESSOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.047,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-CRIB": {
+     "app_id": "CRIBOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.178,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-GOCAP": {
+     "app_id": "GOCAPOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9061,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-POKER": {
+     "app_id": "POKEROF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 1.0515,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4610ac42795c-REVERS": {
+     "app_id": "REVERSOF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.9078,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-49ea4c9d505e-BATTLE": {
+     "app_id": "BATTLELF-454",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3869,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-49ea4c9d505e-HANOI": {
+     "app_id": "HANOILF-454",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6538,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-49ea4c9d505e-SLIDE": {
+     "app_id": "SLIDELF-454",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6167,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4fff58659590-BATTLE": {
+     "app_id": "BATTLELF-616",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6442,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4fff58659590-HANOI": {
+     "app_id": "HANOILF-616",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.5935,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-4fff58659590-SLIDE": {
+     "app_id": "SLIDELF-616",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3442,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-CHECKR": {
+     "app_id": "CHECKRLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1654,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-CHESS": {
+     "app_id": "CHESSLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1372,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-CRIB": {
+     "app_id": "CRIBLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1586,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-GOCAP": {
+     "app_id": "GOCAPLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1467,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-POKER": {
+     "app_id": "POKERLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1451,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-528035ffeeed-REVERS": {
+     "app_id": "REVERSLP-613",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1211,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-CHECKR": {
+     "app_id": "CHECKRLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2819,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-CHESS": {
+     "app_id": "CHESSLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1546,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-CRIB": {
+     "app_id": "CRIBLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1741,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-GOCAP": {
+     "app_id": "GOCAPLP-952",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.159,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-POKER": {
+     "app_id": "POKERLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1371,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-605a962b2ba0-REVERS": {
+     "app_id": "REVERSLP-952",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1338,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-BATTLE": {
+     "app_id": "BATTLELF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6749,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-BJACK": {
+     "app_id": "BJACKLF-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.7993,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CHECKR": {
+     "app_id": "CHECKRLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4496,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CHESS": {
+     "app_id": "CHESSLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4355,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-CRIB": {
+     "app_id": "CRIBLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4607,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-GOCAP": {
+     "app_id": "GOCAPLF-001",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.6993,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-HANOI": {
+     "app_id": "HANOILF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.361,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-LIFE": {
+     "app_id": "LIFELF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.442,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-LIGHTS": {
+     "app_id": "LIGHTSLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3162,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-MASTER": {
+     "app_id": "MASTERLF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6106,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-POKER": {
+     "app_id": "POKERLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4145,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-REVERS": {
+     "app_id": "REVERSLF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.648,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-SLIDE": {
+     "app_id": "SLIDELF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.577,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-SOKO": {
+     "app_id": "SOKOLF-001",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3406,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-644ca21fc68b-YAHTZ": {
+     "app_id": "YAHTZLF-001",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.6697,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-CHECKR": {
+     "app_id": "CHECKRLF-503",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.5124,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-CHESS": {
+     "app_id": "CHESSLF-503",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.55,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-CRIB": {
+     "app_id": "CRIBLF-503",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.9574,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-GOCAP": {
+     "app_id": "GOCAPLF-503",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4884,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-64feb1d17ae7-POKER": {
+     "app_id": "POKERLF-503",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.7138,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-64feb1d17ae7-REVERS": {
+     "app_id": "REVERSLF-503",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.778,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-6bf458754a68-CHECKR": {
+     "app_id": "CHECKRLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2066,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-6bf458754a68-CHESS": {
+     "app_id": "CHESSLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1987,
+     "hidden_passed": 2,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-6bf458754a68-CRIB": {
+     "app_id": "CRIBLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1816,
+     "hidden_passed": 5,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-6bf458754a68-GOCAP": {
+     "app_id": "GOCAPLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.205,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-6bf458754a68-POKER": {
+     "app_id": "POKERLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1829,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-6bf458754a68-REVERS": {
+     "app_id": "REVERSLF-324",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1701,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-CHECKR": {
+     "app_id": "CHECKRLF-820",
+     "pipeline_status": "completed",
+     "fixes": 2,
+     "cost_usd": 0.1826,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-CHESS": {
+     "app_id": "CHESSLF-820",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1831,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-CRIB": {
+     "app_id": "CRIBLF-820",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.2105,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-GOCAP": {
+     "app_id": "GOCAPLF-820",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1505,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-79b9dad936f0-POKER": {
+     "app_id": "POKERLF-820",
+     "pipeline_status": "completed",
+     "fixes": 1,
+     "cost_usd": 0.179,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-79b9dad936f0-REVERS": {
+     "app_id": "REVERSLF-820",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1703,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-CHECKR": {
+     "app_id": "CHECKRLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.5282,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-CHESS": {
+     "app_id": "CHESSLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4641,
+     "hidden_passed": 3,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-8ae024561877-CRIB": {
+     "app_id": "CRIBLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4952,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-GOCAP": {
+     "app_id": "GOCAPLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4002,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-POKER": {
+     "app_id": "POKERLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3953,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-8ae024561877-REVERS": {
+     "app_id": "REVERSLP-727",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3554,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b73e473b0bb5-CHECKR": {
+     "app_id": "CHECKRLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1994,
+     "hidden_passed": 0,
+     "failure": null,
+     "failure_type": "logic does not compile or import"
+    },
+    "jf-b73e473b0bb5-CHESS": {
+     "app_id": "CHESSLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1938,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b73e473b0bb5-CRIB": {
+     "app_id": "CRIBLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.222,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b73e473b0bb5-GOCAP": {
+     "app_id": "GOCAPLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1987,
+     "hidden_passed": 4,
+     "failure": null,
+     "failure_type": "hidden test failed"
+    },
+    "jf-b73e473b0bb5-POKER": {
+     "app_id": "POKERLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1602,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b73e473b0bb5-REVERS": {
+     "app_id": "REVERSLF-817",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1476,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-CHECKR": {
+     "app_id": "CHECKRLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1582,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-CHESS": {
+     "app_id": "CHESSLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1409,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-CRIB": {
+     "app_id": "CRIBLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1989,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-GOCAP": {
+     "app_id": "GOCAPLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.165,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-POKER": {
+     "app_id": "POKERLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1471,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b81d886a0e27-REVERS": {
+     "app_id": "REVERSLP-983",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1392,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-CHECKR": {
+     "app_id": "CHECKRLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4568,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-CHESS": {
+     "app_id": "CHESSLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4405,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-CRIB": {
+     "app_id": "CRIBLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4807,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-GOCAP": {
+     "app_id": "GOCAPLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4469,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-POKER": {
+     "app_id": "POKERLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4181,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-b9b1922096c2-REVERS": {
+     "app_id": "REVERSLF-235",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3789,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-CHECKR": {
+     "app_id": "CHECKRLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1768,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-CHESS": {
+     "app_id": "CHESSLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1543,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-CRIB": {
+     "app_id": "CRIBLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1795,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-GOCAP": {
+     "app_id": "GOCAPLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.155,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-POKER": {
+     "app_id": "POKERLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1389,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-d88a6f4c2cb8-REVERS": {
+     "app_id": "REVERSLP-224",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.1309,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-CHECKR": {
+     "app_id": "CHECKRLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4534,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-CHESS": {
+     "app_id": "CHESSLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3811,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-CRIB": {
+     "app_id": "CRIBLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4626,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-GOCAP": {
+     "app_id": "GOCAPLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3712,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-POKER": {
+     "app_id": "POKERLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.3645,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    },
+    "jf-dc10afc79816-REVERS": {
+     "app_id": "REVERSLP-554",
+     "pipeline_status": "completed",
+     "fixes": 0,
+     "cost_usd": 0.4793,
+     "hidden_passed": 6,
+     "failure": null,
+     "failure_type": null
+    }
+   }
+  }
+ }
+}

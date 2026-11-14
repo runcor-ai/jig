@@ -1,0 +1,14 @@
+{
+ "build": "jf-6bf458754a68-CHESS",
+ "app_id": "CHESSLF-324",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1987,
+ "builder": "luna",
+ "format": "facts",
+ "score": 0.0,
+ "failure_type": "hidden test failed",
+ "design": "D15",
+ "item": "CHESS-H5",
+ "stage": "takeapart"
+}

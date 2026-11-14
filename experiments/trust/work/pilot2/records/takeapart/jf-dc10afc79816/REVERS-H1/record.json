@@ -1,0 +1,14 @@
+{
+ "build": "jf-dc10afc79816-REVERS",
+ "app_id": "REVERSLP-554",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4793,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D10",
+ "item": "REVERS-H1",
+ "stage": "takeapart"
+}

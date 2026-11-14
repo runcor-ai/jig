@@ -1,0 +1,11 @@
+{
+ "id": "jf-154e434e683b",
+ "spec_guidance": "Keep all game state and rules separate from rendering. Expose a deterministic core: an initial-state function, a step or move function that returns a new state without changing the old one, and query functions for score, game over and winner. Any randomness must come from an injectable seed or RNG. Number each requirement and give each one a single checkable sentence covering both the expected result and what happens on bad input.",
+ "build_guidance": "",
+ "tests": "on",
+ "verify": "on",
+ "fixes": 2,
+ "format": "facts",
+ "builder": "luna",
+ "pipeline": "trial.jig"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-POKER",
+ "app_id": "POKERLF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4145,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_FACTS",
+ "item": "POKER-H6",
+ "stage": "compare"
+}

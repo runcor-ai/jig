@@ -1,0 +1,14 @@
+{
+ "build": "jf-36486b109812-REVERS",
+ "app_id": "REVERSLF-234",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1619,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D13",
+ "item": "REVERS-H4",
+ "stage": "takeapart"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-3afd436de7ca-HANOI",
+ "app_id": "HANOILF-630",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.6681,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "spec_guidance.1",
+ "item": "HANOI-H2",
+ "stage": "round1_screen"
+}

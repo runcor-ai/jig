@@ -1,0 +1,14 @@
+{
+ "build": "jf-b9b1922096c2-REVERS",
+ "app_id": "REVERSLF-234",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.4133,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D11",
+ "item": "REVERS-H2",
+ "stage": "takeapart"
+}

@@ -1,0 +1,14 @@
+{
+ "build": "jf-528035ffeeed-CRIB",
+ "app_id": "CRIBLP-613",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1586,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D08",
+ "item": "CRIB-H2",
+ "stage": "takeapart"
+}

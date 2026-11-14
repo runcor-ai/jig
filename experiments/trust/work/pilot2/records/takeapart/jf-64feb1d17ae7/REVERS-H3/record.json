@@ -1,0 +1,14 @@
+{
+ "build": "jf-64feb1d17ae7-REVERS",
+ "app_id": "REVERSLF-503",
+ "pipeline_status": "completed",
+ "fixes": 2,
+ "cost_usd": 0.778,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D03",
+ "item": "REVERS-H3",
+ "stage": "takeapart"
+}

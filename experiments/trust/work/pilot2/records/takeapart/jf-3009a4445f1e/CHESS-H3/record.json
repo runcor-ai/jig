@@ -1,0 +1,14 @@
+{
+ "build": "jf-3009a4445f1e-CHESS",
+ "app_id": "CHESSLP-334",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.445,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D04",
+ "item": "CHESS-H3",
+ "stage": "takeapart"
+}

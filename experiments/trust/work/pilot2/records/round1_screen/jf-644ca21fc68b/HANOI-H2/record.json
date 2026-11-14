@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-HANOI",
+ "app_id": "HANOILF-001",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.361,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "CUR",
+ "item": "HANOI-H2",
+ "stage": "round1_screen"
+}

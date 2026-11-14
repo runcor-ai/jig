@@ -1,0 +1,15 @@
+{
+ "build": "jf-36486b109812-CHESS",
+ "app_id": "CHESSLF-234",
+ "pipeline_status": "failed",
+ "fixes": -1,
+ "cost_usd": 0.2119,
+ "builder": "luna",
+ "format": "facts",
+ "error": "the build did not produce src/logic.ts ({'code': 'E_SCRIPT', 'message': 'line 50: fail(): CHESSLF-234: specify failed'})",
+ "failure": "design",
+ "failure_type": "no src/logic.ts",
+ "design": "D13",
+ "item": "CHESS-H2",
+ "stage": "takeapart"
+}

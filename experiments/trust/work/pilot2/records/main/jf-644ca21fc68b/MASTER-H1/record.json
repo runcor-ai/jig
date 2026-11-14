@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-MASTER",
+ "app_id": "MASTERLF-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.6106,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "FINAL",
+ "item": "MASTER-H1",
+ "stage": "final"
+}

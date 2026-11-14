@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-BATTLE",
+ "app_id": "BATTLELF-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.6749,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "CUR",
+ "item": "BATTLE-H2",
+ "stage": "round1_screen"
+}

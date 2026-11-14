@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-SLIDE",
+ "app_id": "SLIDELF-001",
+ "pipeline_status": "completed",
+ "fixes": 1,
+ "cost_usd": 0.577,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "CUR",
+ "item": "SLIDE-H1",
+ "stage": "round1_screen"
+}

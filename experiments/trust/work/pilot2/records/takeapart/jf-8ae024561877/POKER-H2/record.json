@@ -1,0 +1,14 @@
+{
+ "build": "jf-8ae024561877-POKER",
+ "app_id": "POKERLP-727",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.3953,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D12",
+ "item": "POKER-H2",
+ "stage": "takeapart"
+}

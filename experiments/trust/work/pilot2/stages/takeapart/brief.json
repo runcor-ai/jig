@@ -1,0 +1,17 @@
+{
+ "evidence": {
+  "n_items": 36,
+  "mean": 1.0,
+  "by_level": {},
+  "failure_types": {},
+  "pack": {
+   "builds": 6,
+   "builds_needing_fix_rounds": 2,
+   "mean_fix_rounds": 0.5,
+   "builds_that_failed_outright": 0,
+   "hidden_check_failures_by_type": {}
+  },
+  "history": []
+ },
+ "text": "WHAT EARLIER STAGES MEASURED (scores only; no test case is shown)\nCurrent best: mean score 1.0 on 36 test cases.\nbuilds: 6\nbuilds_needing_fix_rounds: 2\nmean_fix_rounds: 0.5\nbuilds_that_failed_outright: 0\nhidden_check_failures_by_type: {}"
+}

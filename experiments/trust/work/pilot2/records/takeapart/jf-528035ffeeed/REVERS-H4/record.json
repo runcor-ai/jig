@@ -1,0 +1,14 @@
+{
+ "build": "jf-528035ffeeed-REVERS",
+ "app_id": "REVERSLP-613",
+ "pipeline_status": "completed",
+ "fixes": 0,
+ "cost_usd": 0.1211,
+ "builder": "luna",
+ "format": "prose",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "D08",
+ "item": "REVERS-H4",
+ "stage": "takeapart"
+}

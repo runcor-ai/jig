@@ -1,0 +1,14 @@
+{
+ "build": "jf-644ca21fc68b-GOCAP",
+ "app_id": "GOCAPLF-001",
+ "pipeline_status": "completed",
+ "fixes": 2,
+ "cost_usd": 0.6993,
+ "builder": "luna",
+ "format": "facts",
+ "score": 1.0,
+ "failure_type": null,
+ "design": "LUNA_FACTS",
+ "item": "GOCAP-H1",
+ "stage": "compare"
+}

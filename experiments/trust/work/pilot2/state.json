@@ -1,0 +1,184 @@
+{
+ "step": "done",
+ "events": [
+  {
+   "t": "2026-11-14T15:03:23",
+   "msg": "compare: 4 founders x 36 items"
+  },
+  {
+   "t": "2026-11-14T15:13:07",
+   "msg": "compare: 4 founders x 36 items"
+  },
+  {
+   "t": "2026-11-14T15:28:26",
+   "msg": "compare done: winner LUNA_FACTS, runner-up LUNA_PROSE (tied at the top)"
+  },
+  {
+   "t": "2026-11-14T15:28:26",
+   "msg": "takeapart: 4 new versions written and frozen (hash 8efe82550ae77ce0)"
+  },
+  {
+   "t": "2026-11-14T15:28:26",
+   "msg": "take apart: versions approved; the factorial starts"
+  },
+  {
+   "t": "2026-11-14T15:28:26",
+   "msg": "take apart: 16 designs x 36 items"
+  },
+  {
+   "t": "2026-11-14T15:54:08",
+   "msg": "take apart: 16 designs x 36 items"
+  },
+  {
+   "t": "2026-11-14T16:34:00",
+   "msg": "take apart done: D01 (keeps the winner; no part passed the effect test)"
+  },
+  {
+   "t": "2026-11-14T16:34:38",
+   "msg": "round1: 4 new versions written and frozen (hash c2f22d5cbaaabacf)"
+  },
+  {
+   "t": "2026-11-14T16:34:38",
+   "msg": "round 1: versions approved; the screen starts"
+  },
+  {
+   "t": "2026-11-14T16:34:38",
+   "msg": "round 1 screen: 5 designs x 18 items"
+  },
+  {
+   "t": "2026-11-14T16:52:18",
+   "msg": "round 1 screen: no part's best version leads by +0.03; the rounds stop and the final check follows"
+  },
+  {
+   "t": "2026-11-14T16:52:18",
+   "msg": "sealed set 'sealed' opened (36 items); it is never closed again"
+  },
+  {
+   "t": "2026-11-14T16:52:18",
+   "msg": "final check: 3 designs x 36 sealed items"
+  },
+  {
+   "t": "2026-11-14T17:08:48",
+   "msg": "final check done: 1_vs_control (OPUS_PROSE) lead 0.0 [0.0, 0.0] not counted; 2_vs_runner_up (LUNA_PROSE) lead 0.0 [0.0, 0.0] not counted"
+  },
+  {
+   "t": "2026-11-14T17:08:48",
+   "msg": "trust report written (C:\\dev\\Lattice Script\\experiments\\trust\\work\\pilot2\\report.html); the run is complete"
+  }
+ ],
+ "history": [
+  {
+   "where": "take apart",
+   "slot": "format",
+   "effect": 0.0625,
+   "range": [
+    -0.0107,
+    0.1357
+   ],
+   "value": "prose",
+   "verdict": "not kept"
+  },
+  {
+   "where": "take apart",
+   "slot": "tests",
+   "effect": -0.0417,
+   "range": [
+    -0.1019,
+    0.0186
+   ],
+   "value": "off",
+   "verdict": "not kept"
+  },
+  {
+   "where": "take apart",
+   "slot": "verify",
+   "effect": -0.0208,
+   "range": [
+    -0.0761,
+    0.0345
+   ],
+   "value": "off",
+   "verdict": "not kept"
+  },
+  {
+   "where": "take apart",
+   "slot": "fixes",
+   "effect": 0.0,
+   "range": [
+    -0.1132,
+    0.1132
+   ],
+   "value": 0,
+   "verdict": "not kept"
+  },
+  {
+   "where": "round 1 screen",
+   "slot": "spec_guidance",
+   "effect": 0.0,
+   "range": [
+    0.0,
+    0.0
+   ],
+   "value": "For every rule in the brief, state it as a pure function with an exact name, its inputs, and its return value, including types and units. Then list its edge cases with concrete input to output examples: boundary values, empty or zero states, ties, illegal moves (state stays the same and no error is thrown), win, lose and draw detection, and ordering when several rules trigger in one step. If the brief leaves something open, pick the simplest reading and say so.",
+   "verdict": "screened out"
+  },
+  {
+   "where": "round 1 screen",
+   "slot": "spec_guidance",
+   "effect": 0.0,
+   "range": [
+    0.0,
+    0.0
+   ],
+   "value": null,
+   "verdict": "screened out"
+  },
+  {
+   "where": "round 1 screen",
+   "slot": "build_guidance",
+   "effect": 0.0,
+   "range": [
+    0.0,
+    0.0
+   ],
+   "value": "Before writing UI code, list every game rule in the spec as a numbered item. Implement the rules as pure functions over a plain state object, kept separate from rendering and input. Write one test per rule first, covering win, loss, scoring and turn order, then build the UI on top. Keep names and behaviour exactly as the spec states, and do not add or change rules.",
+   "verdict": "screened out"
+  },
+  {
+   "where": "round 1 screen",
+   "slot": "build_guidance",
+   "effect": 0.0,
+   "range": [
+    0.0,
+    0.0
+   ],
+   "value": null,
+   "verdict": "screened out"
+  }
+ ],
+ "progress": {
+  "stage": "final",
+  "planned": 108,
+  "done": 108,
+  "t0": 1794696738.5960562
+ },
+ "winner": "LUNA_FACTS",
+ "winner_id": "jf-644ca21fc68b",
+ "runner_up": "LUNA_PROSE",
+ "top": {},
+ "best": {
+  "label": "take apart D01",
+  "id": "jf-644ca21fc68b",
+  "folder": "takeapart",
+  "items": "compare",
+  "from": "takeapart"
+ },
+ "round": 1,
+ "round1_advancing": {},
+ "opened": {
+  "sealed": {
+   "t": "2026-11-14T16:52:18",
+   "set": "sealed"
+  }
+ }
+}

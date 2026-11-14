@@ -1,18 +1,69 @@
 {
  "name": "jig_trust_pilot2",
- "about": "Pilot 2 (14 Nov 2026), locked once before any build and not changed after. How far can a Jig way of building software be trusted, and which parts of the script earn their place? Four founders = spec format (prose, facts) x builder (opus = Claude Opus through Claude Code, luna = GPT-6 Luna through Codex); Claude Opus always writes the spec and does the verifying. OPUS_PROSE is the control: the game factory as it works today. Compare: 6 harder briefs written for pilot 2 (poker hands, reversi, checkers, Go capture rules, cribbage counting, chess move legality), because in pilot 1 (a dry run) every founder passed every check of the easier briefs. Take apart: the script itself on the same 6 briefs; parts = spec format and three steps as switches (the test step, the verify step, the fix rounds), each alternative the step switched off; all 16 combinations. Build out: one round in which the designer (Claude Opus, no tools, firewalled brief) writes 2 versions each of two text parts (an extra rule for the spec writer, extra notes for the builder), screened on 3 fresh briefs and confirmed on 3 more. Sealed: the 6 sealed briefs written before pilot 1 and never opened. Every brief has 6 hidden acceptance checks, frozen (jig_trust/frozen.py) and proven on a reference implementation (check_references.py). Score: 1 per hidden check passed; the 6 checks of a brief form a cluster. Too small to be a result: a pilot of the bridge, with a first trust score.",
+ "about": "Pilot 2 (14 Nov 2026), locked once before any build and not changed after. How far can a Jig way of building software be trusted, and which parts of the script earn their place? Four founders = spec format (prose, facts) x builder (opus = Claude Opus through Claude Code, luna = GPT-6 Luna through Codex); Claude Opus always writes the spec and does the verifying. OPUS_PROSE is the control: the game factory as it works today. Compare: 6 harder briefs written for pilot 2 (poker hands, reversi, checkers, Go capture rules, cribbage counting, chess move legality), because in pilot 1 (a dry run) every founder passed every check of the easier briefs. Take apart: the script itself on the same 6 briefs; parts = spec format and three steps as switches (the test step, the verify step, the fix rounds), each alternative the step switched off; all 16 combinations. Build out: one round in which the designer (Claude Opus, no tools, firewalled brief) writes 2 versions each of two text parts (an extra rule for the spec writer, extra notes for the builder), screened on 3 fresh briefs and confirmed on 3 more. Sealed: the 6 sealed briefs written before pilot 1 and never opened. Every brief has 6 hidden acceptance checks, frozen (jig_trust/frozen.py) and proven on a reference implementation (check_references.py). Score: 1 per hidden check passed; the 6 checks of a brief form a cluster. Too small to be a result: a pilot of the bridge, with a first trust score. OPERATIONAL CHANGE (lock 2, 14 Nov 2026, during the comparison): builds run at once raised from 5 to 10 at the user's request, to shorten the run; no rule, item, candidate or score is affected; the builds in flight were stopped before they were scored and are built again. FIX (lock 3, 14 Nov 2026, during the take apart): two take-apart versions were given the same game id by a hash-based number and disturbed each other's builds (one's spec step failed on the taken id and was scored 0 by mistake). The pack now gives each designed version a unique recorded number; all builds and engine records of both versions were voided (kept, renamed) and are rebuilt. No other result was affected.",
  "pack": "jig_trust.pack:JigFactoryPack",
- "pack_options": {"trials_dir": "C:/dev/jig-trials-p2", "max_builds": 5, "max_cost_usd": 150.0,
-                  "compare_briefs": ["POKER", "REVERS", "CHECKR", "GOCAP", "CRIB", "CHESS"]},
+ "pack_options": {
+  "trials_dir": "C:/dev/jig-trials-p2",
+  "max_builds": 10,
+  "max_cost_usd": 150.0,
+  "compare_briefs": [
+   "POKER",
+   "REVERS",
+   "CHECKR",
+   "GOCAP",
+   "CRIB",
+   "CHESS"
+  ]
+ },
  "work": "C:/dev/Lattice Script/experiments/trust/work/pilot2",
  "control": "OPUS_PROSE",
- "sets": {"compare": "compare", "takeapart": "compare",
-          "rounds": [{"screen": "r1_screen", "confirm": "r1_confirm"}], "sealed": "sealed"},
- "takeapart": {"slots": ["format", "tests", "verify", "fixes"]},
- "buildout": {"slots": ["spec_guidance", "build_guidance"], "per_slot": 2, "screen_gate": 0.03, "max_advance": 2,
-              "converge": 0.005},
- "final": {"rivals": ["control", "runner_up"]},
- "run": {"workers": 24, "retries": 1, "backoff": [120, 600]},
- "stats": {"boot": 10000, "seed": 20261115, "alpha": 0.05},
+ "sets": {
+  "compare": "compare",
+  "takeapart": "compare",
+  "rounds": [
+   {
+    "screen": "r1_screen",
+    "confirm": "r1_confirm"
+   }
+  ],
+  "sealed": "sealed"
+ },
+ "takeapart": {
+  "slots": [
+   "format",
+   "tests",
+   "verify",
+   "fixes"
+  ]
+ },
+ "buildout": {
+  "slots": [
+   "spec_guidance",
+   "build_guidance"
+  ],
+  "per_slot": 2,
+  "screen_gate": 0.03,
+  "max_advance": 2,
+  "converge": 0.005
+ },
+ "final": {
+  "rivals": [
+   "control",
+   "runner_up"
+  ]
+ },
+ "run": {
+  "workers": 24,
+  "retries": 1,
+  "backoff": [
+   120,
+   600
+  ]
+ },
+ "stats": {
+  "boot": 10000,
+  "seed": 20261115,
+  "alpha": 0.05
+ },
  "approval": "auto"
 }
