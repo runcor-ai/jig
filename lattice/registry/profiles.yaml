@@ -1,0 +1,153 @@
+# Reusable, versioned configuration profiles.
+# Pin a version in scripts with  standard="enterprise@1.0.0" ; override any leaf
+# with  overrides={"security.audit_logging": false}.
+version: "0.1.0"
+
+profiles:
+  enterprise:
+    version: "1.0.0"
+    description: Baseline controls for business applications handling customer data.
+    security:
+      authentication_required: true
+      authorization_required: true
+      audit_logging: true
+      secrets_management: true
+      input_validation: true
+    quality:
+      automated_tests: true
+      code_review: true
+      documentation: true
+    deployment:
+      production_approval_required: true
+
+  simple:
+    version: "1.0.0"
+    description: Small apps and tools. A README and basic automated tests; no auth, audit or approvals.
+    security:
+      authentication_required: false
+      authorization_required: false
+      audit_logging: false
+      secrets_management: false
+      input_validation: true
+    quality:
+      automated_tests: true
+      code_review: false
+      documentation: true
+    deployment:
+      production_approval_required: false
+
+  prototype:
+    version: "1.0.0"
+    description: Minimal controls for throwaway exploration.
+    security:
+      authentication_required: false
+      authorization_required: false
+      audit_logging: false
+      secrets_management: false
+      input_validation: true
+    quality:
+      automated_tests: false
+      code_review: false
+      documentation: false
+    deployment:
+      production_approval_required: true
+
+stacks:
+  react_vite:
+    version: "1.0.0"
+    match: [react]
+    also_matches: [[react, typescript]]
+    frontend:
+      framework: React
+      language: TypeScript
+      build: Vite
+      test: Vitest
+    database:
+      engine: browser localStorage
+    contract:
+      required_paths: [package.json, index.html, src, README.md]
+      rules:
+        - "Single Vite + React + TypeScript project at the workspace root; no backend. Persist data in the browser (localStorage) unless the requirement says otherwise."
+        - "`npm test` runs `vitest run` once (no watch) using jsdom and @testing-library/react."
+        - "`npx vitest run --reporter=junit --outputFile=test-results/junit.xml` must work."
+        - "`npm run build` must produce dist/index.html."
+      build_steps:
+        - "Create the project files by hand (do not run interactive scaffolders): package.json, index.html, vite.config.ts, tsconfig.json, src/, README.md."
+        - "Run `npm install`, then `npm test` and `npm run build`, and fix failures until both pass."
+    test_suites:
+      - name: unit
+        type: junit
+        prepare: [[npm, install, --no-audit, --no-fund]]
+        command: [npx, vitest, run, --reporter=junit, --outputFile=test-results/junit.xml]
+        reports: [test-results/*.xml]
+        clean: [test-results]
+        timeout_s: 900
+      - name: build
+        type: command
+        command: [npm, run, build]
+        expect_files: [dist/index.html]
+        timeout_s: 600
+
+  java_react_postgres:
+    version: "1.0.0"
+    match: [java, react, postgresql]
+    backend:
+      language: Java
+      version: "21"
+      framework: Spring Boot
+      build: Maven
+      migrations: Flyway
+    frontend:
+      framework: React
+      language: TypeScript
+      build: Vite
+      test: Vitest
+    database:
+      engine: PostgreSQL
+      version: "16"
+    # The contract the build agent must satisfy. It is what makes `test` able
+    # to run suites without trusting the agent's own claims.
+    contract:
+      required_paths:
+        - backend/pom.xml
+        - frontend/package.json
+        - docker-compose.yml
+        - README.md
+      compose_file: docker-compose.yml
+      compose_services: [db, backend, frontend, backend-test, frontend-test]
+      migrations_glob: backend/src/main/resources/db/migration/*.sql
+      rules:
+        - "Host ports come from environment variables that Lattice sets per app (so several apps can run at once): use ${BACKEND_PORT:-8080}, ${FRONTEND_PORT:-3000} and ${DB_PORT:-5432} for the published ports in docker-compose.yml. Container-internal ports stay fixed. Do not hard-code host ports or a compose project name."
+        - "`docker compose run --rm backend-test` must run `mvn -B verify` (unit + integration tests) against the compose `db` service, with ./backend bind-mounted at /app so JUnit XML lands in backend/target/surefire-reports (and failsafe-reports if used)."
+        - "`docker compose run --rm frontend-test` must run the Vitest suite once (no watch) with the junit reporter writing frontend/test-results/junit.xml, with ./frontend bind-mounted."
+        - "`docker compose up -d --build db backend frontend` must start the app: API on http://localhost:$BACKEND_PORT, UI on http://localhost:$FRONTEND_PORT."
+        - "GET /actuator/health on the backend must return 200 without authentication; every /api/** endpoint except authentication must return 401 without credentials."
+        - "Secrets (DB password, JWT/signing keys) come from environment variables with development-only defaults documented in .env.example; never commit real secrets."
+        - "Use a Maven cache volume in compose for backend-test so repeated runs are fast."
+      build_steps:
+        - "Implement backend (with database migrations), frontend, docker-compose.yml, .env.example and README.md (setup, configuration, running, testing, deployment notes, documented assumptions)."
+        - "Write real automated tests: backend unit tests and integration tests that hit PostgreSQL, and frontend component tests."
+        - "Run `docker compose run --rm backend-test` and `docker compose run --rm frontend-test` and fix failures until they pass. Then `docker compose up -d --build db backend frontend`, check the contract endpoints with curl on the ports in $BACKEND_PORT / $FRONTEND_PORT, and `docker compose down`."
+    test_suites:
+      - name: backend
+        type: junit
+        command: [docker, compose, run, --rm, backend-test]
+        reports: [backend/target/surefire-reports/*.xml, backend/target/failsafe-reports/*.xml]
+        clean: [backend/target/surefire-reports, backend/target/failsafe-reports]
+        timeout_s: 2400
+      - name: frontend
+        type: junit
+        command: [docker, compose, run, --rm, frontend-test]
+        reports: [frontend/test-results/*.xml]
+        clean: [frontend/test-results]
+        timeout_s: 1200
+      - name: smoke
+        type: http
+        setup: [docker, compose, up, -d, --build, db, backend, frontend]
+        teardown: [docker, compose, down]
+        wait_s: 240
+        timeout_s: 1500
+        checks:
+          - {name: health_unauthenticated, url: "http://localhost:{backend}/actuator/health", expect_status: 200}
+          - {name: api_requires_auth, url: "http://localhost:{backend}/api/customers", expect_status: 401}
+          - {name: ui_served, url: "http://localhost:{frontend}/", expect_status: 200}

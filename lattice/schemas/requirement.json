@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "requirement",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "artifact_code": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,6}$",
+      "description": "Short uppercase code for the artifact id, e.g. CRM"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "functional_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^FR-\\d{2,3}$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "enum": [
+              "must",
+              "should",
+              "could"
+            ]
+          },
+          "acceptance": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "priority",
+          "acceptance"
+        ]
+      },
+      "minItems": 1
+    },
+    "non_functional_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^NFR-\\d{2,3}$"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "description": "profile:<dotted.path> when derived from the profile, else 'user' or 'inferred'"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "description",
+          "source"
+        ]
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^C-\\d{2,3}$"
+          },
+          "description": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "source"
+        ]
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^A-\\d{2,3}$"
+          },
+          "description": {
+            "type": "string"
+          },
+          "needs_confirmation": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "needs_confirmation"
+        ]
+      }
+    },
+    "open_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^D-\\d{2,3}$"
+          },
+          "question": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "recommended": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "options",
+          "recommended",
+          "impact"
+        ]
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^AC-\\d{2,3}$"
+          },
+          "description": {
+            "type": "string"
+          },
+          "verifies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "verifies"
+        ]
+      },
+      "minItems": 1
+    },
+    "out_of_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "title",
+    "artifact_code",
+    "summary",
+    "functional_requirements",
+    "non_functional_requirements",
+    "constraints",
+    "assumptions",
+    "open_decisions",
+    "acceptance_criteria",
+    "out_of_scope"
+  ]
+}

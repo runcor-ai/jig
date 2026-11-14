@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lattice-script"
+version = "0.1.0"
+description = "Lattice: a model-independent command language for invoking, constraining and evaluating AI agents"
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6", "jsonschema>=4.18"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+lattice = "lattice.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["lattice*"]
+
+[tool.setuptools.package-data]
+lattice = ["registry/*.yaml", "schemas/*.json", "prompts/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: invokes the real Claude Code CLI (costs money); run with -m live"]
+addopts = "-m 'not live'"

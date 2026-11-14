@@ -1,0 +1,7 @@
+# Simple Pong game. Run with:  py -m lattice run examples/pong.lat
+requirement("A simple Pong game in the browser: two paddles, a ball, score to 10, "
+            "player vs computer, keyboard controls, restart button",
+            stack=["React"], standard="simple", id="PONG-001")
+design("PONG-001")
+build("PONG-001")
+test("PONG-001")

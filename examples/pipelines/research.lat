@@ -1,0 +1,3 @@
+# Research pipeline, run once per item of a batch file. Variables: id, topic, question
+#   lattice batch examples/batches/research.yaml --script examples/pipelines/research.lat --parallel 4
+research(topic, question=question)

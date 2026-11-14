@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "review",
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string"
+    },
+    "criteria_assessed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterion": {
+            "type": "string"
+          },
+          "rating": {
+            "enum": [
+              "pass",
+              "concerns",
+              "fail"
+            ]
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "criterion",
+          "rating",
+          "summary"
+        ]
+      },
+      "minItems": 1
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^RV-\\d{2,3}$"
+          },
+          "criterion": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer"
+          },
+          "recommendation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "criterion",
+          "severity",
+          "title",
+          "description",
+          "file",
+          "recommendation"
+        ]
+      }
+    },
+    "strengths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "summary",
+    "criteria_assessed",
+    "findings",
+    "strengths"
+  ]
+}

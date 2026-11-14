@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "test",
+  "type": "object",
+  "properties": {
+    "passed": {
+      "type": "boolean"
+    },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "tests": {
+          "type": "integer"
+        },
+        "failures": {
+          "type": "integer"
+        },
+        "errors": {
+          "type": "integer"
+        },
+        "skipped": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tests",
+        "failures",
+        "errors",
+        "skipped"
+      ]
+    },
+    "suites": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "error",
+              "skipped"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "status"
+        ]
+      }
+    }
+  },
+  "required": [
+    "passed",
+    "totals",
+    "suites"
+  ]
+}

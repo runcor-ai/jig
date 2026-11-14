@@ -1,0 +1,5 @@
+# One line per app. standard: simple (React only, fast) or enterprise (Java + React + PostgreSQL, slow).
+- {id: TODO-001, goal: "A personal todo list with due dates and priorities", stack: [React], standard: simple}
+- {id: NOTE-001, goal: "A notes app with tags and search", stack: [React], standard: simple}
+- {id: HABIT-001, goal: "A daily habit tracker with streaks", stack: [React], standard: simple}
+# - {id: CRM-001, goal: "Build a customer management application", stack: [Java, React, PostgreSQL], standard: enterprise}

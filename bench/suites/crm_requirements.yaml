@@ -1,0 +1,51 @@
+# Benchmark: requirement elicitation for the CRM reference task.
+# Coverage items are the spec's FR-01..FR-09; constraints are the enterprise profile + stack.
+name: crm-requirements
+version: 1
+description: >
+  Same task, two execution modes. Baseline is a direct `claude -p` call with a
+  reasonable natural-language prompt (no schema, profile or validators). Lattice
+  runs requirement() with the enterprise profile and java_react_postgres stack.
+
+lattice:
+  command: requirement
+  target: Build a customer management application
+  parameters:
+    stack: [Java, React, PostgreSQL]
+    standard: enterprise
+
+baseline:
+  prompt: >
+    Write the requirements for: Build a customer management application, using Java,
+    React and PostgreSQL, to an enterprise standard. Return only a JSON object with keys
+    title, artifact_code, summary, functional_requirements (id, title, description,
+    priority, acceptance), non_functional_requirements (id, category, description, source),
+    constraints (id, description, source), assumptions (id, description, needs_confirmation),
+    open_decisions (id, question, options, recommended, impact), acceptance_criteria
+    (id, description, verifies) and out_of_scope.
+
+evaluation:
+  schema: requirement
+  coverage:            # spec FR-01..FR-09; matched against functional requirement text only
+    FR-01_create: [create]
+    FR-02_view_search: [search]
+    FR-03_update: [update, edit]
+    FR-04_archive: [archive, deactivat, soft delete, soft-delete]
+    FR-05_authenticate: [authenticat, log in, login, sign in]
+    FR-06_rbac: [role]
+    FR-07_interactions: [interaction, activity, activities, note]
+    FR-08_audit: [audit]
+    FR-09_export: [export]
+  constraints:         # must appear anywhere in the output
+    java: [java]
+    spring_boot: [spring]
+    react: [react]
+    typescript: [typescript]
+    postgresql: [postgres]
+    audit_logging: [audit]
+    secrets_management: [secret]
+    automated_tests: [test]
+  success:
+    min_coverage: 0.9
+    require_schema: true
+    require_constraints: true

@@ -1,0 +1,4 @@
+# One line per research topic. `question` is optional (null = general overview).
+- {id: eu-ai-act, topic: "EU AI Act obligations for providers of general-purpose AI models", question: "What applies from August 2025 onward?"}
+- {id: vector-dbs, topic: "Open-source vector databases", question: "How do pgvector, Qdrant and Milvus compare for under 10M vectors?"}
+- {id: passkeys, topic: "Passkey adoption in consumer web apps", question: null}

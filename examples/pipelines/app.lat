@@ -1,0 +1,7 @@
+# App pipeline, run once per item of a batch file. Variables come from the item:
+#   id, goal, stack, standard
+#   lattice batch examples/batches/apps.yaml --script examples/pipelines/app.lat --parallel 3
+requirement(goal, stack=stack, standard=standard, id=id)
+design(id)
+build(id)
+test(id)

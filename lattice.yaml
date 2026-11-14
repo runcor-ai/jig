@@ -1,0 +1,19 @@
+# Project configuration for Lattice. Anything not set here uses the built-in
+# defaults in lattice/config.py (including the tool boundaries per command).
+store: .lattice            # artifacts, runs, logs, batch results
+workspace_root: apps       # build workspaces: apps/<ID>
+
+agent:
+  adapter: claude_code
+  model: sonnet            # alias passed to `claude --model`; null = Claude Code's configured default
+  effort: null
+  timeout_s: 1500          # per agent call (no cost caps: runs on your subscription)
+  overrides:
+    build: {timeout_s: 7200}
+
+retries:
+  max_attempts: 2          # for repeatable commands, on schema/validation failure (with feedback)
+
+# To change a tool boundary, override it here, e.g.
+# tool_policies:
+#   research: {tools: [WebSearch, WebFetch, Read], allow: [WebSearch, WebFetch]}

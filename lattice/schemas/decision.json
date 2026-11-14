@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "decision",
+  "type": "object",
+  "properties": {
+    "summary": {
+      "type": "string"
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ]
+      },
+      "minItems": 1
+    },
+    "criteria_scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "option": {
+            "type": "string"
+          },
+          "criterion": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "option",
+          "criterion",
+          "score",
+          "rationale"
+        ]
+      },
+      "minItems": 1
+    },
+    "recommendation": {
+      "type": "object",
+      "properties": {
+        "option": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "gives_up": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "option",
+        "rationale",
+        "gives_up"
+      ]
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "summary",
+    "options",
+    "criteria_scores",
+    "recommendation",
+    "risks",
+    "assumptions"
+  ]
+}
