@@ -1,0 +1,19 @@
+purpose: Implement a specification in the artifact workspace, with tests, and make the tests pass.
+version: "1.0.0"
+target: {type: artifact, required: true}
+parameters:
+  notes: {type: string, default: null, description: Extra instructions for this build}
+  path: {type: string, default: null, description: Workspace directory (default <workspace_root>/<ID>)}
+  test_run:
+    type: list
+    items: string
+    description: The commands `test` will run afterwards; the build must make them pass
+    default:
+      - npm install --no-audit --no-fund
+      - npx vitest run --reporter=junit --outputFile=test-results/junit.xml
+artifact: use
+requires: [specify]
+tool_policy: build
+idempotent: false
+timeout_s: 3600
+validators: [claimed_files_exist, no_secrets_in_workspace]

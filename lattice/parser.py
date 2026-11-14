@@ -7,10 +7,14 @@ code) and then accept only a tiny whitelist of node types:
     script     := statement*
     statement  := call | NAME '=' call
     call       := COMMAND '(' [literal] (',' NAME '=' literal)* ')'
-    literal    := str | int | float | bool | None | list | tuple | dict | NAME(ref)
+    literal    := str | int | float | bool | None | list | tuple | dict | ref
+    ref        := NAME ('.' NAME)*          e.g.  spec   spec.id   spec.output.summary
 
-Anything else (attribute access, arithmetic, comprehensions, lambdas, imports,
-subscripts, f-strings, nested calls...) is rejected with a positioned error.
+A ref names a variable bound by an earlier statement (or supplied from outside, e.g. a
+batch row); the dotted part is a *data lookup* resolved by the runner against the bound
+value, never Python attribute access. Names starting with '_' are rejected.
+Anything else (arithmetic, comprehensions, lambdas, imports, subscripts, f-strings,
+method or nested calls...) is rejected with a positioned error.
 """
 from __future__ import annotations
 
@@ -29,8 +33,12 @@ class ParseError(ValueError):
 
 @dataclass(frozen=True)
 class Ref:
-    """Reference to a variable bound by an earlier statement (``x = requirement(...)``)."""
+    """Reference to a variable (``spec``) optionally followed by a data path (``spec.output.summary``)."""
     name: str
+    path: tuple[str, ...] = ()
+
+    def __str__(self) -> str:
+        return ".".join((self.name, *self.path))
 
 
 @dataclass
@@ -63,10 +71,28 @@ def _literal(node: ast.AST) -> Any:
     if isinstance(node, ast.Name):
         if node.id in ("true", "false", "null"):
             return {"true": True, "false": False, "null": None}[node.id]
+        _check_name(node.id, node)
         return Ref(node.id)
+    if isinstance(node, ast.Attribute):
+        path = []
+        cur: ast.AST = node
+        while isinstance(cur, ast.Attribute):
+            _check_name(cur.attr, cur)
+            path.append(cur.attr)
+            cur = cur.value
+        if not isinstance(cur, ast.Name):
+            raise ParseError("dotted references must start with a variable name", node.lineno, node.col_offset)
+        _check_name(cur.id, cur)
+        return Ref(cur.id, tuple(reversed(path)))
     raise ParseError(f"unsupported expression '{type(node).__name__}'; only literals and variable "
                      f"references are allowed as arguments", getattr(node, "lineno", None),
                      getattr(node, "col_offset", None))
+
+
+def _check_name(name: str, node: ast.AST) -> None:
+    if name.startswith("_"):
+        raise ParseError(f"names starting with '_' are not allowed ('{name}')", getattr(node, "lineno", None),
+                         getattr(node, "col_offset", None))
 
 
 def _call(node: ast.AST, known_commands: set[str] | None) -> tuple[str, Any, dict[str, Any]]:
@@ -111,6 +137,7 @@ def parse(source: str, known_commands: set[str] | None = None,
             if len(node.targets) != 1 or not isinstance(node.targets[0], ast.Name):
                 raise ParseError("assignment target must be a single name", node.lineno)
             bind = node.targets[0].id
+            _check_name(bind, node)
             call = node.value
         else:
             raise ParseError(f"statement type '{type(node).__name__}' is not allowed", node.lineno)

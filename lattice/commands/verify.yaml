@@ -1,0 +1,9 @@
+purpose: Check the workspace against every requirement with file/symbol evidence and the recorded test results.
+version: "1.0.0"
+target: {type: artifact, required: true}
+parameters: {}
+artifact: use
+requires: [specify, build]
+tool_policy: read_workspace
+validators: [verify_covers_all_items, evidence_files_exist, evidence_symbols_exist, test_evidence_matches_results]
+postprocess: [verify_verdict]

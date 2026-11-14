@@ -1,8 +1,0 @@
-# Control and delivery commands (no agent). deploy is gated: it stops with
-# awaiting_approval until a person runs `lattice approve CRM-001 deploy`, and even then
-# reports E_UNAVAILABLE because v0.1 ships no deployment integration.
-status("CRM-001")
-checkpoint("CRM-001", label="after-verify")
-report("CRM-001")
-package("CRM-001")
-deploy("CRM-001", environment="production")

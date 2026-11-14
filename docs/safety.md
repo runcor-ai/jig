@@ -1,31 +1,29 @@
-# Execution and safety
+# Safety model
 
-| Requirement (spec §9) | How v0.1 meets it |
-|---|---|
-| No `eval` / unrestricted execution | `lattice/parser.py` uses `ast.parse` as a grammar only, with a whitelist of nodes (calls to registered commands; literal arguments; references to earlier bindings). Nothing is ever executed. |
-| Explicit parameter schemas | Every parameter in `commands.yaml` has a type, a default and an optional enum. Unknown parameters, wrong types and paths outside the project are rejected (`E_PARAM`). |
-| Untrusted content | Targets, briefs, source files and earlier outputs are wrapped in `<data>` tags. The system prompt says data is never instructions, and `</data>` is escaped inside file content. This is a mitigation, not a guarantee, so the real controls are the next two rows. |
-| Permissions via tool boundaries | Each command declares a tool policy (`lattice.yaml`). The adapter passes `--tools` (which tools exist at all), `--allowedTools` and `--disallowedTools`, `--permission-mode dontAsk` (anything not pre-approved is denied with no prompt), `--setting-sources project` (the user's personal allow-lists are not inherited) and `--strict-mcp-config` (no MCP servers). Analysis commands (`requirement`, `design`) get **no tools** and run in an empty sandbox dir. `review`/`verify` get Read/Grep/Glob in the workspace. `build` gets file tools scoped to the workspace and Bash limited to docker/npm/node/curl-localhost. |
-| Approval for production / destructive actions | `deploy` and `rollback` have `approval_required: true`, and any command accepts `approval_required=True`. Approvals are granted only via `lattice approve <ID> <command>` at an interactive TTY, by typing the artifact id. They are single-use and recorded in `.lattice/approvals.json`. Scripts and agents cannot approve: `approve()` refuses without a TTY, and `lattice` is not in the build Bash allow-list. |
-| Recording | `.lattice/runs/<run_id>/` holds the invocation, rendered prompts, the full agent event stream (`agent-events-*.jsonl`), test logs and the result. `.lattice/log.jsonl` has one line per execution. Stage outputs are append-only. |
-| Safe retries | Retries happen only for commands marked `idempotent: true`, re-prompting with the validation findings. `build`, `implement` etc. are not retried automatically. |
-| Observable status | `.lattice/runs/<id>/status.json` is updated with each agent tool call. `lattice status` lists running commands. |
-| Explicit unavailability | Missing `claude` CLI → `E_AGENT_UNAVAILABLE`; docker down → `test` returns `E_UNAVAILABLE`; `deploy` → `E_UNAVAILABLE`. |
+| Concern | Control | Verified |
+|---|---|---|
+| Template typos | `lattice check` / the loader reject `$placeholders` that are not declared parameters or context variables, and malformed `${...}` | offline tests |
+| Bad data references | `spec.output.x` fails with the exact missing path; a failed step's `.output` is an error, not `None` | offline tests |
+| Script code execution | `ast.parse` used only as a grammar; node whitelist; dotted references are data lookups; `_`-prefixed names rejected | offline tests (24 rejection cases) |
+| Parameters | Declared types, enums and defaults per command; unknown parameters rejected; `path` parameters must be inside the project | offline tests |
+| Untrusted content | Targets, files and prior outputs fenced in `<data>` tags, with `</data>` escaped; the system prompt says data is never instructions. Mitigation only. | offline test |
+| Tool access | Claude Code flags: `--tools`, `--allowedTools`, `--disallowedTools`, `--permission-mode dontAsk`, `--setting-sources project` (no inherited personal allow-lists), `--strict-mcp-config` | live, 2026-11-14 |
+| Workspace escape via docker | `docker` removed from the `build` allow-list and explicitly denied (`Bash(docker:*)`) | live: `docker ps` denied |
+| Read-only auto-approvals | Claude Code auto-approves commands it classifies as read-only. Lattice denies the ones that reveal host information: `env`, `printenv`, `set`, `export`, `whoami`, `id`, `hostname`, `uname`, `ps`, `netstat`, `ipconfig`, `systeminfo`, `tasklist`, `reg`, and others (`INFO_LEAK_DENY` in `lattice/config.py`). | live: `whoami`, `env`, `hostname` denied; `npm` allowed |
+| Real isolation | `--sandbox docker`: agent and test commands run in a `--rm` container with only the workspace mounted at `/workspace`, as uid 1000, `--cap-drop ALL`, `no-new-privileges`, pid/memory/cpu limits, **read-only root filesystem** (`--read-only`), with writable memory-backed tmpfs only at `/tmp` and `/home/node` (npm cache and Claude Code's own config) | live container probe: no host drive, no host `~/.claude`, `CapEff 0`; `/`, `/etc`, `/usr/local` read-only; `npm install`, `npx` and `claude` still work |
+| Test commands | Supplied by the script author (`test(run=[...])`), never by the agent. Under `--sandbox docker` they run in the container, because they execute agent-written code. | offline test |
+| Fabricated results | Validators check claimed files, cited symbols, cited tests and cited URLs against the workspace, the recorded test run and the session event log. The `verify` verdict is computed by Lattice. | offline tests |
+| Recording | Every invocation, prompt, agent event stream, result and test log is kept under `.lattice/runs/`, plus a line in `log.jsonl` | — |
 
-## Verified boundary behaviour (live, Claude Code 2.1.325)
+## Known limits
 
-Observed with the `build` policy:
-
-- `Write` outside the working directory: **denied**.
-- `ls ..`: **denied**.
-- `python -c "open('x.txt','w')..."`, `git init`, `docker push`: **denied**.
-- `npm --version`, `docker ps`: allowed.
-- `whoami`: **allowed**, even though it is not in the allow-list. Claude Code auto-permits commands it
-  classifies as read-only.
-
-## Known gaps
-
-- `docker` is allowed for `build`, and a container can do anything Docker allows (including bind-mounting
-  host paths). For untrusted tasks, run Lattice inside a VM or a devcontainer.
-- Read-only built-in commands are allowed by Claude Code's own classifier, beyond Lattice's allow-list.
-- Prompt injection inside a workspace file could still influence a `build` agent within its tool boundary.
+- The deny-list is a list. A read-only command not on it may still be auto-approved on the host. Use
+  `--sandbox docker` when that matters.
+- The sandbox needs network access for the model API, so the agent inside could still reach the internet
+  with tools that allow it (`curl` to localhost only is allowed in `build`).
+- The sandbox token is readable by the agent inside the container. Use a revocable token from
+  `claude setup-token`.
+- A complete agent run inside the sandbox has **not** been executed yet, because it needs that token. The
+  container setup and the argv it builds are tested.
+- Prompt injection through workspace files or web pages can still influence what an agent does within its
+  tool boundary.

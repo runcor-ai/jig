@@ -27,6 +27,7 @@ class AgentRequest:
     timeout_s: int = 1200
     max_budget_usd: float | None = None
     env: dict = field(default_factory=dict)  # extra environment (e.g. per-app ports), inherited by agent tools
+    sandbox: Any = None                      # e.g. DockerSandbox: run the agent inside a container
     events_path: Path | None = None       # where to stream agent events (observability)
     on_event: Any = None                   # callback(summary: str)
     label: str = ""

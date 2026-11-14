@@ -1,23 +1,21 @@
 # Error codes
 
-`lattice errors` prints this list. Every failed result carries `error.code`.
+`lattice errors` prints this list. Statuses: `blocked` = E_MISSING_CONTEXT, `unavailable` = E_UNAVAILABLE / E_AGENT_UNAVAILABLE, otherwise `failed`.
 
-| Code | Status | Meaning |
-|---|---|---|
-| E_PARSE | failed | Script could not be parsed, or uses disallowed syntax. Nothing is executed. |
-| E_UNKNOWN_COMMAND | failed | Command is not in the registry |
-| E_PARAM | failed | Parameter missing, unknown, wrong type, bad enum, or path outside the project |
-| E_PROFILE | failed | Unknown profile or stack, version pin mismatch, or bad override |
-| E_UNKNOWN_ARTIFACT | failed | Referenced artifact does not exist |
-| E_ARTIFACT_EXISTS | failed | Script would re-create an existing id (use `--replace`) |
-| E_MISSING_CONTEXT | blocked | A required stage has not run or did not complete |
-| E_APPROVAL_REQUIRED | awaiting_approval | Gated command without an unused approval |
-| E_DECISION_MODEL | failed | Unknown decision model |
-| E_AGENT_UNAVAILABLE | unavailable | Agent CLI missing or not startable |
-| E_AGENT_FAILED | failed | Agent ran but returned no usable result |
-| E_SCHEMA | failed | Output violates the JSON schema |
-| E_VALIDATION | failed | Output fails a semantic validator (see `validation.findings`) |
-| E_TIMEOUT | failed | Exceeded `timeout_s` |
-| E_BUDGET | failed | Exceeded `max_budget_usd` |
-| E_PROCEDURE | failed | Runtime procedure error |
-| E_UNAVAILABLE | unavailable | Capability or integration not available (docker down, `deploy`) |
+| Code | Meaning |
+|---|---|
+| E_PARSE | Script could not be parsed or uses disallowed syntax |
+| E_UNKNOWN_COMMAND | Command is not loaded (see `lattice commands`) |
+| E_COMMAND_DEF | A command definition file is invalid |
+| E_PARAM | Parameter missing, unknown, or of the wrong type |
+| E_UNKNOWN_ARTIFACT | Referenced artifact does not exist |
+| E_ARTIFACT_EXISTS | Script would create an artifact id that already exists (use --replace) |
+| E_MISSING_CONTEXT | A stage this command requires has not completed |
+| E_AGENT_UNAVAILABLE | The configured agent could not be started |
+| E_AGENT_FAILED | The agent ran but did not return a usable result |
+| E_SCHEMA | Agent output did not conform to the output schema |
+| E_VALIDATION | Agent output failed semantic validation |
+| E_TIMEOUT | Execution exceeded its time limit |
+| E_BUDGET | Execution exceeded its cost budget |
+| E_PROCEDURE | A runtime procedure (e.g. the test runner) failed |
+| E_UNAVAILABLE | Capability or integration is not available in this environment |

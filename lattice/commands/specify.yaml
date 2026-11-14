@@ -1,0 +1,10 @@
+purpose: Turn a goal into a buildable specification (requirements, decisions, components, test plan).
+version: "1.0.0"
+target: {type: text, required: true}
+parameters:
+  constraints: {type: list, items: string, default: [], description: "Free-text constraints, e.g. ['React + TypeScript', 'no backend']"}
+  brief: {type: path, default: null, description: Optional file with extra requirements (untrusted data)}
+  id: {type: string, default: null, description: Explicit artifact id, e.g. PONG-001}
+artifact: create
+tool_policy: none
+validators: [unique_ids, constraints_reflected]

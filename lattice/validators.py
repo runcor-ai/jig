@@ -13,10 +13,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
-import yaml
-
-from .profiles import enabled_controls, stack_terms
-
 SKIP_DIRS = {"node_modules", "target", ".git", "dist", "build", ".lattice", ".mvn", "test-results", "coverage"}
 
 
@@ -26,12 +22,8 @@ class ValidationContext:
     output: Any
     params: dict
     workspace: Path | None = None
-    profile: dict | None = None
-    stack: dict | None = None
-    requirement: dict | None = None
-    design: dict | None = None
-    test: dict | None = None
-    decision_model: dict | None = None
+    spec: dict | None = None        # output of the artifact's `specify` stage
+    test: dict | None = None        # output of the artifact's `test` stage
     extra: dict = field(default_factory=dict)
 
 
@@ -60,8 +52,8 @@ def _ids(obj: Any) -> list[str]:
     return out
 
 
-def fr_ids(req: dict | None) -> list[str]:
-    return [r["id"] for r in (req or {}).get("functional_requirements", [])]
+def requirement_ids(spec: dict | None) -> list[str]:
+    return [r["id"] for r in (spec or {}).get("requirements", [])]
 
 
 def resolve_in_workspace(ws: Path, p: str) -> Path | None:
@@ -72,6 +64,8 @@ def resolve_in_workspace(ws: Path, p: str) -> Path | None:
     p = re.sub(r":\d+(-\d+)?$", "", p)   # strip trailing :line
     while p.startswith("./"):
         p = p[2:]
+    if p.startswith("/workspace/"):   # path as seen inside the --sandbox docker container
+        p = p[len("/workspace/"):]
     cand = Path(p)
     if not cand.is_absolute():
         cand = ws / p
@@ -89,126 +83,18 @@ def _norm(s: str) -> str:
 
 # ── generic ─────────────────────────────────────────────────────────────
 @validator
+def constraints_reflected(ctx):
+    """Every caller constraint must be restated in constraints_applied."""
+    got = {_norm(c.get("constraint", "")) for c in ctx.output.get("constraints_applied", [])}
+    return [finding("constraints_reflected", f"constraint '{c}' is not addressed in constraints_applied")
+            for c in ctx.params.get("constraints", []) if _norm(c) not in got]
+
+
+
+@validator
 def unique_ids(ctx):
     dup = [i for i, n in Counter(_ids(ctx.output)).items() if n > 1]
     return [finding("unique_ids", f"duplicate ids: {', '.join(sorted(dup))}")] if dup else []
-
-
-# ── requirement ─────────────────────────────────────────────────────────
-@validator
-def acceptance_criteria_reference_requirements(ctx):
-    out = []
-    frs = set(fr_ids(ctx.output))
-    covered = set()
-    for ac in ctx.output.get("acceptance_criteria", []):
-        bad = [v for v in ac.get("verifies", []) if v.startswith("FR-") and v not in frs]
-        if bad:
-            out.append(finding("acceptance_criteria_reference_requirements",
-                               f"{ac['id']} references unknown requirements {bad}"))
-        covered |= set(ac.get("verifies", []))
-    for fr in ctx.output.get("functional_requirements", []):
-        if fr["priority"] == "must" and fr["id"] not in covered:
-            out.append(finding("acceptance_criteria_reference_requirements",
-                               f"must-have {fr['id']} is not verified by any acceptance criterion", "warning"))
-    return out
-
-
-@validator
-def profile_controls_reflected(ctx):
-    out = []
-    sources = " ".join((n.get("source") or "") for n in ctx.output.get("non_functional_requirements", []))
-    for c in enabled_controls(ctx.profile):
-        if c not in sources:
-            out.append(finding("profile_controls_reflected",
-                               f"profile control '{c}' is not reflected by any NFR (expected source 'profile:{c}')"))
-    return out
-
-
-@validator
-def stack_reflected(ctx):
-    text = _norm(" ".join(c.get("description", "") for c in ctx.output.get("constraints", [])))
-    return [finding("stack_reflected", f"stack component '{t}' missing from constraints")
-            for t in stack_terms(ctx.stack) if _norm(t) not in text]
-
-
-# ── design ──────────────────────────────────────────────────────────────
-@validator
-def design_traces_all_requirements(ctx):
-    traced = {t["requirement"] for t in ctx.output.get("traceability", [])}
-    out = [finding("design_traces_all_requirements", f"{fr} has no traceability entry")
-           for fr in fr_ids(ctx.requirement) if fr not in traced]
-    comp_keys = {c["id"] for c in ctx.output.get("components", [])} | {c["name"] for c in ctx.output.get("components", [])}
-    for t in ctx.output.get("traceability", []):
-        unknown = [c for c in t.get("components", []) if c not in comp_keys]
-        if unknown:
-            out.append(finding("design_traces_all_requirements",
-                               f"traceability for {t['requirement']} names unknown components {unknown}", "warning"))
-    return out
-
-
-@validator
-def design_resolves_open_decisions(ctx):
-    decided = {d["id"] for d in ctx.output.get("decisions", [])}
-    return [finding("design_resolves_open_decisions", f"open decision {d['id']} ({d['question']}) not resolved")
-            for d in (ctx.requirement or {}).get("open_decisions", []) if d["id"] not in decided]
-
-
-@validator
-def design_layout_matches_stack_contract(ctx):
-    contract = (ctx.stack or {}).get("contract") or {}
-    layout = [l["path"].replace("\\", "/").removeprefix("./").rstrip("/")
-              for l in ctx.output.get("repository_layout", [])]
-    out = []
-    for req in contract.get("required_paths", []):
-        top = req.split("/")[0]
-        if not any(p == req or p.startswith(top) for p in layout):
-            out.append(finding("design_layout_matches_stack_contract", f"repository_layout lacks '{req}'"))
-    return out
-
-
-@validator
-def design_endpoints_reference_requirements(ctx):
-    frs = set(fr_ids(ctx.requirement))
-    out = []
-    for ep in ctx.output.get("api", []):
-        bad = [r for r in ep.get("requirements", []) if r.startswith("FR-") and r not in frs]
-        if bad:
-            out.append(finding("design_endpoints_reference_requirements",
-                               f"{ep['method']} {ep['path']} references unknown {bad}", "warning"))
-    return out
-
-
-# ── build ───────────────────────────────────────────────────────────────
-@validator
-def stack_contract_files_exist(ctx):
-    contract = (ctx.stack or {}).get("contract") or {}
-    paths = contract.get("required_paths", [])
-    return [finding("stack_contract_files_exist", f"required file '{p}' does not exist in workspace")
-            for p in paths if not (ctx.workspace / p).exists()]
-
-
-@validator
-def compose_services_present(ctx):
-    contract = (ctx.stack or {}).get("contract") or {}
-    if not contract.get("compose_services"):
-        return []
-    f = ctx.workspace / contract.get("compose_file", "docker-compose.yml")
-    if not f.exists():
-        return [finding("compose_services_present", f"{f.name} missing")]
-    try:
-        services = (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("services", {}) or {}
-    except yaml.YAMLError as e:
-        return [finding("compose_services_present", f"{f.name} is not valid YAML: {e}")]
-    return [finding("compose_services_present", f"compose service '{s}' missing")
-            for s in contract.get("compose_services", []) if s not in services]
-
-
-@validator
-def migrations_present(ctx):
-    g = ((ctx.stack or {}).get("contract") or {}).get("migrations_glob")
-    if not g:
-        return []
-    return [] if list(ctx.workspace.glob(g)) else [finding("migrations_present", f"no migrations match {g}")]
 
 
 @validator
@@ -290,22 +176,16 @@ def findings_cite_existing_files(ctx):
 def tests_executed(ctx):
     out = []
     for s in ctx.output.get("suites", []):
-        if s["type"] == "junit" and s["status"] != "skipped" and not s.get("tests"):
-            out.append(finding("tests_executed", f"suite '{s['name']}' produced no test results"))
+        if s["type"] == "junit" and not s.get("tests"):
+            out.append(finding("tests_executed", f"'{s['name']}' produced no test results"))
     return out
 
 
 # ── verify ──────────────────────────────────────────────────────────────
-def verify_expected_ids(req: dict | None, design: dict | None, against: str) -> list[str]:
-    if against == "design":
-        return [f"{e['method']} {e['path']}" for e in (design or {}).get("api", [])]
-    return fr_ids(req) + [a["id"] for a in (req or {}).get("acceptance_criteria", [])]
-
-
 @validator
 def verify_covers_all_items(ctx):
     got = {i["id"] for i in ctx.output.get("items", [])}
-    want = verify_expected_ids(ctx.requirement, ctx.design, ctx.params.get("against", "requirements"))
+    want = requirement_ids(ctx.spec)
     return [finding("verify_covers_all_items", f"'{w}' was not verified") for w in want if w not in got]
 
 
@@ -350,27 +230,6 @@ def test_evidence_matches_results(ctx):
         key = _norm(t.split("(")[0])
         if not any(key and (key in n or n.endswith(key)) for n in normed):
             out.append(finding("test_evidence_matches_results", f"{iid}: cited test '{t}' not in recorded results"))
-    return out
-
-
-# ── decision ────────────────────────────────────────────────────────────
-@validator
-def decision_model_complete(ctx):
-    dm = ctx.decision_model
-    if not dm:
-        return [finding("decision_model_complete", "no decision model resolved")]
-    out = []
-    options = [o["name"] for o in ctx.output.get("options", [])]
-    scored = {(_norm(s["option"]), _norm(s["criterion"])) for s in ctx.output.get("criteria_scores", [])}
-    for o in options:
-        for c in dm["criteria"]:
-            if (_norm(o), _norm(c)) not in scored:
-                out.append(finding("decision_model_complete", f"option '{o}' not scored on '{c}'"))
-    rec = ctx.output.get("recommendation", {}).get("option", "")
-    if options and _norm(rec) not in {_norm(o) for o in options}:
-        out.append(finding("decision_model_complete", f"recommended option '{rec}' is not one of the options"))
-    if dm.get("assumptions_required") and not ctx.output.get("assumptions"):
-        out.append(finding("decision_model_complete", "model requires stated assumptions; none given"))
     return out
 
 

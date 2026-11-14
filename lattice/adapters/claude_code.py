@@ -66,6 +66,9 @@ class ClaudeCodeAdapter:
             return AgentResponse(ok=False, error_code="E_AGENT_UNAVAILABLE", error=why)
         argv = self.build_argv(req)
         req.cwd.mkdir(parents=True, exist_ok=True)
+        if req.sandbox is not None:
+            # Same flags, but the claude process runs inside the container with only req.cwd mounted.
+            argv = req.sandbox.wrap(["claude", *argv[1:]], req.cwd, req.env)
         started = time.monotonic()
         events_f = open(req.events_path, "a", encoding="utf-8") if req.events_path else None
         final: dict | None = None

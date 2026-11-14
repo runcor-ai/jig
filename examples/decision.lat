@@ -1,7 +1,0 @@
-# Decision models: each command names the model it applies; the validator checks every
-# option is scored on every criterion of that model.
-decide("Session storage for the CRM API",
-       options=["Stateless JWT", "Server-side sessions in PostgreSQL", "Redis sessions"],
-       decision_model="trade_off_analysis")
-
-evaluate("CRM-001", decision_model="risk_assessment")

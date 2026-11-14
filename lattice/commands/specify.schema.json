@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specify",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "artifact_code": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,6}$"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^R-[0-9]{2,3}$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "enum": [
+              "must",
+              "should",
+              "could"
+            ]
+          },
+          "acceptance": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "priority",
+          "acceptance"
+        ]
+      },
+      "minItems": 1
+    },
+    "constraints_applied": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "constraint": {
+            "type": "string"
+          },
+          "how": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "constraint",
+          "how"
+        ]
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "question",
+          "decision",
+          "rationale"
+        ]
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "responsibility": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "responsibility",
+          "path"
+        ]
+      }
+    },
+    "test_plan": {
+      "type": "string"
+    },
+    "out_of_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "title",
+    "artifact_code",
+    "summary",
+    "requirements",
+    "constraints_applied",
+    "assumptions",
+    "decisions",
+    "components",
+    "test_plan",
+    "out_of_scope"
+  ]
+}

@@ -1,0 +1,12 @@
+# Example user-defined command. Drop a <name>.yaml + <name>.md (+ <name>.schema.json) into
+# ./commands/ (this project) or ~/.lattice/commands/ (all projects) and it becomes callable:
+#   review(spec, criteria=["security", "readability"])
+purpose: Review the workspace code against named criteria; every finding must cite a real file and line.
+version: "1.0.0"
+target: {type: artifact, required: true}
+parameters:
+  criteria: {type: list, items: string, default: [correctness, readability, security]}
+artifact: use
+requires: [build]
+tool_policy: read_workspace        # Read/Grep/Glob inside the workspace only
+validators: [all_criteria_assessed, findings_cite_existing_files]

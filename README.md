@@ -1,175 +1,134 @@
-# Lattice v0.1
+# Lattice v0.2
 
-Lattice is a small, declarative command language for driving an AI agent (Claude Code today) through a
-**validated** pipeline. You write a short script:
+Lattice is a small scripting language for LLM agents. You write short scripts. Each command becomes a
+tool-restricted agent call (Claude Code today), its output is checked against a JSON schema plus
+deterministic checks, failures are retried with feedback, and everything is recorded under `.lattice/`.
 
 ```python
-requirement("Build a customer management application",
-            stack=["Java", "React", "PostgreSQL"], standard="enterprise")
-design("CRM-001")
-build("CRM-001")
-test("CRM-001")
-review("CRM-001", criteria=["security", "architecture"])
-verify("CRM-001", against="requirements")
+spec = specify("A simple Pong game: two paddles, a ball, score to 10, player vs computer",
+               constraints=["React + TypeScript + Vite, no backend"], id="PONG-001")
+build(spec)
+test(spec, run=["npm install", "npx vitest run --reporter=junit --outputFile=test-results/junit.xml"])
+verify(spec)
 ```
 
-Each command becomes a normalized invocation. The runtime checks its parameters against a schema,
-resolves context from earlier artifacts, runs the agent inside an enforced tool boundary, validates the
-output (JSON schema plus deterministic semantic checks, many against the real filesystem), and records
-everything under `.lattice/`.
-
-Lattice does not try to be the intelligence. It standardizes how the agent is **invoked, constrained and
-evaluated**.
+Commands are plugins. The five built-ins use exactly the format you use to add your own.
 
 ## Quick start
 
-Requirements: Python ≥ 3.11 with `pyyaml` and `jsonschema`, the `claude` CLI (logged in), and Docker for
-`test`.
+Requirements: Python 3.11+ with `pyyaml` and `jsonschema`, and the `claude` CLI logged in. You also need
+Node.js for the example apps, and Docker for `--sandbox docker`.
 
 ```bash
-pip install -e .[test]          # or: py -m lattice ... without installing
-lattice check                   # registry, agent adapter and docker availability
-lattice commands                # the 32-command vocabulary
-lattice run examples/crm.lat    # the CRM demonstration
-lattice status CRM-001          # stages, statuses, running commands
-lattice show CRM-001 verify     # full stage record (output + validation findings)
-lattice exec 'review("CRM-001", criteria=["security"])'
-pytest                          # offline test suite (fixture adapter; no API cost)
+py -m pytest -q                                  # 72 offline tests, no model calls
+py -m lattice check                              # command definitions, agent, sandbox
+py -m lattice commands                           # loaded commands and where they came from
+py -m lattice run examples/pong.lat --replace    # build Pong (about 5 min)
+py -m lattice exec 'research("passkey adoption", question="How widespread in 2026?")'
+py -m lattice batch examples/batches/research.yaml --script examples/pipelines/research.lat --parallel 3
 ```
-
-## Example: the Pong game
-
-`apps/PONG-001/` is a browser Pong game generated end to end by the four-line script
-[`examples/pong.lat`](examples/pong.lat): requirement → design → build → test. Its 23 unit tests and the
-production build pass.
-
-**Play it** (needs Node.js 18+):
-
-```bash
-cd apps/PONG-001
-npm install        # first time only
-npm run dev        # then open http://localhost:5173/
-```
-
-| Key | Action |
-|---|---|
-| Space | Start, pause / resume |
-| Arrow Up / W | Paddle up |
-| Arrow Down / S | Paddle down |
-| Restart button | New game |
-
-You play the left paddle against the computer; first to 10 wins.
-
-**Other commands** (run inside `apps/PONG-001`):
-
-```bash
-npm test           # run the tests
-npm run build      # production build into dist/
-npm run preview    # serve the production build
-```
-
-**Regenerate it from scratch** (takes about 5 minutes through Claude Code):
-
-```bash
-py -m lattice run examples/pong.lat --replace
-```
-
-`--replace` archives the existing PONG-001 records first. The game folder is overwritten by the new build.
-
-## Running many at once
-
-Write the pipeline once, list the items, run them in parallel:
-
-```bash
-lattice batch examples/batches/research.yaml --script examples/pipelines/research.lat --parallel 4
-lattice batch examples/batches/apps.yaml     --script examples/pipelines/app.lat      --parallel 3
-lattice batch examples/batches/apps.yaml     --script examples/pipelines/app.lat      --resume   # retry failures only
-lattice batch-status apps
-```
-
-- **Items file**: a YAML list. Each row's fields (`id`, `goal`, `topic`, ...) become variables in the script,
-  for example `research(topic, question=question)`.
-- **Parallel**: each item runs as its own process, in its own folder, with its own ports. Shared records are
-  file-locked and IDs are claimed atomically.
-- **Resume**: items that completed are skipped. In the others, steps that already completed with the same
-  inputs are skipped.
-- **simple vs enterprise**: `standard: simple` with `stack: [React]` gives a small React + TypeScript app,
-  tested with `npm` and no Docker. `standard: enterprise` with `stack: [Java, React, PostgreSQL]` gives the
-  full stack with auth, audit and Docker.
-- **No cost caps.** Cost is reported per run as Claude Code reports it; on a subscription this is usage, not a
-  charge.
-- **research** searches the web (WebSearch/WebFetch only, no file or shell access). Every finding must cite a
-  source, and every cited URL must appear in that session's own searches or fetches, or the result fails.
-
-## Architecture
-
-```
-script.lat ──parser (ast, whitelist; no eval)──► statements
-          └─script runner (artifact-id binding, variables, halt on failure)
-                    │ normalized invocation {command,target,parameters,context,controls}
-                    ▼
-             Runtime.execute ── registry (commands.yaml) ── params/target/requires checks
-                    │            profiles.yaml (versioned, overridable) · decision_models.yaml
-                    ├─ agent:     prompt template + JSON schema + tool policy ─► AgentAdapter (claude_code)
-                    ├─ procedure: test runner (docker compose suites → JUnit XML / HTTP checks)
-                    └─ native:    status, checkpoint, rollback, approve, package, report, deploy, validate
-                    ▼
-             validation: JSON schema → semantic validators → (retry with feedback if idempotent)
-                    ▼
-             Store (.lattice/): artifacts/<ID>/manifest + append-only stage records, runs/<run_id>/, log.jsonl
-```
-
-| Component | Files |
-|---|---|
-| Command library | `lattice/registry/commands.yaml`, `lattice/schemas/*.json`, `lattice/prompts/*.md` |
-| Command runtime | `lattice/parser.py`, `lattice/runtime.py`, `lattice/script.py`, `lattice/store.py` |
-| Agent adapter | `lattice/adapters/base.py` (interface), `claude_code.py`, `fixture.py` (tests only) |
-| Evaluation layer | `lattice/validators.py`, `lattice/procedures.py` (test runner), `lattice/bench.py` |
-| Profiles and decision models | `lattice/registry/profiles.yaml`, `lattice/registry/decision_models.yaml` |
-| Project config | `lattice.yaml` (model, budgets, timeouts, tool policies) |
-
-More detail: [docs/commands.md](docs/commands.md), [docs/safety.md](docs/safety.md),
-[docs/evaluation.md](docs/evaluation.md), [docs/errors.md](docs/errors.md).
 
 ## Script language
 
-A script is a sequence of `command(target?, name=value, ...)` statements, optionally bound with
-`name = command(...)`. Arguments may only be literals (strings, numbers, booleans, `None`, lists, dicts) or
-references to earlier bindings. Python's `ast` module is used only as a grammar: nothing is executed, and
-attribute access, operators, imports, comprehensions, f-strings and nested calls are rejected with a
-positioned error.
+- **Statements:** `command(target, name=value, ...)` or `name = command(...)`.
+- **Arguments:** literals (strings, numbers, booleans, `None`/`null`, lists, dicts) or variable references.
+- **Bound variables:** `spec = specify(...)` keeps the whole result.
+  - Passing `spec` as a value means its artifact id: `build(spec)`.
+  - Dotted lookups read its data: `spec.id`, `spec.status`, `spec.output.summary`, `spec.output.requirements`.
+- **Batch variables:** batch rows supply variables, e.g. `research(topic, question=question)`.
+- **Never executed.** `ast.parse` is used only as a grammar, with a node whitelist. Imports, loops, operators,
+  subscripts, f-strings, method calls, nested calls and names starting with `_` are all rejected.
+- **Literal ids work too.** `specify("x")` followed by `build("TOY-001")` makes `specify` create exactly
+  `TOY-001`.
+- **Re-running.** Re-creating an existing id is refused. `--replace` archives the old artifact first, and
+  `--resume` skips steps that already completed with the same inputs.
 
-**Artifact IDs.** A creating command (`requirement`) followed by a literal id that does not exist yet
-(`design("CRM-001")`) allocates exactly that id. Without one, the id is `<artifact_code>-NNN`, where the
-agent proposes the code. Re-running a script that would re-create an existing id is refused
-(`E_ARTIFACT_EXISTS`). `--replace` archives the old artifact first; nothing is deleted.
+## Commands
 
-**Controls.** `approval_required=True` and `max_attempts=N` are accepted on any command.
+| Command | Kind | What it does |
+|---|---|---|
+| `specify(goal, constraints=[], brief=None, id=None)` | agent, no tools | Goal → requirements (R-01…), decisions, components, test plan. Every constraint must be restated. |
+| `build(spec, notes=None, test_run=[...])` | agent, build tools | Implements the spec in `apps/<ID>/` and makes `test_run` pass |
+| `test(spec, run=[...], reports=[...], expect_files=[])` | runs in Lattice, no agent | Runs your commands and parses the real JUnit XML. No reports means fail. |
+| `verify(spec)` | agent, read-only | Per-requirement status with file/symbol evidence and test citations, all checked. The verdict is computed by Lattice. |
+| `research(topic, question=None, min_sources=3)` | agent, web only | Sourced findings. Every cited URL must appear in the session's own searches or fetches. |
+| `review(spec, criteria=[...])` | **project command** (`commands/review.*`) | An example of a user-defined command |
 
-## Result contract
+### Add your own command
 
-```json
-{"command": "requirement", "status": "completed", "artifact_id": "CRM-001", "output": {...},
- "validation": {"passed": true, "findings": [{"rule": "...", "severity": "warning", "message": "..."}]},
- "execution": {"model": "claude-sonnet-5-5", "duration_ms": 61234, "token_usage": {...}, "cost_usd": 0.41,
-               "adapter": "claude_code", "attempts": 1, "run_id": "...", "permission_denials": [],
-               "duration_ms_wall": 63001},
- "error": null}
+Put a `<name>.yaml`, a `<name>.md` (prompt template) and a `<name>.schema.json` (output schema, or inline it
+in the yaml) in one of these places:
+
+- `./commands/`: this project
+- `~/.lattice/commands/`: all your projects (or `$LATTICE_USER_COMMANDS`)
+
+Later locations override earlier ones (built-in → user → project).
+
+```yaml
+# commands/summarize.yaml
+purpose: Summarize a document for a given audience.
+target: {type: text, required: true}
+parameters:
+  source:   {type: path, default: null}        # inserted into the prompt as fenced, untrusted data
+  audience: {type: string, default: executives}
+tool_policy: none                              # or read_workspace / write_workspace / research / build / inline {...}
+output_schema: {type: object, required: [summary], properties: {summary: {type: string}}}
+validators: []
 ```
 
-`status` is one of `completed`, `failed`, `blocked` (a required stage is missing or failed),
-`awaiting_approval` or `unavailable`. Execution metrics come from what the agent host reports and are
-`null` when it reports nothing. They are never estimated.
+```markdown
+<!-- commands/summarize.md -->
+Summarize for $audience:
+<data name="source">$source</data>
+```
 
-## Honest limits of v0.1
+- **Placeholders:** `$target`, `$artifact_id`, every parameter by name, `$spec`, `$tests`, `$context` (all
+  stages) and `$workspace_state`.
+- **Checks:** `validators:` and `postprocess:` take names of built-in checks. `lattice check` lists unknown
+  names and other definition errors, with the file and reason.
 
-- Only the six core commands have command-specific prompts, schemas and validators that are exercised end
-  to end. The other agent commands run on the shared generic path; the native commands are implemented.
-  `deploy` records the approval check and then returns `E_UNAVAILABLE`, because no deployment integration
-  ships.
-- Validators check structure, traceability and that cited files, symbols and tests exist. They cannot prove
-  that code is correct. That is what `test` (real test execution) is for, and it is still not proof of
-  production readiness.
-- The tool boundary is enforced by Claude Code's permission system. Claude Code also auto-permits commands
-  it classifies as read-only (e.g. `whoami`), and the `build` policy allows `docker`, which can run
-  arbitrary containers. See [docs/safety.md](docs/safety.md).
+## Running many at once
+
+```bash
+lattice batch examples/batches/apps.yaml --script examples/pipelines/app.lat --parallel 3
+lattice batch examples/batches/apps.yaml --script examples/pipelines/app.lat --resume
+lattice batch-status apps
+```
+
+- Each item runs in its own process and its own workspace, with its own ports.
+- Shared files are locked, and IDs are claimed atomically.
+- `--resume` skips items that completed and resumes the rest step by step.
+
+## Safety
+
+- **Tool boundaries are enforced by Claude Code, not the prompt.** Every call runs with `--tools`,
+  `--allowedTools`, `--disallowedTools`, `--permission-mode dontAsk`, `--setting-sources project` and
+  `--strict-mcp-config`.
+- **`build` cannot run `docker`.** `docker run -v /:/host` would escape the workspace.
+- **A deny-list blocks read-only commands that leak host information** (`env`, `printenv`, `whoami`,
+  `hostname`, `ps`, `ipconfig`, …), which Claude Code would otherwise auto-approve. Live-tested.
+- **`--sandbox docker`** (on `run`, `exec` and `batch`) runs the agent and the test commands inside a
+  throwaway container. Only the workspace is mounted; it runs unprivileged with all capabilities dropped and a read-only root filesystem (only `/tmp`
+  and the home directory are writable, in memory).
+  Set it up once:
+  ```bash
+  lattice sandbox-build                       # builds lattice-agent:0.1 (Claude Code 2.1.325, Node 22)
+  claude setup-token                          # then: set CLAUDE_CODE_OAUTH_TOKEN=<token>
+  ```
+  The token is passed into the container by name (never on a command line). The agent inside can read it,
+  so use one you can revoke.
+
+See [docs/commands.md](docs/commands.md), [docs/safety.md](docs/safety.md) and
+[docs/errors.md](docs/errors.md).
+
+## Pong example
+
+`apps/PONG-001/` was generated by an earlier version of the pipeline (23 tests and the production build
+pass). To play it:
+
+```bash
+cd apps/PONG-001 && npm install && npm run dev     # http://localhost:5173/
+```
+
+Its stored records predate v0.2, so regenerate it with
+`py -m lattice run examples/pong.lat --replace`.

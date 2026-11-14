@@ -1,0 +1,20 @@
+purpose: Run test commands in the workspace and parse the real results (no agent involved).
+version: "1.0.0"
+target: {type: artifact, required: true}
+parameters:
+  run:
+    type: list
+    items: string
+    description: Commands run in order in the workspace; a failing setup command fails the run
+    default:
+      - npm install --no-audit --no-fund
+      - npx vitest run --reporter=junit --outputFile=test-results/junit.xml
+  reports: {type: list, items: string, default: [test-results/*.xml], description: JUnit XML report globs}
+  expect_files: {type: list, items: string, default: [], description: Files that must exist afterwards, e.g. dist/index.html}
+  timeout_s: {type: integer, default: 900}
+artifact: use
+requires: [build]
+mode: procedure
+procedure: run_tests
+validators: [tests_executed]
+postprocess: [tests_must_pass]

@@ -3,14 +3,12 @@ from __future__ import annotations
 
 ERROR_CODES = {
     "E_PARSE": "Script could not be parsed or uses disallowed syntax",
-    "E_UNKNOWN_COMMAND": "Command is not in the registry",
+    "E_UNKNOWN_COMMAND": "Command is not loaded (see `lattice commands`)",
+    "E_COMMAND_DEF": "A command definition file is invalid",
     "E_PARAM": "Parameter missing, unknown, or of the wrong type",
-    "E_PROFILE": "Profile or stack could not be resolved (unknown name, version pin mismatch, bad override)",
     "E_UNKNOWN_ARTIFACT": "Referenced artifact does not exist",
     "E_ARTIFACT_EXISTS": "Script would create an artifact id that already exists (use --replace)",
     "E_MISSING_CONTEXT": "A stage this command requires has not completed",
-    "E_APPROVAL_REQUIRED": "Command requires a human approval that has not been granted",
-    "E_DECISION_MODEL": "Unknown decision model",
     "E_AGENT_UNAVAILABLE": "The configured agent could not be started",
     "E_AGENT_FAILED": "The agent ran but did not return a usable result",
     "E_SCHEMA": "Agent output did not conform to the output schema",

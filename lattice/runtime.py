@@ -1,13 +1,12 @@
-"""Command runtime: normalize -> validate -> resolve context -> dispatch -> validate output -> persist.
+"""Command runtime: normalize -> validate params -> resolve context -> dispatch -> validate output -> persist.
 
-All 32 commands go through `Runtime.execute`. Commands differ only by their
-registry entry (parameters, required stages, schema, tool policy, validators).
+Every command (built-in or user-defined) is a loaded plugin (lattice/loader.py) and runs
+through `Runtime.execute`. Commands differ only in their definition files.
 """
 from __future__ import annotations
 
 import copy
 import json
-import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,22 +16,23 @@ import jsonschema
 
 from . import prompts
 from .adapters import AgentRequest, ToolPolicy, make_adapter
-from .config import ConfigError, deep_merge, load_config, load_registry
+from .config import ConfigError, deep_merge, load_config
 from .errors import LatticeError
-from .procedures import NATIVE, PROCEDURES
-from .profiles import ProfileError, resolve_profile, resolve_stack
-from .store import ID_RE, Store, read_json, write_json
+from .loader import Command, load_commands
+from .procedures import POSTPROCESS, PROCEDURES
+from .sandbox import make_sandbox
+from .store import ID_RE, Store, write_json
 from .validators import VALIDATORS, ValidationContext, finding
 
 CONTROL_KEYS = {"approval_required", "max_attempts"}
-WORKSPACE_POLICIES = {"read_workspace", "build", "docs"}
+FILE_TOOLS = {"Read", "Grep", "Glob", "Write", "Edit", "Bash"}
 MAX_UNTRUSTED_CHARS = 200_000
 
 
 @dataclass
 class ExecContext:
     command: str
-    spec: dict
+    cmd: Command
     target: Any
     params: dict
     controls: dict
@@ -41,42 +41,37 @@ class ExecContext:
     artifact_id: str | None = None
     manifest: dict = field(default_factory=dict)
     workspace: Path | None = None
-    profile: dict | None = None
-    stack: dict | None = None
-    requirement: dict | None = None
-    design: dict | None = None
-    test: dict | None = None
-    decision_model: dict | None = None
-    prompt_override: str | None = None
-    agent_events: Path | None = None   # event log of the latest agent attempt (for evidence checks)
-
+    spec: dict | None = None          # output of the artifact's `specify` stage
+    test: dict | None = None          # output of the artifact's `test` stage
+    agent_events: Path | None = None  # event log of the latest agent attempt (evidence checks)
 
     def env(self) -> dict:
-        """Per-artifact environment: isolated ports and compose project for parallel apps."""
+        """Per-artifact environment: isolated ports so parallel apps never collide."""
         ports = (self.manifest or {}).get("ports") or {}
         e = {f"{k.upper()}_PORT": str(v) for k, v in ports.items()}
         if self.artifact_id:
-            e["COMPOSE_PROJECT_NAME"] = self.artifact_id.lower()
+            e["LATTICE_ARTIFACT_ID"] = self.artifact_id
         return e
 
 
 def _status_for(code: str) -> str:
-    if code in ("E_MISSING_CONTEXT", "E_APPROVAL_REQUIRED"):
-        return "blocked" if code == "E_MISSING_CONTEXT" else "awaiting_approval"
+    if code == "E_MISSING_CONTEXT":
+        return "blocked"
     if code in ("E_UNAVAILABLE", "E_AGENT_UNAVAILABLE"):
         return "unavailable"
     return "failed"
 
 
 class Runtime:
-    def __init__(self, project_dir: Path | str, adapter=None, interactive: bool = False,
-                 config: dict | None = None, registry=None, echo: Callable[[str], None] | None = None):
+    def __init__(self, project_dir: Path | str, adapter=None, config: dict | None = None,
+                 commands: dict[str, Command] | None = None, echo: Callable[[str], None] | None = None,
+                 sandbox=None, interactive: bool = False):
         self.project_dir = Path(project_dir).resolve()
         self.config = config or load_config(self.project_dir)
-        self.registry = registry or load_registry()
+        self.commands = commands if commands is not None else load_commands(self.project_dir)
         self.store = Store(self.project_dir / self.config["store"])
         self.adapter = adapter or make_adapter(self.config["agent"]["adapter"])
-        self.interactive = interactive
+        self.sandbox = make_sandbox(sandbox) if isinstance(sandbox, str) or sandbox is None else sandbox
         self.echo = echo
 
     # ── contract ────────────────────────────────────────────────────────
@@ -101,48 +96,52 @@ class Runtime:
         result = {"command": command, "status": "failed", "artifact_id": None, "output": None,
                   "validation": {"passed": False, "findings": []},
                   "execution": {"model": None, "duration_ms": None, "token_usage": None, "cost_usd": None,
-                                "adapter": None, "attempts": 0, "run_id": run_id, "permission_denials": []},
+                                "adapter": None, "attempts": 0, "run_id": run_id, "permission_denials": [],
+                                "sandbox": self.sandbox.name if self.sandbox else None},
                   "error": None}
         started = time.monotonic()
-        ctx = None
         try:
-            spec = self.registry.commands.get(command)
-            if spec is None:
-                raise LatticeError("E_UNKNOWN_COMMAND", f"unknown command '{command}'")
-            ctx = self._prepare(inv, spec, run_id, run_dir)
+            cmd = self.commands.get(command)
+            if cmd is None:
+                raise LatticeError("E_UNKNOWN_COMMAND", f"unknown command '{command}'. Loaded: "
+                                                        f"{', '.join(sorted(self.commands))}")
+            if inv.get("controls", {}).get("approval_required"):
+                raise LatticeError("E_PARAM", "approval_required is not supported in v0.2 (no gated commands)")
+            ctx = self._prepare(inv, cmd, run_id, run_dir)
             result["artifact_id"] = ctx.artifact_id
             self.store.set_run_status(run_dir, state="running", command=command, artifact_id=ctx.artifact_id,
                                       started_at=time.time())
-            self._check_approval(ctx)
-            mode = spec["execution"]["mode"]
-            if mode == "agent":
+            if self.sandbox:
+                ok, why = self.sandbox.check()
+                if not ok:
+                    raise LatticeError("E_UNAVAILABLE", f"sandbox unavailable: {why}")
+            if cmd["mode"] == "agent":
                 output, validation, execution = self._run_agent(ctx)
                 result["execution"].update(execution)
-            elif mode == "procedure":
-                output = PROCEDURES[spec["execution"]["procedure"]](self, ctx)
-                validation = self.validate_output(command, output, ctx, ctx.params)
             else:
-                output = NATIVE[spec["execution"]["procedure"]](self, ctx)
-                validation = {"passed": True, "findings": []}
-            output, validation = self._postprocess(ctx, output, validation, result["execution"])
+                output = PROCEDURES[cmd["procedure"]](self, ctx)
+                validation = self.validate_output(cmd, output, ctx)
+            findings = list(validation["findings"])
+            for hook in cmd["postprocess"]:
+                findings = POSTPROCESS[hook](self, ctx, output, findings)
+            validation = {"passed": not any(f["severity"] == "error" for f in findings), "findings": findings}
             result["output"] = output
             result["validation"] = validation
             result["status"] = "completed" if validation["passed"] else "failed"
             if not validation["passed"]:
-                result["error"] = {"code": "E_SCHEMA" if any(f["rule"] == "schema" for f in validation["findings"])
+                result["error"] = {"code": "E_SCHEMA" if any(f["rule"] == "schema" for f in findings)
                                    else "E_VALIDATION", "message": "output failed validation; see findings"}
-            if spec["artifact"] == "create" and output is not None:
+            if cmd["artifact"] == "create" and output is not None:
                 ctx.artifact_id = self._create_artifact(ctx, output)
                 result["artifact_id"] = ctx.artifact_id
-            if ctx.artifact_id and mode in ("agent", "procedure") and output is not None:
+            if ctx.artifact_id and output is not None:
                 self.store.record_stage(ctx.artifact_id, command, run_id, result["status"], output,
                                         {**validation, "params": ctx.params}, result["execution"].get("cost_usd"))
         except LatticeError as e:
             result["status"] = _status_for(e.code)
             result["error"] = e.to_dict()
-        except (ConfigError, ProfileError) as e:
-            result["status"] = "failed"
-            result["error"] = {"code": getattr(e, "code", "E_PARAM"), "message": str(e)}
+        except ConfigError as e:
+            result["error"] = {"code": "E_PARAM", "message": str(e)}
         result["execution"]["duration_ms_wall"] = int((time.monotonic() - started) * 1000)
         write_json(run_dir / "result.json", result)
         self.store.set_run_status(run_dir, state="finished", status=result["status"])
@@ -155,45 +154,32 @@ class Runtime:
         return result
 
     # ── preparation ────────────────────────────────────────────────────
-    def _prepare(self, inv: dict, spec: dict, run_id: str, run_dir: Path) -> ExecContext:
-        command = inv["command"]
-        params = self._validate_params(command, spec, inv.get("parameters") or {})
-        controls = {**{"approval_required": False}, **(inv.get("controls") or {})}
-        ctx = ExecContext(command, spec, inv.get("target"), params, controls, run_id, run_dir)
+    def _prepare(self, inv: dict, cmd: Command, run_id: str, run_dir: Path) -> ExecContext:
+        params = self._validate_params(cmd, inv.get("parameters") or {})
+        ctx = ExecContext(cmd.name, cmd, inv.get("target"), params, dict(inv.get("controls") or {}), run_id,
+                          run_dir)
         self._resolve_target(ctx, inv.get("context") or {})
         if ctx.artifact_id:
             ctx.manifest = self.store.manifest(ctx.artifact_id)
-            ctx.profile, ctx.stack = ctx.manifest.get("profile"), ctx.manifest.get("stack")
-            for stage in spec.get("requires", []):
+            for stage in cmd["requires"]:
                 st = ctx.manifest["stages"].get(stage)
                 if not st:
-                    raise LatticeError("E_MISSING_CONTEXT", f"{command} requires stage '{stage}' of "
+                    raise LatticeError("E_MISSING_CONTEXT", f"{cmd.name} requires stage '{stage}' of "
                                                             f"{ctx.artifact_id}, which has not run")
                 if st["status"] != "completed":
-                    raise LatticeError("E_MISSING_CONTEXT", f"{command} requires stage '{stage}' of "
-                                                            f"{ctx.artifact_id}, whose last run {st['run_id']} "
-                                                            f"ended '{st['status']}'")
-            ctx.requirement = self.store.stage_output(ctx.artifact_id, "requirement")
-            ctx.design = self.store.stage_output(ctx.artifact_id, "design")
+                    raise LatticeError("E_MISSING_CONTEXT", f"{cmd.name} requires stage '{stage}' of "
+                                                            f"{ctx.artifact_id}, whose last run ended "
+                                                            f"'{st['status']}'")
+            ctx.spec = self.store.stage_output(ctx.artifact_id, "specify")
             ctx.test = self.store.stage_output(ctx.artifact_id, "test")
             ctx.workspace = self._workspace(ctx)
-        elif spec["artifact"] == "create":
-            ctx.profile = resolve_profile(self.registry, params.get("standard"), params.get("overrides"))
-            ctx.stack = resolve_stack(self.registry, params.get("stack") or [])
-        if "decision_model" in params and params["decision_model"]:
-            name = params["decision_model"]
-            dm = self.registry.decision_models.get(name)
-            if not dm:
-                raise LatticeError("E_DECISION_MODEL", f"unknown decision model '{name}'. Available: "
-                                                       f"{', '.join(sorted(self.registry.decision_models))}")
-            ctx.decision_model = {"name": name, **copy.deepcopy(dm)}
         return ctx
 
-    def _validate_params(self, command: str, spec: dict, given: dict) -> dict:
-        schema = spec.get("parameters") or {}
+    def _validate_params(self, cmd: Command, given: dict) -> dict:
+        schema = cmd["parameters"]
         unknown = [k for k in given if k not in schema]
         if unknown:
-            raise LatticeError("E_PARAM", f"{command}: unknown parameter(s) {unknown}; accepted: "
+            raise LatticeError("E_PARAM", f"{cmd.name}: unknown parameter(s) {unknown}; accepted: "
                                           f"{sorted(schema) or 'none'}")
         out = {}
         for name, ps in schema.items():
@@ -205,20 +191,16 @@ class Runtime:
                 out[name] = None
                 continue
             t = ps["type"]
-            ok = {
-                "string": isinstance(v, str), "profile": isinstance(v, str), "path": isinstance(v, str),
-                "integer": isinstance(v, int) and not isinstance(v, bool),
-                "number": isinstance(v, (int, float)) and not isinstance(v, bool),
-                "boolean": isinstance(v, bool), "list": isinstance(v, list), "object": isinstance(v, dict),
-            }.get(t)
-            if ok is None:
-                raise ConfigError(f"{command}.{name}: unknown parameter type {t}")
+            ok = {"string": isinstance(v, str), "path": isinstance(v, str),
+                  "integer": isinstance(v, int) and not isinstance(v, bool),
+                  "number": isinstance(v, (int, float)) and not isinstance(v, bool),
+                  "boolean": isinstance(v, bool), "list": isinstance(v, list), "object": isinstance(v, dict)}[t]
             if not ok:
-                raise LatticeError("E_PARAM", f"{command}: parameter '{name}' must be {t}, got {type(v).__name__}")
+                raise LatticeError("E_PARAM", f"{cmd.name}: parameter '{name}' must be {t}, got {type(v).__name__}")
             if t == "list" and ps.get("items") == "string" and not all(isinstance(x, str) for x in v):
-                raise LatticeError("E_PARAM", f"{command}: parameter '{name}' must be a list of strings")
+                raise LatticeError("E_PARAM", f"{cmd.name}: parameter '{name}' must be a list of strings")
             if "enum" in ps and v not in ps["enum"]:
-                raise LatticeError("E_PARAM", f"{command}: parameter '{name}' must be one of {ps['enum']}")
+                raise LatticeError("E_PARAM", f"{cmd.name}: parameter '{name}' must be one of {ps['enum']}")
             if t == "path":
                 self._safe_path(v)
             out[name] = v
@@ -239,22 +221,24 @@ class Runtime:
         return text[:MAX_UNTRUSTED_CHARS].replace("</data>", "&lt;/data&gt;")
 
     def _resolve_target(self, ctx: ExecContext, context: dict) -> None:
-        spec, t = ctx.spec, ctx.target
-        kind = spec["target"]["type"]
-        if t is None:
-            if spec["target"].get("required"):
+        spec, t = ctx.cmd["target"], ctx.target
+        kind = spec["type"]
+        if kind == "none":
+            if t is not None:
+                raise LatticeError("E_PARAM", f"{ctx.command} takes no target")
+        elif t is None:
+            if spec.get("required"):
                 raise LatticeError("E_PARAM", f"{ctx.command} requires a target")
-            return
-        if not isinstance(t, str):
-            raise LatticeError("E_PARAM", f"{ctx.command}: target must be a string")
-        if kind == "artifact" or (kind == "artifact_or_text" and ID_RE.match(t)):
+        elif not isinstance(t, str):
+            raise LatticeError("E_PARAM", f"{ctx.command}: target must be a string or an artifact")
+        elif kind == "artifact" or (kind == "artifact_or_text" and ID_RE.match(t)):
             if not self.store.exists(t):
                 raise LatticeError("E_UNKNOWN_ARTIFACT", f"artifact '{t}' does not exist. Known: "
                                                          f"{', '.join(self.store.list_ids()) or 'none'}")
             ctx.artifact_id = t
-        elif kind == "text" and not t.strip():
+        elif not t.strip():
             raise LatticeError("E_PARAM", f"{ctx.command}: target text is empty")
-        if spec["artifact"] == "create":
+        if ctx.cmd["artifact"] == "create":
             declared = ctx.params.get("id") or context.get("declared_id")
             if declared:
                 if not ID_RE.match(declared):
@@ -263,38 +247,29 @@ class Runtime:
                     raise LatticeError("E_ARTIFACT_EXISTS", f"artifact {declared} already exists")
             ctx.manifest = {"declared_id": declared}
 
+    def _uses_workspace(self, cmd: Command) -> bool:
+        return bool(FILE_TOOLS & set(self.tool_policy(cmd).tools))
+
     def _workspace(self, ctx: ExecContext) -> Path:
         m = ctx.manifest
-        policy = ctx.spec["execution"].get("tool_policy")
-        if ctx.spec["execution"].get("workspace") == "prototype":
-            return self.project_dir / self.config["workspace_root"] / f"{ctx.artifact_id}-prototype"
-        if ctx.command == "build" and ctx.params.get("path"):
+        if ctx.params.get("path") and ctx.cmd["parameters"].get("path"):
             ws = (self.project_dir / ctx.params["path"]).resolve()
             try:
                 ws.relative_to(self.project_dir)
             except ValueError:
-                raise LatticeError("E_PARAM", "build path must be inside the project directory") from None
+                raise LatticeError("E_PARAM", "path must be inside the project directory") from None
         elif m.get("workspace"):
             ws = self.project_dir / m["workspace"]
         else:
             ws = self.project_dir / self.config["workspace_root"] / ctx.artifact_id
-        if ctx.command == "build" and m.get("workspace") != ws.relative_to(self.project_dir).as_posix():
-            m["workspace"] = ws.relative_to(self.project_dir).as_posix()
-            self.store.save_manifest(m)
-        if policy in WORKSPACE_POLICIES and ctx.command != "build" and ctx.spec["artifact"] == "use" \
-                and "build" in ctx.spec.get("requires", []) and not ws.exists():
+        rel = ws.relative_to(self.project_dir).as_posix()
+        writes = {"Write", "Edit", "Bash"} & set(self.tool_policy(ctx.cmd).tools)
+        if writes and m.get("workspace") != rel:
+            m = self.store.update_manifest(ctx.artifact_id, workspace=rel)
+            ctx.manifest = m
+        elif self._uses_workspace(ctx.cmd) and not writes and not ws.exists():
             raise LatticeError("E_MISSING_CONTEXT", f"workspace {ws} does not exist")
         return ws
-
-    def _check_approval(self, ctx: ExecContext) -> None:
-        if not (ctx.spec["controls"].get("approval_required") or ctx.controls.get("approval_required")):
-            return
-        if not ctx.artifact_id:
-            raise LatticeError("E_APPROVAL_REQUIRED", f"{ctx.command} requires approval but has no artifact")
-        if not self.store.consume_approval(ctx.artifact_id, ctx.command):
-            raise LatticeError("E_APPROVAL_REQUIRED",
-                               f"{ctx.command} on {ctx.artifact_id} requires approval. A person must run "
-                               f"`lattice approve {ctx.artifact_id} {ctx.command}` first.")
 
     def _create_artifact(self, ctx: ExecContext, output: dict) -> str:
         aid = ctx.manifest.get("declared_id")
@@ -302,75 +277,79 @@ class Runtime:
         if not (isinstance(code, str) and code.isalpha() and code.isupper() and 2 <= len(code) <= 6):
             code = "ART"
         try:
-            m = self.store.create_artifact(aid, ctx.target, {"profile": ctx.profile, "stack": ctx.stack,
-                                                             "registry_version": self.registry.version,
-                                                             "created_by_run": ctx.run_id}, code=code)
+            m = self.store.create_artifact(aid, ctx.target, {"created_by_run": ctx.run_id,
+                                                             "command": ctx.command}, code=code)
         except FileExistsError as e:  # another worker claimed the declared id meanwhile
             raise LatticeError("E_ARTIFACT_EXISTS", str(e)) from None
         ctx.manifest = m
         return m["id"]
 
-
     # ── agent execution ─────────────────────────────────────────────────
-    def agent_settings(self, command: str, params: dict) -> dict:
+    def agent_settings(self, cmd: Command) -> dict:
         a = self.config["agent"]
-        s = deep_merge({k: v for k, v in a.items() if k != "overrides"}, (a.get("overrides") or {}).get(command, {}))
+        over = (a.get("overrides") or {}).get(cmd.name, {})
+        s = deep_merge({k: v for k, v in a.items() if k != "overrides"}, over)
+        if cmd.get("timeout_s") and "timeout_s" not in over:
+            s["timeout_s"] = cmd["timeout_s"]
         return s
 
-    def tool_policy(self, name: str) -> ToolPolicy:
-        pol = self.config["tool_policies"].get(name)
-        if pol is None:
-            raise ConfigError(f"tool policy '{name}' is not defined in lattice.yaml")
-        return ToolPolicy(name=name, tools=list(pol.get("tools", [])), allow=list(pol.get("allow", [])),
-                          deny=list(pol.get("deny", [])))
+    def tool_policy(self, cmd: Command) -> ToolPolicy:
+        pol = cmd["tool_policy"]
+        if isinstance(pol, dict):
+            return ToolPolicy(name=f"{cmd.name}:inline", tools=list(pol.get("tools", [])),
+                              allow=list(pol.get("allow", [])), deny=list(pol.get("deny", [])))
+        p = self.config["tool_policies"].get(pol)
+        if p is None:
+            raise ConfigError(f"command '{cmd.name}' uses tool policy '{pol}', which is not defined "
+                              f"(known: {', '.join(sorted(self.config['tool_policies']))})")
+        return ToolPolicy(name=pol, tools=list(p.get("tools", [])), allow=list(p.get("allow", [])),
+                          deny=list(p.get("deny", [])))
 
     def progress(self, ctx: ExecContext, msg: str) -> None:
         self.store.set_run_status(ctx.run_dir, last_event=msg)
         if self.echo:
             self.echo(f"    · {msg}")
 
-    def invoke_agent(self, ctx: ExecContext, schema: dict, policy_name: str, label: str,
-                     feedback: str | None = None) -> Any:
+    def invoke_agent(self, ctx: ExecContext, label: str, feedback: str | None = None):
         system, prompt = prompts.render(self, ctx)
         if feedback:
             prompt += "\n\n" + feedback
-        policy = self.tool_policy(policy_name)
-        if policy_name in WORKSPACE_POLICIES and ctx.workspace is not None:
+        policy = self.tool_policy(ctx.cmd)
+        if self._uses_workspace(ctx.cmd) and ctx.workspace is not None:
             cwd = ctx.workspace
         else:
             cwd = ctx.run_dir / "sandbox"   # empty dir: agents without workspace access see nothing
-        s = self.agent_settings(ctx.command, ctx.params)
+        s = self.agent_settings(ctx.cmd)
         (ctx.run_dir / f"prompt-{label}.md").write_text(f"<!-- system -->\n{system}\n<!-- prompt -->\n{prompt}",
                                                         encoding="utf-8")
-        req = AgentRequest(prompt=prompt, system=system, output_schema=schema, policy=policy, cwd=cwd,
+        req = AgentRequest(prompt=prompt, system=system, output_schema=ctx.cmd.schema, policy=policy, cwd=cwd,
                            model=s.get("model"), effort=s.get("effort"), timeout_s=int(s.get("timeout_s", 1200)),
-                           env=ctx.env(),
+                           env=ctx.env(), sandbox=self.sandbox,
                            events_path=ctx.run_dir / f"agent-events-{label}.jsonl",
                            on_event=lambda m: self.progress(ctx, m), label=label)
         return self.adapter.invoke(req)
 
     def _run_agent(self, ctx: ExecContext) -> tuple[Any, dict, dict]:
-        spec = ctx.spec
-        schema = self.registry.schema(spec["output_schema"])
+        cmd = ctx.cmd
         max_attempts = int(ctx.controls.get("max_attempts") or
-                           (self.config["retries"]["max_attempts"] if spec.get("idempotent") else 1))
+                           (self.config["retries"]["max_attempts"] if cmd["idempotent"] else 1))
         execution = {"model": None, "duration_ms": None, "token_usage": None, "cost_usd": None,
                      "adapter": self.adapter.name, "attempts": 0, "permission_denials": []}
         feedback, output, validation = None, None, {"passed": False, "findings": []}
         for attempt in range(1, max_attempts + 1):
             execution["attempts"] = attempt
             self.progress(ctx, f"agent attempt {attempt}/{max_attempts}")
-            resp = self.invoke_agent(ctx, schema, spec["execution"]["tool_policy"], f"a{attempt}", feedback)
+            resp = self.invoke_agent(ctx, f"a{attempt}", feedback)
             ctx.agent_events = ctx.run_dir / f"agent-events-a{attempt}.jsonl"
             _accumulate(execution, resp)
             if not resp.ok:
-                if attempt < max_attempts and resp.error_code == "E_AGENT_FAILED" and spec.get("idempotent"):
+                if attempt < max_attempts and resp.error_code == "E_AGENT_FAILED" and cmd["idempotent"]:
                     feedback = None
                     continue
                 raise LatticeError(resp.error_code or "E_AGENT_FAILED", resp.error or "agent failed",
                                    {"attempts": attempt, "execution": execution})
             output = resp.structured_output
-            validation = self.validate_output(ctx.command, output, ctx, ctx.params)
+            validation = self.validate_output(cmd, output, ctx)
             if validation["passed"]:
                 break
             errs = [f for f in validation["findings"] if f["severity"] == "error"]
@@ -382,76 +361,24 @@ class Runtime:
         return output, validation, execution
 
     # ── validation ─────────────────────────────────────────────────────
-    def validate_output(self, command: str, output: Any, ctx: ExecContext, params: dict) -> dict:
-        spec = self.registry.commands[command]
+    def validate_output(self, cmd: Command, output: Any, ctx: ExecContext) -> dict:
         findings = []
-        schema = self.registry.schema(spec["output_schema"])
         if output is None:
             findings.append(finding("schema", "agent returned no structured output"))
         else:
-            v = jsonschema.Draft202012Validator(schema)
+            v = jsonschema.Draft202012Validator(cmd.schema)
             for err in sorted(v.iter_errors(output), key=lambda e: list(e.absolute_path))[:25]:
                 path = "/".join(str(x) for x in err.absolute_path) or "(root)"
                 findings.append(finding("schema", f"{path}: {err.message[:300]}"))
         if not findings:
-            vctx = ValidationContext(command=command, output=output, params=params, workspace=ctx.workspace,
-                                     profile=ctx.profile, stack=ctx.stack, requirement=ctx.requirement,
-                                     design=ctx.design, test=ctx.test, decision_model=ctx.decision_model,
-                                     extra={"agent_events": ctx.agent_events})
-            if command == "requirement":
-                vctx.requirement = output
-            for name in spec.get("validators", []):
+            vctx = ValidationContext(command=cmd.name, output=output, params=ctx.params, workspace=ctx.workspace,
+                                     spec=ctx.spec, test=ctx.test, extra={"agent_events": ctx.agent_events})
+            for name in cmd["validators"]:
                 try:
                     findings += VALIDATORS[name](vctx)
                 except Exception as e:  # a crashing validator is a failed check, never a pass
                     findings.append(finding(name, f"validator crashed: {type(e).__name__}: {e}"))
         return {"passed": not any(f["severity"] == "error" for f in findings), "findings": findings}
-
-    # ── command-specific post-processing (deterministic) ────────────────
-    def _postprocess(self, ctx: ExecContext, output: Any, validation: dict, execution: dict):
-        findings = list(validation["findings"])
-        if ctx.command == "test" and isinstance(output, dict):
-            if not output.get("passed"):
-                failed = [s["name"] for s in output.get("suites", []) if s["status"] != "passed"]
-                findings.append(finding("tests_passed", f"suites not passing: {failed}; "
-                                                        f"{len(output.get('failed_cases', []))} failing cases"))
-                if ctx.params.get("diagnose") and output.get("failed_cases"):
-                    ctx.prompt_override = "diagnose"
-                    resp = self.invoke_agent(ctx, self.registry.schema("generic_analysis"), "read_workspace",
-                                             "diagnose")
-                    _accumulate(execution, resp)
-                    execution["adapter"] = self.adapter.name
-                    output["diagnosis"] = resp.structured_output if resp.ok else {"error": resp.error}
-        if ctx.command == "verify" and isinstance(output, dict) and validation["passed"]:
-            output["verdict"] = compute_verdict(ctx.requirement, output, ctx.test)
-            if output["verdict"]["result"] != "pass":
-                findings.append(finding("verification_verdict", "; ".join(output["verdict"]["reasons"])))
-        passed = not any(f["severity"] == "error" for f in findings)
-        return output, {"passed": passed, "findings": findings}
-
-
-def compute_verdict(req: dict | None, verify_out: dict, test: dict | None) -> dict:
-    """Deterministic verdict; the agent's per-item statuses are inputs, not the verdict itself."""
-    status = {i["id"]: i["status"] for i in verify_out.get("items", [])}
-    must = [r["id"] for r in (req or {}).get("functional_requirements", []) if r["priority"] == "must"]
-    acs = [a["id"] for a in (req or {}).get("acceptance_criteria", [])]
-    reasons = []
-    unmet_must = [i for i in must if status.get(i) != "satisfied"]
-    unmet_ac = [i for i in acs if status.get(i) != "satisfied"]
-    if unmet_must:
-        reasons.append(f"must requirements not satisfied: {', '.join(f'{i}={status.get(i)}' for i in unmet_must)}")
-    if unmet_ac:
-        reasons.append(f"acceptance criteria not satisfied: {', '.join(f'{i}={status.get(i)}' for i in unmet_ac)}")
-    if test is None:
-        reasons.append("no recorded test results")
-    elif not test.get("passed"):
-        reasons.append("recorded test run did not pass")
-    counts: dict[str, int] = {}
-    for s in status.values():
-        counts[s] = counts.get(s, 0) + 1
-    return {"result": "pass" if not reasons else "fail", "reasons": reasons, "status_counts": counts,
-            "must_requirements": len(must), "acceptance_criteria": len(acs),
-            "tests_passed": None if test is None else bool(test.get("passed"))}
 
 
 def _accumulate(execution: dict, resp) -> None:

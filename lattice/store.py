@@ -1,4 +1,4 @@
-"""Filesystem persistence for artifacts, runs and approvals.
+"""Filesystem persistence for artifacts, runs and batch results.
 
 Layout (under the configured store dir, default .lattice/):
     artifacts/<ID>/manifest.json                 current state of the artifact
@@ -6,7 +6,7 @@ Layout (under the configured store dir, default .lattice/):
     artifacts/<ID>/checkpoints/<label>/           checkpoint snapshots
     runs/<run_id>/{invocation,result,status}.json, prompt.md, agent_events.jsonl
     log.jsonl                                    one line per execution
-    approvals.json                               human approvals
+    batches/<name>/                              batch summaries and per-item results
 """
 from __future__ import annotations
 
@@ -217,24 +217,3 @@ class Store:
             if st and st.get("state") == "running":
                 out.append({"run_id": d.name, **st})
         return out
-
-    # ── approvals ──────────────────────────────────────────────────────
-    def approvals(self) -> list[dict]:
-        return read_json(self.root / "approvals.json", []) or []
-
-    def add_approval(self, entry: dict) -> None:
-        with self.lock("approvals"):
-            a = self.approvals()
-            a.append({**entry, "at": now_iso()})
-            write_json(self.root / "approvals.json", a)
-
-    def consume_approval(self, aid: str, command: str) -> dict | None:
-        """Approvals are single-use: consumed by the command they authorize."""
-        with self.lock("approvals"):
-            a = self.approvals()
-            for e in a:
-                if e.get("artifact_id") == aid and e.get("command") == command and not e.get("consumed_at"):
-                    e["consumed_at"] = now_iso()
-                    write_json(self.root / "approvals.json", a)
-                    return e
-        return None

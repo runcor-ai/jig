@@ -1,0 +1,9 @@
+purpose: Research a topic on the web; every finding must cite a source the agent actually retrieved.
+version: "1.0.0"
+target: {type: artifact_or_text, required: true}
+parameters:
+  question: {type: string, default: null, description: Specific question to answer about the topic}
+  min_sources: {type: integer, default: 3, description: Minimum number of distinct sources}
+artifact: optional
+tool_policy: research
+validators: [unique_ids, research_findings_sourced, research_min_sources, research_sources_retrieved]

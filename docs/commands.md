@@ -1,55 +1,74 @@
-# Command library
+# Commands
 
-The authoritative definition is `lattice/registry/commands.yaml` (v0.1.0). `lattice commands` prints it,
-and `lattice commands --json` dumps it.
+Every command is a plugin loaded by `lattice/loader.py`, built-in or not. Run `lattice commands` to see
+what is loaded and from where, and `lattice check` to validate every definition.
 
-Every entry defines: `category`, `purpose`, `maturity`, `target`, `parameters` (type, default, enum),
-`artifact` (create/use/optional/none), `requires` (required context: prior stages), `output_schema`,
-`execution` (mode and tool policy), `validators`, `idempotent` (retry safety), `controls`
-(approval_required) and `errors`.
+## Where commands come from
 
-## Maturity levels
-
-| Maturity | Meaning | Commands |
+| Order | Directory | Source label |
 |---|---|---|
-| core | Dedicated prompt, schema and validators; exercised end to end | requirement, design, build, test, review, verify |
-| generic | Shared agent path (`generic_analysis`, `decision` or `build` schema) with shared validators | scope, specify, constrain, research, analyze, compare, extract, decide, evaluate, challenge, justify, architect, model, prototype, implement, refactor, integrate, document |
-| native | Implemented by the runtime; no agent | validate, report, package, approve, checkpoint, rollback, status |
-| unavailable | Defined and gated; returns `E_UNAVAILABLE` | deploy |
+| 1 | `lattice/commands/` | builtin |
+| 2 | `~/.lattice/commands/` (or `$LATTICE_USER_COMMANDS`) | user |
+| 3 | `<project>/commands/` | project |
 
-## Core commands
+A later definition with the same name replaces an earlier one, and `lattice commands` shows `(overrides …)`.
 
-| Command | Requires | Tools | What is checked |
-|---|---|---|---|
-| `requirement(goal, stack=[], standard=None, brief=None, overrides={}, id=None)` | none | none | unique ids; ACs reference real FRs; every enabled profile control → NFR; every stack component → constraint |
-| `design(ID, decision_model=None, notes=None)` | requirement | none | every FR traced; every open decision resolved; layout includes contract paths; endpoints reference real FRs |
-| `build(ID, path=None, budget_usd=None, notes=None)` | requirement, design | build (workspace) | contract files exist; compose services present; migrations exist; claimed files exist; no committed secrets |
-| `test(ID, suites=[], diagnose=False)` | build | the runner itself (docker) | suites from the stack profile are executed and JUnit XML / HTTP checks parsed; fails if anything fails or no reports exist |
-| `review(ID, criteria=[...])` | build | read_workspace | every criterion assessed; every finding cites an existing file and an in-range line |
-| `verify(ID, against="requirements")` | requirement, build | read_workspace | every FR and AC covered; evidence files and symbols exist; cited tests exist in recorded results; verdict computed deterministically |
+## Files
 
-## Profiles
+```
+<name>.yaml          definition (required)
+<name>.md            prompt template (required for agent commands; or `prompt: other.md`)
+<name>.schema.json   output JSON Schema (or `output_schema:` inline / `output_schema: file.json`)
+```
 
-`lattice/registry/profiles.yaml` holds the quality profiles (`enterprise`, `prototype`) and stacks
-(`java_react_postgres`). Each is versioned. A script can pin a version (`standard="enterprise@1.0.0"`) and
-override a leaf (`overrides={"security.audit_logging": False}`). The resolved profile and stack are stored
-in the artifact manifest, so later stages use exactly what `requirement` used.
+## Definition fields
 
-The stack's `contract` (required paths, compose services, ports and rules) is what lets `test` run the
-application without trusting the build agent's account of it.
+| Field | Default | Meaning |
+|---|---|---|
+| `purpose` | required | One line, shown by `lattice commands` |
+| `version` | `"0"` | Free-form |
+| `target` | `{type: artifact_or_text, required: true}` | `text`, `artifact` (an existing id or bound variable), `artifact_or_text`, or `none` |
+| `parameters` | `{}` | `name: {type, default, enum?, items?, description}`. Types: `string`, `integer`, `number`, `boolean`, `list`, `object`, `path`. `max_attempts` and `approval_required` are reserved. |
+| `artifact` | `optional` | `create` (the output creates a new artifact), `use` (target must be an artifact), `optional`, `none` |
+| `requires` | `[]` | Stages of the artifact that must have completed, e.g. `[specify]` |
+| `mode` | `agent` | `agent`, or `procedure` (a built-in runner, currently `run_tests`) |
+| `tool_policy` | `none` | `none`, `read_workspace`, `write_workspace`, `research`, `build`, or inline `{tools, allow, deny}` |
+| `validators` | `[]` | Built-in checks run after schema validation (see below) |
+| `postprocess` | `[]` | `tests_must_pass`, `verify_verdict` |
+| `idempotent` | `true` for agent commands | Retry once with the validation findings if the output fails |
+| `timeout_s` | config default | Per agent call |
 
-## Decision models
+## Prompt placeholders
 
-`lattice/registry/decision_models.yaml` defines 7 models: architecture_selection, technology_selection,
-risk_assessment, trade_off_analysis, root_cause_analysis, evidence_verification and
-reversibility_assessment. Each lists inputs, criteria, assumptions, outputs and rules.
+| Placeholder | Value |
+|---|---|
+| `$target` | The target text or artifact id |
+| `$artifact_id` | The artifact id, or `(new)` |
+| `$<param>` | Each parameter. Lists of strings render as bullets; `path` parameters render as the file's content (fence it in `<data>`). |
+| `$parameters` | All parameters as JSON |
+| `$spec` | The artifact's `specify` output |
+| `$tests` | The artifact's recorded test results |
+| `$expected_ids` | The requirement ids from the spec |
+| `$context` | Every stage output of the artifact (only computed if used) |
+| `$workspace_state` | What is already in the workspace |
 
-A model is used only when a command names it (`decide(..., decision_model="risk_assessment")`, or
-`design(ID, decision_model=...)`). The runtime injects it into the prompt, and `decision_model_complete`
-checks that every option is scored against every criterion. No second LLM call is made.
+## Built-in validators
 
-## Adding a command
+| Name | Checks |
+|---|---|
+| `unique_ids` | No duplicate `id` values anywhere in the output |
+| `constraints_reflected` | Every `constraints` parameter value is restated in `constraints_applied` |
+| `claimed_files_exist` | `files_created` and `evidence_paths` exist in the workspace |
+| `no_secrets_in_workspace` | No private keys or common API-token patterns |
+| `all_criteria_assessed` | Every `criteria` parameter value appears in `criteria_assessed` |
+| `findings_cite_existing_files` | Each finding's file exists and its line is within range |
+| `tests_executed` | JUnit reports contained at least one test |
+| `verify_covers_all_items` | One item per spec requirement |
+| `evidence_files_exist`, `evidence_symbols_exist` | Cited files exist and the cited symbols occur in them |
+| `test_evidence_matches_results` | Cited test names exist in the recorded test run |
+| `research_findings_sourced`, `research_min_sources`, `research_sources_retrieved` | Every finding cites a listed source; enough sources; every URL appears in the session's own WebSearch/WebFetch log |
 
-Add a registry entry. If it needs a new output shape, add a schema, optionally a prompt template
-`prompts/<name>.md`, and any validators (decorated with `@validator`). There is no per-command code path in
-the runtime. Registry loading fails fast on missing fields, unknown validators or missing schemas.
+## Built-in commands
+
+`specify`, `build`, `test`, `verify` and `research`. See their definitions in `lattice/commands/`.
+`review` in this repo's `commands/` is an example project command.

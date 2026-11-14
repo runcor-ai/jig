@@ -61,7 +61,7 @@ def _summarize(out: dict | None, code: int, stderr: str) -> dict:
 
 
 def run_batch(project: Path, items_file: Path, script: Path, parallel: int = 3, resume: bool = False,
-              echo: Callable[[str], None] = print, lattice_cmd: list[str] | None = None) -> dict:
+              sandbox: str | None = None, echo: Callable[[str], None] = print, lattice_cmd: list[str] | None = None) -> dict:
     items = load_items(items_file)
     name = items_file.stem
     bdir = project / ".lattice" / "batches" / name
@@ -81,6 +81,8 @@ def run_batch(project: Path, items_file: Path, script: Path, parallel: int = 3, 
         argv = [*cmd, "--project", str(project), "run", str(script), "--vars", str(vars_path), "--json"]
         if resume:
             argv.append("--resume")
+        if sandbox:
+            argv += ["--sandbox", sandbox]
         echo(f"[start] {iid}")
         t0 = time.monotonic()
         p = subprocess.run(argv, capture_output=True, text=True, encoding="utf-8", errors="replace",
@@ -102,6 +104,7 @@ def run_batch(project: Path, items_file: Path, script: Path, parallel: int = 3, 
     with ThreadPoolExecutor(max_workers=max(1, parallel)) as pool:
         records = list(pool.map(work, items))
     summary = {"batch": name, "script": str(script), "items_file": str(items_file), "parallel": parallel,
+               "sandbox": sandbox or "none",
                "finished_at": now_iso(), "wall_s": round(time.monotonic() - started, 1),
                "completed": sum(r["status"] == "completed" for r in records), "total": len(records),
                "items": [{k: r.get(k) for k in ("id", "status", "failed_at", "error", "cost_usd", "wall_s", "skipped")}

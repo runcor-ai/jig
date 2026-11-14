@@ -1,4 +1,4 @@
-"""lattice CLI: run scripts and individual commands, inspect artifacts, approve, benchmark."""
+"""lattice CLI: run scripts and single commands, run batches, inspect commands and artifacts."""
 from __future__ import annotations
 
 import argparse
@@ -6,23 +6,24 @@ import json
 import sys
 from pathlib import Path
 
-from .config import load_registry
 from .errors import ERROR_CODES
+from .loader import CommandDefError, command_dirs, load_commands
 from .parser import ParseError, parse
-from .procedures import docker_available
 from .script import run_script
 from .store import read_json
 
 
-def _rt(args, interactive=False):
+def _rt(args):
     from .runtime import Runtime
     echo = None if getattr(args, "json", False) else (lambda m: print(m, flush=True))
-    return Runtime(Path(args.project), interactive=interactive, echo=echo)
+    return Runtime(Path(args.project), echo=echo, sandbox=getattr(args, "sandbox", None))
 
 
 def _fmt_result(res: dict) -> str:
     ex = res.get("execution") or {}
     bits = [f"status={res['status']}"]
+    if res.get("skipped"):
+        bits.append("(resumed: already completed)")
     if res.get("artifact_id"):
         bits.append(f"artifact={res['artifact_id']}")
     v = res.get("validation") or {}
@@ -30,20 +31,13 @@ def _fmt_result(res: dict) -> str:
         errs = sum(1 for f in v.get("findings", []) if f["severity"] == "error")
         warns = sum(1 for f in v.get("findings", []) if f["severity"] == "warning")
         bits.append(f"validation={'passed' if v.get('passed') else 'FAILED'} ({errs} errors, {warns} warnings)")
-    if ex.get("model"):
-        bits.append(f"model={ex['model']}")
-    if ex.get("attempts"):
-        bits.append(f"attempts={ex['attempts']}")
-    if ex.get("duration_ms") is not None:
-        bits.append(f"agent_ms={ex['duration_ms']}")
+    for key, label in (("model", "model"), ("attempts", "attempts"), ("sandbox", "sandbox")):
+        if ex.get(key):
+            bits.append(f"{label}={ex[key]}")
     if ex.get("duration_ms_wall") is not None:
         bits.append(f"wall_ms={ex['duration_ms_wall']}")
     if ex.get("cost_usd") is not None:
-        bits.append(f"cost=${ex['cost_usd']:.4f}")
-    if ex.get("token_usage"):
-        tu = ex["token_usage"]
-        bits.append(f"tokens(in={tu.get('input_tokens', 0)}+cache_r={tu.get('cache_read_input_tokens', 0)}"
-                    f"+cache_w={tu.get('cache_creation_input_tokens', 0)}, out={tu.get('output_tokens', 0)})")
+        bits.append(f"reported_cost=${ex['cost_usd']:.4f}")
     if ex.get("permission_denials"):
         bits.append(f"permission_denials={len(ex['permission_denials'])}")
     lines = ["  " + "  ".join(bits)]
@@ -78,14 +72,14 @@ def cmd_run(args):
 
 
 def cmd_exec(args):
-    rt = _rt(args, interactive=True)
+    rt = _rt(args)
     try:
-        stmts = parse(args.statement, set(rt.registry.commands))
+        stmts = parse(args.statement, set(rt.commands))
     except ParseError as e:
         print(f"E_PARSE: {e}")
         return 2
-    if len(stmts) != 1:
-        print("exec takes exactly one statement; use `lattice run` for scripts")
+    if len(stmts) != 1 or stmts[0].bind:
+        print("exec takes exactly one statement without assignment; use `lattice run` for scripts")
         return 2
     st = stmts[0]
     res = rt.execute(rt.normalize(st.command, st.target, st.kwargs))
@@ -95,9 +89,19 @@ def cmd_exec(args):
 
 def cmd_status(args):
     rt = _rt(args)
-    res = rt.run("status", args.artifact)
-    print(json.dumps(res["output"] if res["status"] == "completed" else res, indent=2, default=str))
-    return 0 if res["status"] == "completed" else 1
+    if args.artifact:
+        if not rt.store.exists(args.artifact):
+            print(f"no artifact '{args.artifact}'")
+            return 1
+        m = rt.store.manifest(args.artifact)
+        out = {"id": m["id"], "title": m["title"], "workspace": m.get("workspace"),
+               "stages": {k: v["status"] for k, v in m["stages"].items()}, "history": m["history"][-10:]}
+    else:
+        out = {"artifacts": {a: {k: v["status"] for k, v in rt.store.manifest(a)["stages"].items()}
+                             for a in rt.store.list_ids()},
+               "running": rt.store.running()}
+    print(json.dumps(out, indent=2, default=str))
+    return 0
 
 
 def cmd_show(args):
@@ -115,46 +119,62 @@ def cmd_show(args):
 
 
 def cmd_commands(args):
-    reg = load_registry()
+    cmds = load_commands(Path(args.project))
     if args.json:
-        print(json.dumps(reg.commands, indent=2))
+        print(json.dumps({n: {**c.spec, "source": c.source, "path": str(c.path)} for n, c in cmds.items()},
+                         indent=2, default=str))
         return 0
-    print(f"Lattice command registry v{reg.version}: {len(reg.commands)} commands")
-    cur = None
-    for name, s in sorted(reg.commands.items(), key=lambda kv: (kv[1]["category"], kv[0])):
-        if s["category"] != cur:
-            cur = s["category"]
-            print(f"\n{cur}")
-        params = ", ".join(s["parameters"]) or "-"
-        print(f"  {name:<12} [{s['maturity']:<11}] {s['purpose']}\n               params: {params}; "
-              f"requires: {s['requires'] or '-'}; schema: {s['output_schema']}; "
-              f"tools: {s['execution'].get('tool_policy', s['execution']['mode'])}")
+    print(f"{len(cmds)} commands loaded\n")
+    for name, c in sorted(cmds.items()):
+        params = ", ".join(c["parameters"]) or "-"
+        pol = c["tool_policy"] if isinstance(c["tool_policy"], str) else "inline"
+        over = f"  (overrides {c.overrides})" if c.overrides else ""
+        print(f"  {name:<12} [{c.source}]{over} {c['purpose']}\n"
+              f"               params: {params}; requires: {c['requires'] or '-'}; "
+              f"tools: {pol if c['mode'] == 'agent' else 'none (runs in Lattice)'}")
+    print("\nsearched: " + "; ".join(f"{s}={d}{'' if d.is_dir() else ' (missing)'}"
+                                     for s, d in command_dirs(Path(args.project))))
     return 0
 
 
-def cmd_approve(args):
-    rt = _rt(args, interactive=True)
-    res = rt.run("approve", args.artifact, command=args.command, note=args.note)
-    print(_fmt_result(res))
-    return 0 if res["status"] == "completed" else 1
-
-
 def cmd_check(args):
-    reg = load_registry()
-    print(f"registry v{reg.version}: {len(reg.commands)} commands, {len(reg.profiles)} profiles, "
-          f"{len(reg.stacks)} stacks, {len(reg.decision_models)} decision models - OK")
+    ok_all = True
+    try:
+        cmds = load_commands(Path(args.project))
+        by = {}
+        for c in cmds.values():
+            by[c.source] = by.get(c.source, 0) + 1
+        print(f"commands: {len(cmds)} loaded OK ({', '.join(f'{k} {v}' for k, v in sorted(by.items()))})")
+    except CommandDefError as e:
+        print(f"commands: INVALID\n{e}")
+        return 1
     rt = _rt(args)
+    for c in cmds.values():  # every named tool policy must exist
+        if c["mode"] == "agent":
+            try:
+                rt.tool_policy(c)
+            except Exception as e:
+                print(f"  {c.name}: {e}")
+                ok_all = False
     ok, why = rt.adapter.available()
+    ok_all &= ok
     print(f"agent adapter {rt.adapter.name}: {'available' if ok else 'UNAVAILABLE'} ({why})")
-    ok2, why2 = docker_available()
-    print(f"docker: {'available' if ok2 else 'UNAVAILABLE'} ({why2})")
-    return 0 if ok else 1
+    from .sandbox import DockerSandbox
+    ok2, why2 = DockerSandbox().check()
+    print(f"sandbox docker: {'ready' if ok2 else 'not ready'} ({why2})")
+    return 0 if ok_all else 1
+
+
+def cmd_sandbox_build(args):
+    from .sandbox import IMAGE, build_image
+    print(f"building {IMAGE} ...")
+    return build_image()
 
 
 def cmd_batch(args):
     from .batch import format_summary, run_batch
     s = run_batch(Path(args.project).resolve(), Path(args.items), Path(args.script), parallel=args.parallel,
-                  resume=args.resume, echo=lambda m: print(m, flush=True))
+                  resume=args.resume, sandbox=args.sandbox, echo=lambda m: print(m, flush=True))
     print()
     print(format_summary(s))
     return 0 if s["completed"] == s["total"] else 1
@@ -170,20 +190,17 @@ def cmd_batch_status(args):
     return 0
 
 
-def cmd_bench(args):
-    from .bench import run_bench
-    out = run_bench(Path(args.project), Path(args.suite), runs=args.runs, modes=args.mode)
-    print(json.dumps(out["summary"], indent=2))
-    print(f"\nresults: {out['path']}")
-    return 0
+def _sandbox_arg(p):
+    p.add_argument("--sandbox", choices=["none", "docker"], default=None,
+                   help="docker: run agents and test commands in a throwaway container with only the workspace mounted")
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(prog="lattice", description="Lattice v0.1 command runtime")
-    p.add_argument("--project", default=".", help="project directory (holds lattice.yaml and .lattice/)")
+    p = argparse.ArgumentParser(prog="lattice", description="Lattice: a scripting language for LLM agents")
+    p.add_argument("--project", default=".", help="project directory (lattice.yaml, commands/, .lattice/)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    r = sub.add_parser("run", help="run a Lattice script")
+    r = sub.add_parser("run", help="run a .lat script")
     r.add_argument("script")
     r.add_argument("--replace", action="store_true", help="archive existing artifacts the script re-creates")
     r.add_argument("--continue-on-error", action="store_true")
@@ -191,14 +208,28 @@ def main(argv=None):
     r.add_argument("--vars", help="JSON file of variables available to the script")
     r.add_argument("--var", action="append", help="name=value variable (repeatable)")
     r.add_argument("--json", action="store_true")
+    _sandbox_arg(r)
     r.set_defaults(fn=cmd_run)
 
-    e = sub.add_parser("exec", help="execute one command, e.g. lattice exec 'status(\"CRM-001\")'")
+    e = sub.add_parser("exec", help="execute one statement, e.g. lattice exec 'research(\"passkeys\")'")
     e.add_argument("statement")
     e.add_argument("--json", action="store_true")
+    _sandbox_arg(e)
     e.set_defaults(fn=cmd_exec)
 
-    s = sub.add_parser("status", help="artifact status, or all artifacts and running commands")
+    bt = sub.add_parser("batch", help="run one script for every item in a YAML list, in parallel")
+    bt.add_argument("items", help="YAML list of items; each needs an id")
+    bt.add_argument("--script", required=True)
+    bt.add_argument("--parallel", type=int, default=3)
+    bt.add_argument("--resume", action="store_true", help="skip completed items, resume the rest")
+    _sandbox_arg(bt)
+    bt.set_defaults(fn=cmd_batch)
+
+    bs = sub.add_parser("batch-status", help="show the summary of a finished batch")
+    bs.add_argument("name", help="batch name (the items file name without extension)")
+    bs.set_defaults(fn=cmd_batch_status)
+
+    s = sub.add_parser("status", help="stages of one artifact, or all artifacts and running commands")
     s.add_argument("artifact", nargs="?")
     s.set_defaults(fn=cmd_status)
 
@@ -207,43 +238,24 @@ def main(argv=None):
     sh.add_argument("stage", nargs="?")
     sh.set_defaults(fn=cmd_show)
 
-    c = sub.add_parser("commands", help="list the command registry")
+    c = sub.add_parser("commands", help="list loaded commands (built-in, user, project)")
     c.add_argument("--json", action="store_true")
     c.set_defaults(fn=cmd_commands)
 
-    a = sub.add_parser("approve", help="grant a single-use approval (interactive confirmation)")
-    a.add_argument("artifact")
-    a.add_argument("command")
-    a.add_argument("--note")
-    a.set_defaults(fn=cmd_approve)
-
-    bt = sub.add_parser("batch", help="run one script for every item in a YAML list, in parallel")
-    bt.add_argument("items", help="YAML list of items; each needs an id")
-    bt.add_argument("--script", required=True)
-    bt.add_argument("--parallel", type=int, default=3)
-    bt.add_argument("--resume", action="store_true", help="skip completed items, resume the rest")
-    bt.set_defaults(fn=cmd_batch)
-
-    bs = sub.add_parser("batch-status", help="show the summary of a finished batch")
-    bs.add_argument("name", help="batch name (the items file name without extension)")
-    bs.set_defaults(fn=cmd_batch_status)
-
-    k = sub.add_parser("check", help="validate the registry and check agent/docker availability")
-    k.set_defaults(fn=cmd_check)
-
-    b = sub.add_parser("bench", help="run a reliability benchmark suite")
-    b.add_argument("suite")
-    b.add_argument("--runs", type=int, default=3)
-    b.add_argument("--mode", nargs="+", default=["baseline", "lattice"], choices=["baseline", "lattice"])
-    b.set_defaults(fn=cmd_bench)
-
+    sub.add_parser("check", help="validate command definitions; check agent and sandbox").set_defaults(fn=cmd_check)
+    sub.add_parser("sandbox-build", help="build the docker image used by --sandbox docker").set_defaults(
+        fn=cmd_sandbox_build)
     sub.add_parser("errors", help="list error codes").set_defaults(
         fn=lambda a: print("\n".join(f"{k:<22}{v}" for k, v in ERROR_CODES.items())) or 0)
 
     args = p.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    return args.fn(args)
+    try:
+        return args.fn(args)
+    except CommandDefError as e:
+        print(f"E_COMMAND_DEF: {e}")
+        return 2
 
 
 if __name__ == "__main__":
