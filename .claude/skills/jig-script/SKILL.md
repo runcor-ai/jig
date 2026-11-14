@@ -46,7 +46,9 @@ For any other step (draft, compare, assess, classify...), write a project comman
   `break`, `continue`. For bounded retries, use `for attempt in range(N):` with `break`.
 - Data: `list`, `map`, `queue`, `set` and their methods; f-strings, `len`, `range`, `sorted`, `str`, `print`.
 - **Failed steps stop the script.** Any loop that reacts to a failure (fix loops after `verify`, fallbacks)
-  needs `--continue-on-error`. Write that flag into the run line in the header comment.
+  needs `--continue-on-error`, on `jig run` and on `jig batch`. Write that flag into the run line in the
+  header comment. With the flag, the script decides the outcome: end with
+  `if <not good enough>: fail("reason")`, so a run only counts as completed when the result is good.
 - No imports, functions, file listing or shell. Every file must be named in the script, the vars or the
   batch rows. Names starting with `_` are rejected.
 - Ids look like `ABC-001`. Derive them from item names, e.g. `name.upper() + "-001"`; the name must be
@@ -111,8 +113,10 @@ for file in FILES:
 print(report)
 ```
 
-**Parallel variant:** write a per-item pipeline (variables come from the row) and a batch file:
-`- {id: PONG-001, file: pong.md}`, run with `jig batch items.yaml --script pipeline.jig --parallel 3`.
+**Parallel variant** (independent items at the same time): write a per-item pipeline (variables come from
+the row) and a batch file, `- {id: PONG-001, file: pong.md}`. Run it with
+`jig batch items.yaml --script pipeline.jig --parallel 3 --continue-on-error`. `factory/game.jig` with
+`factory/games.yaml` is the worked example, and ends with `fail()` when a game still does not pass.
 `examples/pipelines/factory.jig` is the queue-driven version, with its vars in `examples/batches/factory.json`.
 
 **Business function:** use `research` for facts, then custom commands for the domain step:
@@ -122,7 +126,24 @@ market = research(category, question="Which vendors meet these needs, and at wha
 memo = draft(market, kind="recommendation memo", audience="CFO")
 ```
 
-## 6. Check, then hand over
+## 6. Comment it for a non-programmer
+
+Every script must be readable by someone who has never seen Jig:
+
+- **Header block:** what the script makes, the exact run command, where the variables come from, the
+  steps in plain words, which steps call an AI agent (and cost money) and which are free, and why any
+  flag such as `--continue-on-error` is needed.
+- **A section banner per stage** (`# ── Step 2: build it ──`), with one or two lines on what that step
+  does and what its result is used for.
+- **A comment above every `if`, loop and `fail()`** saying why it is there, in plain words, with a
+  concrete example where it helps (`# e.g. "R-02: score stops at 9"`).
+- Avoid jargon such as "artifact", "bound result" or "schema" in comments. Say "the game's folder",
+  "the result", "the agreed format".
+- Comment the batch file too: what a row is, what each field means, and how to add an item.
+
+`factory/game.jig` and `factory/games.yaml` show the expected level.
+
+## 7. Check, then hand over
 
 1. Run `py .claude/skills/jig-script/check.py <script.jig>`. Add `--var name` for each variable a batch
    row or `--vars` file supplies, or `--vars-file <file>`. Fix everything it reports.

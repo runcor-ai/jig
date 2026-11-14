@@ -303,3 +303,39 @@ def test_factory_example_runs_with_fix_loop(make_rt):
     assert '"NOTE-001"' in out["log"][-1]
     builds = [r.prompt for r in adapter.requests if "`build`" in r.system]
     assert "R-03: no sound" in builds[1]
+
+
+# ── --continue-on-error: the script decides the outcome ─────────────────
+def test_recovered_failure_completes_and_fail_marks_the_run_failed(make_rt):
+    rt, _ = make_rt({"research": [FAIL, FAIL, _research("ok")]})
+    src = '''
+r = research("x")
+if r.status == "failed":
+    r = research("x", question="again")
+if r.status != "completed":
+    fail("still failing")
+print(r.output.summary)
+'''
+    out = run_script(rt, src, continue_on_error=True)
+    assert out["status"] == "completed" and out["step_failures"] == 1 and out["log"] == ["ok"]
+    rt2, _ = make_rt({"research": [FAIL, FAIL, FAIL, FAIL]})
+    out = run_script(rt2, src, continue_on_error=True)
+    assert out["status"] == "failed" and "fail(): still failing" in out["error"]["message"]
+    assert out["error"]["message"].startswith("line 6")
+
+
+def test_without_continue_on_error_a_failed_step_still_stops_the_script(make_rt):
+    rt, adapter = make_rt({"research": [FAIL, FAIL]})
+    out = run_script(rt, 'r = research("x")\nresearch("y")\n')
+    assert out["status"] == "failed" and out["executed"] == 1
+
+
+def test_batch_summary_reports_script_outcome():
+    from jig.batch import _summarize
+    ok = {"status": "completed", "results": [{"line": 1, "result": {"command": "verify", "status": "failed"}},
+                                             {"line": 2, "result": {"command": "verify", "status": "completed"}}]}
+    assert _summarize(ok, 0, "")["failed_at"] is None
+    bad = {"status": "failed", "error": {"message": "line 9: fail(): nope"},
+           "results": [{"line": 2, "result": {"command": "verify", "status": "completed"}}]}
+    s = _summarize(bad, 1, "")
+    assert s["failed_at"] == "script" and "fail(): nope" in s["error"]

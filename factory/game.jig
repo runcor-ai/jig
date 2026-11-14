@@ -1,0 +1,120 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GAME FACTORY: builds ONE browser game from ONE requirements file.
+#
+# This script is run once per game listed in factory/games.yaml. The batch
+# runner starts all of them at the same time, one process per game:
+#
+#   py -m jig batch factory/games.yaml --script factory/game.jig --parallel 3 --continue-on-error
+#
+# Each row in games.yaml gives this script two values:
+#   id    the game's name and folder, e.g. PONG-001, so it is built in apps/PONG-001/
+#   file  its requirements file in requirements/, e.g. pong.md
+#
+# The steps, in order:
+#   1. specify   an AI agent turns the requirements file into a numbered spec
+#   2. build     an AI agent writes the game's code and tests
+#   3. test      runs the real tests and build (no AI here, just the results)
+#   4. verify    an AI agent checks every requirement against the code
+#   5. fix       if anything is missing or broken, rebuild (at most 2 times)
+#   6. review    an AI agent reviews the code for bugs, clarity and security
+#
+# Only steps 1-6 call an AI agent (and cost money). Everything else in this
+# file (the ifs, loops and lists) is simple bookkeeping that runs for free.
+#
+# Why --continue-on-error: normally any failed step stops the script. With this
+# flag a failed check does not stop it, so the fix loop can react instead.
+# The script then decides for itself whether the game counts as a success:
+# fail("...") at the bottom marks it failed if it still does not pass.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# ── Settings shared by every game ────────────────────────────────────────────
+
+# Rules every game must follow. The spec has to restate each one and say how it
+# meets it, and the run is checked for that.
+STACK = ["React + TypeScript + Vite, no backend",
+         "Vitest + @testing-library/react with jsdom for tests",
+         "Game logic in pure functions separate from rendering, so it can be unit tested"]
+
+# How a game is tested: install packages, run the unit tests (saving the results
+# as a JUnit report Jig can read), then make the production build.
+TEST = ["npm install --no-audit --no-fund",
+        "npx vitest run --reporter=junit --outputFile=test-results/junit.xml",
+        "npm run build"]
+
+# The most rebuild rounds allowed per game before giving up.
+MAX_FIXES = 2
+
+
+# ── Step 1: write the spec ───────────────────────────────────────────────────
+
+# "pong.md" becomes "pong", used to describe the job to the agent.
+name = file.split(".")[0]
+
+# The agent reads requirements/<file> and writes a spec: numbered requirements
+# (R-01, R-02, ...), each with checks that can be tested. "spec" keeps the result,
+# and later steps use it to find this game.
+spec = specify(f"Build the browser game described in the brief ({name})",
+               brief="requirements/" + file, constraints=STACK, id=id)
+
+# Without a spec there is nothing to build, so stop here and say why.
+if spec.status != "completed":
+    fail(f"{id}: specify failed")
+
+
+# ── Steps 2-4: build it, test it, check it ───────────────────────────────────
+
+# The agent writes the code in apps/<id>/ and must get the TEST commands passing.
+b = build(spec, test_run=TEST)
+if b.status != "completed":
+    fail(f"{id}: build failed")
+
+# Run the tests for real, and require that the build produced the playable page.
+t = test(spec, run=TEST, expect_files=["dist/index.html"])
+
+# The agent checks each requirement against the code and the test results, and
+# gives an overall verdict ("pass" only if every must-have requirement is met).
+v = verify(spec)
+
+
+# ── Step 5: fix loop (at most MAX_FIXES rebuilds) ────────────────────────────
+
+fixes = 0
+for attempt in range(MAX_FIXES):
+
+    # Tests pass and verify says "pass": nothing to fix, leave the loop.
+    if t.status == "completed" and v.output and v.output.verdict.result == "pass":
+        break
+
+    # Make a to-do list of what is wrong, e.g. "R-02: score stops at 9".
+    gaps = []
+    if v.output:
+        for item in v.output.items:
+            if item.status != "satisfied":
+                gaps.append(f"{item.id}: {item.notes}")
+    if t.status != "completed":
+        gaps.append("the test run failed; make every test and the production build pass")
+
+    # Show progress in the run log.
+    print(f"{id}: fix {attempt + 1}/{MAX_FIXES}, {len(gaps)} gap(s)")
+
+    # Hand the to-do list to the build agent, then test and check again.
+    build(spec, test_run=TEST, notes="; ".join(gaps))
+    t = test(spec, run=TEST, expect_files=["dist/index.html"])
+    v = verify(spec)
+    fixes += 1
+
+
+# ── Step 6: code review, then the final result ───────────────────────────────
+
+# The agent reads the finished code and reports issues, each tied to a file and line.
+r = review(spec, criteria=["correctness", "readability", "security"])
+
+# One summary line per game, e.g. "PONG-001: tests completed, verify pass, 1 fix(es), ..."
+verdict = v.output.verdict.result if v.output else "none"
+print(f"{id}: tests {t.status}, verify {verdict}, {fixes} fix(es), review {r.status}")
+
+# The game only counts as a success if its tests pass AND verify says "pass".
+# Otherwise mark this game failed, so the batch summary shows it clearly.
+if t.status != "completed" or verdict != "pass":
+    fail(f"{id}: still not passing after {fixes} fix(es) (tests {t.status}, verify {verdict})")

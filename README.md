@@ -20,7 +20,7 @@ Requirements: Python 3.11+ with `pyyaml` and `jsonschema`, and the `claude` CLI 
 Node.js for the example apps, and Docker for `--sandbox docker`.
 
 ```bash
-py -m pytest -q                                  # 128 offline tests, no model calls
+py -m pytest -q                                  # 131 offline tests, no model calls
 py -m jig check                              # command definitions, agent, sandbox
 py -m jig commands                           # loaded commands and where they came from
 py -m jig run examples/pong.jig --replace    # build Pong (about 5 min)
@@ -30,7 +30,8 @@ py -m jig batch examples/batches/research.yaml --script examples/pipelines/resea
 
 ## Script language
 
-Full reference: [docs/language.md](docs/language.md).
+New to Jig? Start with **[the Jig guide](docs/guide.md)**: the language and every command, from the
+beginning. Quick reference: [docs/language.md](docs/language.md).
 
 ```python
 q = queue(requirements)                       # supplied with --vars or by a batch row
@@ -55,7 +56,8 @@ while len(q) > 0:
 - **Data types:** `list`, `map`, `queue` and `set`, with a fixed set of methods (`append`, `pop`, `push`,
   `put`, `get`, `add`, ...). They are passed to commands as JSON.
 - **Failed steps stop the script** unless you pass `--continue-on-error`. Retry loops need that flag,
-  because a `verify` whose verdict is not a pass counts as a failed step.
+  because a `verify` whose verdict is not a pass counts as a failed step. With the flag, the script
+  decides the outcome: it calls `fail("reason")` when the run should count as failed.
 - **Bound results:** `spec = specify(...)` keeps the whole result. Passing `spec` to a command means its
   artifact id. Lookups read its data: `spec.id`, `spec.status`, `spec.output.requirements[0].id`.
 - **Never executed as Python.** `ast.parse` is used only as a grammar with a node whitelist, and the runner
@@ -120,6 +122,7 @@ jig batch-status apps
 - Each item runs in its own process and its own workspace, with its own ports.
 - Shared files are locked, and IDs are claimed atomically.
 - `--resume` skips items that completed and resumes the rest step by step.
+- `--continue-on-error` is passed to every item's script, so fix loops work in batches too.
 
 ## Safety
 
@@ -143,19 +146,30 @@ jig batch-status apps
 See [docs/commands.md](docs/commands.md), [docs/safety.md](docs/safety.md) and
 [docs/errors.md](docs/errors.md).
 
-## Pong example
+## Mini-games factory
 
-`apps/PONG-001/` was generated end to end by [`examples/pong.jig`](examples/pong.jig) with v0.2:
-specify → build → test → verify → review. In that run, 36 tests and the production build passed, all
-10 requirements were verified, and `review` flagged a real ball-tunnelling bug at high speed
-(`src/game/logic.ts`). To play it:
+[`factory/game.jig`](factory/game.jig) builds one browser game from a requirement file: specify → build →
+test → verify, then up to 2 fix rounds fed by what verify and the tests found, then review.
+[`factory/games.yaml`](factory/games.yaml) lists three games (Pong, a falling-block puzzle, Snake), with
+their requirements in [`requirements/`](requirements). This builds all three at the same time:
 
 ```bash
-cd apps/PONG-001 && npm install && npm run dev     # http://localhost:5173/
+py -m jig batch factory/games.yaml --script factory/game.jig --parallel 3 --continue-on-error
+py -m jig batch-status games
 ```
 
-To regenerate it, move or delete `apps/PONG-001/` (otherwise `build` continues the existing code) and run
-`py -m jig run examples/pong.jig --replace`.
+Each game lands in `apps/<ID>/` (for example `apps/PONG-001/`), with every step recorded under `.jig/`.
+
+## Earlier Pong example
+
+[`archive/PONG-001-v0.2/`](archive/PONG-001-v0.2) was generated end to end by
+[`examples/pong.jig`](examples/pong.jig) with v0.2: specify → build → test → verify → review. In that
+run, 36 tests and the production build passed, all 10 requirements were verified, and `review` flagged a
+real ball-tunnelling bug at high speed (`src/game/logic.ts`). To play it:
+
+```bash
+cd archive/PONG-001-v0.2 && npm install && npm run dev     # http://localhost:5173/
+```
 
 ## License
 

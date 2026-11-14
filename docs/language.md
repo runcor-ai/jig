@@ -1,5 +1,7 @@
 # Script language
 
+Quick reference. For an introduction to the language and every command, read [the Jig guide](guide.md).
+
 Jig scripts use Python's syntax, but they are not Python. The parser accepts a fixed set of
 constructs and the runner interprets them itself. Nothing is ever executed as Python. Only **command calls**
 (`specify`, `build`, `research`, your own commands) call an agent and cost anything; everything else runs
@@ -61,6 +63,15 @@ handle the failure itself: `if r.status == "failed": ...`. Retry loops need the 
 whose verdict is not a pass counts as a failed step. Its output (`v.output.verdict.result`, `v.output.items`)
 is still available.
 
+With `--continue-on-error`, the script decides the outcome. A failed step the script handles does not fail
+the run (the count is in `step_failures`). Call `fail("reason")` to stop the script and mark the run
+failed, for example when a game still does not pass after its fix rounds:
+
+```python
+if verdict != "pass":
+    fail(f"{id}: still not passing after {fixes} fix(es)")
+```
+
 ## Data types
 
 All are local, free, and passed to commands as plain JSON (queues and sets become lists).
@@ -76,7 +87,7 @@ All are local, free, and passed to commands as plain JSON (queues and sets becom
 A stack is a list (`append` / `pop`). Map keys and set items must be strings, numbers, booleans or null.
 
 **Builtins:** `len`, `range`, `enumerate`, `sorted`, `min`, `max`, `sum`, `abs`, `round`, `str`, `int`,
-`number` (alias `float`), `bool`, `type`, `print`, plus the constructors `list`, `map` (alias `dict`),
+`number` (alias `float`), `bool`, `type`, `print`, `fail`, plus the constructors `list`, `map` (alias `dict`),
 `queue`, `set`. These names are reserved: they cannot be assigned, and a command with one of these names
 would be shadowed.
 

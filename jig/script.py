@@ -204,6 +204,7 @@ class Interp:
         self.results: list[dict] = []
         self.log: list[str] = []
         self.status = "completed"
+        self.step_failures = 0
         self.error: dict | None = None
         self.created: set[str] = set()
         # step journal for --resume
@@ -365,9 +366,12 @@ class Interp:
             except JigError as e:
                 self._script_error(st, e)
         if res["status"] in HALT_STATUSES:
-            self.status = "failed"
+            self.step_failures += 1
             if not self.continue_on_error:
+                self.status = "failed"
                 raise _Halt
+            # With --continue-on-error the script handles failures itself and decides the outcome
+            # (it calls fail("...") when the run as a whole should count as failed).
 
     def _replay(self, k: int, command: str, h: str) -> dict | None:
         if not self.replaying:
@@ -447,6 +451,9 @@ class Interp:
         if isinstance(e, Call):
             args = [self.eval(a) for a in e.args]
             kwargs = {k: self.eval(v) for k, v in e.kwargs}
+            if e.func == "fail":
+                msg = " ".join(BUILTINS["str"](self.lim, a) for a in args) or "the script called fail()"
+                raise JigError("E_SCRIPT", f"fail(): {msg}")
             if e.func == "print":
                 line = " ".join(BUILTINS["str"](self.lim, a) for a in args)
                 self.log.append(line)
@@ -568,7 +575,7 @@ def run_script(rt: Runtime, source: str, replace: bool = False, continue_on_erro
     out = {"status": it.status,
            "bindings": {top[i].source.split("(")[0] + f"@{top[i].line}": a for i, a in planned.items()},
            "executed": len([r for r in it.results if r["result"].get("command")]), "total": len(calls),
-           "results": it.results, "log": it.log}
+           "step_failures": it.step_failures, "results": it.results, "log": it.log}
     if it.error:
         out["error"] = it.error
     return out

@@ -53,7 +53,11 @@ def _summarize(out: dict | None, code: int, stderr: str) -> dict:
         steps.append({"line": r["line"], "command": res.get("command"), "status": res.get("status"),
                       "skipped": bool(res.get("skipped")), "artifact_id": res.get("artifact_id"),
                       "error": (res.get("error") or {}).get("message")})
-    failed = next((s for s in steps if s["status"] != "completed"), None)
+    failed = None
+    if out.get("status") != "completed":
+        failed = next((s for s in steps if s["status"] != "completed"), None)
+    if out.get("status") != "completed" and failed is None and out.get("error"):
+        failed = {"command": "script", "error": out["error"].get("message")}
     return {"status": out.get("status"), "steps": steps, "executed": out.get("executed"), "total": out.get("total"),
             "failed_at": failed["command"] if failed else None,
             "error": (failed or {}).get("error") or (out.get("error") or {}).get("message"),
@@ -61,7 +65,8 @@ def _summarize(out: dict | None, code: int, stderr: str) -> dict:
 
 
 def run_batch(project: Path, items_file: Path, script: Path, parallel: int = 3, resume: bool = False,
-              sandbox: str | None = None, echo: Callable[[str], None] = print, jig_cmd: list[str] | None = None) -> dict:
+              sandbox: str | None = None, echo: Callable[[str], None] = print, jig_cmd: list[str] | None = None,
+              continue_on_error: bool = False) -> dict:
     items = load_items(items_file)
     name = items_file.stem
     bdir = project / ".jig" / "batches" / name
@@ -81,6 +86,8 @@ def run_batch(project: Path, items_file: Path, script: Path, parallel: int = 3, 
         argv = [*cmd, "--project", str(project), "run", str(script), "--vars", str(vars_path), "--json"]
         if resume:
             argv.append("--resume")
+        if continue_on_error:
+            argv.append("--continue-on-error")
         if sandbox:
             argv += ["--sandbox", sandbox]
         echo(f"[start] {iid}")

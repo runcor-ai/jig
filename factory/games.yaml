@@ -1,0 +1,15 @@
+# The list of games to build: one row per game.
+#
+# Each row is handed to factory/game.jig as its variables:
+#   id    the game's name and output folder (apps/<id>/); format: LETTERS-001
+#   file  the requirements file to build from, in requirements/
+#
+# To add a game: write requirements/<name>.md and add a row here.
+# To build them all at the same time:
+#   py -m jig batch factory/games.yaml --script factory/game.jig --parallel 3 --continue-on-error
+# To see the results afterwards:
+#   py -m jig batch-status games
+
+- {id: PONG-001,   file: pong.md}       # Pong, player against the computer
+- {id: TETRIS-001, file: tetris.md}     # falling-block puzzle
+- {id: SNAKE-001,  file: snake.md}      # Snake

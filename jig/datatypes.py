@@ -220,6 +220,7 @@ BUILTINS: dict[str, Callable] = {
     "set": b_set, "str": b_str, "int": b_int, "number": b_float, "float": b_float, "bool": b_bool,
     "sorted": b_sorted, "min": _agg("min", min), "max": _agg("max", max), "sum": b_sum, "abs": b_abs,
     "round": b_round, "enumerate": b_enumerate, "type": b_type, "print": b_print,
+    "fail": b_print,   # handled by the runner: stops the script and marks the run failed
 }
 
 

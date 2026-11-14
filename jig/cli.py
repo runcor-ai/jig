@@ -182,7 +182,8 @@ def cmd_sandbox_build(args):
 def cmd_batch(args):
     from .batch import format_summary, run_batch
     s = run_batch(Path(args.project).resolve(), Path(args.items), Path(args.script), parallel=args.parallel,
-                  resume=args.resume, sandbox=args.sandbox, echo=lambda m: print(m, flush=True))
+                  resume=args.resume, sandbox=args.sandbox, echo=lambda m: print(m, flush=True),
+                  continue_on_error=args.continue_on_error)
     print()
     print(format_summary(s))
     return 0 if s["completed"] == s["total"] else 1
@@ -230,6 +231,8 @@ def main(argv=None):
     bt.add_argument("--script", required=True)
     bt.add_argument("--parallel", type=int, default=3)
     bt.add_argument("--resume", action="store_true", help="skip completed items, resume the rest")
+    bt.add_argument("--continue-on-error", action="store_true",
+                    help="failed steps do not stop an item's script; the script decides the outcome (fail())")
     _sandbox_arg(bt)
     bt.set_defaults(fn=cmd_batch)
 
