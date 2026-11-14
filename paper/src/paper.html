@@ -23,10 +23,12 @@
 <tr><td>Science</td><td>Quantum physics</td><td>Chemistry, then biology</td><td>"This enzyme speeds up this reaction"</td></tr>
 <tr><td>Computing</td><td>Transistors, machine code</td><td>Programming languages</td><td>"Sort this list"</td></tr>
 <tr><td>Engineering</td><td>Material behaviour</td><td>Components with ratings</td><td>"This bolt holds 10 kN"</td></tr>
-<tr><td><strong>AI work, with Jig</strong></td><td>Prompts, tool permissions, tokens, models, the agent's own account of what it did</td><td>A Jig script: requirements, steps (<code>specify</code>, <code>build</code>, <code>test</code>, <code>verify</code>), results and checks</td><td>"Built, tested and verified against these requirements", backed by code checks, and measured by the Reality Engine</td></tr>
+<tr><td><strong>AI work, with Jig</strong></td><td>Prompts: their wording, tool permissions, tokens, models, and the agent's own account of what it did</td><td>A Jig script, whose steps call the prompts and whose results are checked by code</td><td><code>build(spec)</code>, <code>verify(spec)</code>, <code>for brief in briefs: …</code></td></tr>
+<tr><td><strong>AI work, measured</strong></td><td>One run of a script</td><td>A way of working, rated by the Reality Engine</td><td>"Right on 36 of 36 unseen briefs": a rating, like the bolt's</td></tr>
 </tbody>
 </table>
 <p>Three properties make a level useful: its own <strong>vocabulary</strong>, <strong>hidden detail</strong> (summed up, not removed: one can always go down a level and look), and <strong>known limits</strong>. A bolt is rated; a chemical rule holds over a range of conditions. The third property is the one most often missed. A level is only as good as the evidence that it holds, and that evidence comes from measurement on cases nobody chose to make it look good. Jig supplies the level (section 03); the Reality Engine supplies the measurement (sections 04 to 07).</p>
+<p>The last two rows are the point of this paper. A person working with AI should no more write prompts than a programmer writes machine code: they write a script whose steps call the prompts, and they choose a way of working by its rating, as an engineer chooses a bolt.</p>
 
 <h2>03 Jig: a level of description for AI work</h2>
 <p>A Jig script talks only about the things a person cares about. This is the heart of the script measured in this paper (Appendix A gives it whole):</p>
