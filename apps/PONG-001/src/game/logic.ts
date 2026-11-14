@@ -1,103 +1,154 @@
 import {
-  AI_X, BALL_BASE_SPEED, BALL_SIZE, BALL_SPEEDUP, FIELD_H, FIELD_W, MAX_BALL_SPEED, MAX_BALL_Y,
-  MAX_BOUNCE_ANGLE, MAX_PADDLE_Y, PADDLE_H, PADDLE_W, PLAYER_SPEED, PLAYER_X, WIN_SCORE, clamp,
-  type Ball, type GameState, type Input,
+  BALL_MAX_SPEED,
+  BALL_SIZE,
+  BALL_START_SPEED,
+  HEIGHT,
+  LEFT_PADDLE_X,
+  MAX_VY,
+  PADDLE_H,
+  PADDLE_W,
+  PLAYER_SPEED,
+  RIGHT_PADDLE_X,
+  SPEEDUP,
+  WIDTH,
+  WIN_SCORE,
 } from './config';
-import { moveAi } from './ai';
+import { computeAiMove } from './ai';
 
-function serveBall(direction: -1 | 1, pointsPlayed: number): Ball {
-  const vyDir = pointsPlayed % 2 === 0 ? 1 : -1;
+export type Status = 'playing' | 'paused' | 'gameover';
+export type Winner = 'player' | 'computer' | null;
+
+export interface Ball {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+}
+
+export interface GameState {
+  leftY: number;
+  rightY: number;
+  ball: Ball;
+  playerScore: number;
+  computerScore: number;
+  status: Status;
+  winner: Winner;
+}
+
+export interface Input {
+  /** -1 up, 0 none, 1 down */
+  dir: -1 | 0 | 1;
+}
+
+export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+/** direction: -1 serves toward the left (player), 1 toward the right (computer). */
+export function resetBall(direction: -1 | 1, vy = 0): Ball {
   return {
-    x: (FIELD_W - BALL_SIZE) / 2,
-    y: (FIELD_H - BALL_SIZE) / 2,
-    vx: direction * BALL_BASE_SPEED * 0.95,
-    vy: vyDir * BALL_BASE_SPEED * 0.3,
+    x: (WIDTH - BALL_SIZE) / 2,
+    y: (HEIGHT - BALL_SIZE) / 2,
+    vx: direction * BALL_START_SPEED,
+    vy,
   };
 }
 
-export function createInitialState(): GameState {
+export function createInitialState(serveDirection: -1 | 1 = -1): GameState {
   return {
-    status: 'ready',
-    playerY: MAX_PADDLE_Y / 2,
-    aiY: MAX_PADDLE_Y / 2,
-    ball: serveBall(-1, 0),
+    leftY: (HEIGHT - PADDLE_H) / 2,
+    rightY: (HEIGHT - PADDLE_H) / 2,
+    ball: resetBall(serveDirection),
     playerScore: 0,
-    aiScore: 0,
-    serveDirection: -1,
+    computerScore: 0,
+    status: 'playing',
     winner: null,
   };
 }
 
-/** Space: start from ready, toggle pause/resume while playing. No effect when over. */
-export function startOrTogglePause(s: GameState): GameState {
-  if (s.status === 'ready' || s.status === 'paused') return { ...s, status: 'playing' };
-  if (s.status === 'playing') return { ...s, status: 'paused' };
-  return s;
+export function capSpeed(ball: Ball): Ball {
+  const speed = Math.hypot(ball.vx, ball.vy);
+  if (speed <= BALL_MAX_SPEED) return ball;
+  const k = BALL_MAX_SPEED / speed;
+  return { ...ball, vx: ball.vx * k, vy: ball.vy * k };
 }
 
-/** Pause only if currently playing (used for hidden tab). */
-export function pause(s: GameState): GameState {
-  return s.status === 'playing' ? { ...s, status: 'paused' } : s;
+function overlapsY(ball: Ball, paddleY: number) {
+  return ball.y + BALL_SIZE >= paddleY && ball.y <= paddleY + PADDLE_H;
 }
 
-/** Restart: fresh game, immediately playing. */
-export function restart(): GameState {
-  return { ...createInitialState(), status: 'playing' };
+function hitVy(ball: Ball, paddleY: number) {
+  const offset = (ball.y + BALL_SIZE / 2 - (paddleY + PADDLE_H / 2)) / (PADDLE_H / 2);
+  return clamp(offset, -1, 1) * MAX_VY;
 }
 
-function limitSpeed(vx: number, vy: number): { vx: number; vy: number } {
-  const sp = Math.hypot(vx, vy);
-  if (sp > MAX_BALL_SPEED) {
-    const k = MAX_BALL_SPEED / sp;
-    return { vx: vx * k, vy: vy * k };
-  }
-  return { vx, vy };
-}
+/**
+ * Advance the game by dt seconds. Pure: returns a new state.
+ * `rng` only picks the vertical serve speed after a point.
+ */
+export function step(
+  state: GameState,
+  input: Input,
+  dt: number,
+  rng: () => number = Math.random,
+): GameState {
+  if (state.status !== 'playing') return state;
 
-function paddleBounce(ball: Ball, paddleY: number, dir: 1 | -1): Ball {
-  const rel = clamp(((ball.y + BALL_SIZE / 2) - (paddleY + PADDLE_H / 2)) / (PADDLE_H / 2), -1, 1);
-  const angle = rel * MAX_BOUNCE_ANGLE;
-  const speed = Math.min(Math.hypot(ball.vx, ball.vy) * BALL_SPEEDUP, MAX_BALL_SPEED);
-  return { ...ball, vx: dir * speed * Math.cos(angle), vy: speed * Math.sin(angle) };
-}
+  const leftY = clamp(state.leftY + input.dir * PLAYER_SPEED * dt, 0, HEIGHT - PADDLE_H);
+  const rightY = computeAiMove(state, dt);
 
-function score(s: GameState, who: 'player' | 'computer'): GameState {
-  const playerScore = Math.min(WIN_SCORE, s.playerScore + (who === 'player' ? 1 : 0));
-  const aiScore = Math.min(WIN_SCORE, s.aiScore + (who === 'computer' ? 1 : 0));
-  const serveDirection: -1 | 1 = s.serveDirection === -1 ? 1 : -1;
-  const next: GameState = {
-    ...s, playerScore, aiScore, serveDirection,
-    ball: serveBall(serveDirection, playerScore + aiScore),
+  let ball: Ball = {
+    ...state.ball,
+    x: state.ball.x + state.ball.vx * dt,
+    y: state.ball.y + state.ball.vy * dt,
   };
-  if (playerScore >= WIN_SCORE) return { ...next, status: 'over', winner: 'player' };
-  if (aiScore >= WIN_SCORE) return { ...next, status: 'over', winner: 'computer' };
-  return next;
-}
 
-/** Advance the game by dt seconds. Only advances while status is 'playing'. */
-export function step(s: GameState, input: Input, dt: number): GameState {
-  if (s.status !== 'playing' || !(dt > 0)) return s;
-  dt = Math.min(dt, 0.05);
-
-  const dir = (input.down ? 1 : 0) - (input.up ? 1 : 0);
-  const playerY = clamp(s.playerY + dir * PLAYER_SPEED * dt, 0, MAX_PADDLE_Y);
-  const aiY = moveAi(s.aiY, s.ball.y, dt);
-
-  let ball: Ball = { ...s.ball, x: s.ball.x + s.ball.vx * dt, y: s.ball.y + s.ball.vy * dt };
-
+  // walls
   if (ball.y <= 0) ball = { ...ball, y: 0, vy: Math.abs(ball.vy) };
-  else if (ball.y >= MAX_BALL_Y) ball = { ...ball, y: MAX_BALL_Y, vy: -Math.abs(ball.vy) };
+  else if (ball.y >= HEIGHT - BALL_SIZE) ball = { ...ball, y: HEIGHT - BALL_SIZE, vy: -Math.abs(ball.vy) };
 
-  const overlapsY = (py: number) => ball.y + BALL_SIZE > py && ball.y < py + PADDLE_H;
-  if (ball.vx < 0 && ball.x <= PLAYER_X + PADDLE_W && ball.x + BALL_SIZE >= PLAYER_X && overlapsY(playerY)) {
-    ball = paddleBounce({ ...ball, x: PLAYER_X + PADDLE_W }, playerY, 1);
-  } else if (ball.vx > 0 && ball.x + BALL_SIZE >= AI_X && ball.x <= AI_X + PADDLE_W && overlapsY(aiY)) {
-    ball = paddleBounce({ ...ball, x: AI_X - BALL_SIZE }, aiY, -1);
+  // paddles
+  if (
+    ball.vx < 0 &&
+    ball.x <= LEFT_PADDLE_X + PADDLE_W &&
+    ball.x + BALL_SIZE >= LEFT_PADDLE_X &&
+    overlapsY(ball, leftY)
+  ) {
+    ball = capSpeed({ ...ball, x: LEFT_PADDLE_X + PADDLE_W, vx: Math.abs(ball.vx) * SPEEDUP, vy: hitVy(ball, leftY) });
+  } else if (
+    ball.vx > 0 &&
+    ball.x + BALL_SIZE >= RIGHT_PADDLE_X &&
+    ball.x <= RIGHT_PADDLE_X + PADDLE_W &&
+    overlapsY(ball, rightY)
+  ) {
+    ball = capSpeed({
+      ...ball,
+      x: RIGHT_PADDLE_X - BALL_SIZE,
+      vx: -Math.abs(ball.vx) * SPEEDUP,
+      vy: hitVy(ball, rightY),
+    });
   }
-  ball = { ...ball, ...limitSpeed(ball.vx, ball.vy) };
 
-  const moved: GameState = { ...s, playerY, aiY, ball };
-  if (ball.x + BALL_SIZE < 0) return score(moved, 'computer');
-  if (ball.x > FIELD_W) return score(moved, 'player');
-  return moved;
+  let { playerScore, computerScore } = state;
+  let scored: 'player' | 'computer' | null = null;
+  if (ball.x < -BALL_SIZE) scored = 'computer';
+  else if (ball.x > WIDTH) scored = 'player';
+
+  if (scored === 'computer') {
+    computerScore += 1;
+    ball = resetBall(-1, (rng() - 0.5) * 200); // serve toward the player (who conceded)
+  } else if (scored === 'player') {
+    playerScore += 1;
+    ball = resetBall(1, (rng() - 0.5) * 200); // serve toward the computer
+  }
+
+  let status: Status = state.status;
+  let winner: Winner = null;
+  if (playerScore >= WIN_SCORE) {
+    status = 'gameover';
+    winner = 'player';
+  } else if (computerScore >= WIN_SCORE) {
+    status = 'gameover';
+    winner = 'computer';
+  }
+
+  return { leftY, rightY, ball, playerScore, computerScore, status, winner };
 }

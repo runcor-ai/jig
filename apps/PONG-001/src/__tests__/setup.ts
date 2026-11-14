@@ -1,8 +1,5 @@
-import { afterEach } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
-
-HTMLCanvasElement.prototype.getContext = (() => ({
-  fillRect: () => {}, fillStyle: '',
-})) as unknown as HTMLCanvasElement['getContext'];
+import { afterEach } from 'vitest';
 
 afterEach(() => cleanup());

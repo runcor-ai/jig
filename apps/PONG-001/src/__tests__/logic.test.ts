@@ -1,150 +1,165 @@
 import { describe, expect, it } from 'vitest';
-import * as C from '../game/config';
-import type { GameState } from '../game/config';
-import { createInitialState, pause, restart, startOrTogglePause, step } from '../game/logic';
-import { moveAi } from '../game/ai';
-import { keyToAction } from '../hooks/useKeyboard';
+import {
+  AI_DEAD_ZONE,
+  AI_SPEED,
+  BALL_MAX_SPEED,
+  BALL_SIZE,
+  HEIGHT,
+  LEFT_PADDLE_X,
+  MAX_VY,
+  PADDLE_H,
+  PADDLE_W,
+  RIGHT_PADDLE_X,
+  WIDTH,
+  WIN_SCORE,
+} from '../game/config';
+import { computeAiMove } from '../game/ai';
+import { createInitialState, resetBall, step, type GameState } from '../game/logic';
 
-const none = { up: false, down: false };
-const playing = (): GameState => ({ ...createInitialState(), status: 'playing' });
+const base = (over: Partial<GameState> = {}): GameState => ({ ...createInitialState(), ...over });
+const rng = () => 0.5; // vy = 0 on serve
+const DT = 1 / 60;
 
-describe('state machine', () => {
-  it('starts ready, space starts, space pauses/resumes', () => {
-    let s = createInitialState();
-    expect(s.status).toBe('ready');
-    expect(step(s, none, 0.016)).toBe(s);
-    s = startOrTogglePause(s); expect(s.status).toBe('playing');
-    s = startOrTogglePause(s); expect(s.status).toBe('paused');
-    s = startOrTogglePause(s); expect(s.status).toBe('playing');
-    expect(pause(s).status).toBe('paused');
+describe('paddle movement (R-02)', () => {
+  it('moves up and down by input and stops with no input', () => {
+    const s = base({ leftY: 200, ball: { x: 400, y: 250, vx: 0, vy: 0 } });
+    expect(step(s, { dir: -1 }, DT, rng).leftY).toBeLessThan(200);
+    expect(step(s, { dir: 1 }, DT, rng).leftY).toBeGreaterThan(200);
+    expect(step(s, { dir: 0 }, DT, rng).leftY).toBe(200);
   });
-  it('first serve goes toward the player', () => {
-    expect(createInitialState().ball.vx).toBeLessThan(0);
+  it('clamps at the field edges', () => {
+    const top = base({ leftY: 1, ball: { x: 400, y: 250, vx: 0, vy: 0 } });
+    expect(step(top, { dir: -1 }, 1, rng).leftY).toBe(0);
+    const bottom = base({ leftY: HEIGHT - PADDLE_H - 1, ball: { x: 400, y: 250, vx: 0, vy: 0 } });
+    expect(step(bottom, { dir: 1 }, 1, rng).leftY).toBe(HEIGHT - PADDLE_H);
   });
 });
 
-describe('paddle', () => {
-  it('moves and clamps', () => {
-    let s = playing();
-    const y0 = s.playerY;
-    s = step(s, { up: true, down: false }, 0.016);
-    expect(s.playerY).toBeLessThan(y0);
-    for (let i = 0; i < 200; i++) s = { ...step(s, { up: true, down: false }, 0.016), ball: playing().ball };
-    expect(s.playerY).toBe(0);
-    for (let i = 0; i < 200; i++) s = { ...step(s, { up: false, down: true }, 0.016), ball: playing().ball };
-    expect(s.playerY).toBe(C.MAX_PADDLE_Y);
+describe('ball movement and bouncing (R-03)', () => {
+  it('moves by velocity', () => {
+    const s = base({ ball: { x: 400, y: 250, vx: 100, vy: 60 } });
+    const n = step(s, { dir: 0 }, 0.1, rng);
+    expect(n.ball.x).toBeCloseTo(410);
+    expect(n.ball.y).toBeCloseTo(256);
+  });
+  it('reflects off the top wall', () => {
+    const s = base({ ball: { x: 400, y: 2, vx: 0, vy: -100 } });
+    const n = step(s, { dir: 0 }, 0.1, rng);
+    expect(n.ball.vy).toBeGreaterThan(0);
+    expect(n.ball.y).toBeGreaterThanOrEqual(0);
+  });
+  it('reflects off the bottom wall', () => {
+    const s = base({ ball: { x: 400, y: HEIGHT - BALL_SIZE - 2, vx: 0, vy: 100 } });
+    const n = step(s, { dir: 0 }, 0.1, rng);
+    expect(n.ball.vy).toBeLessThan(0);
+    expect(n.ball.y).toBeLessThanOrEqual(HEIGHT - BALL_SIZE);
+  });
+  it('flips vx on the left paddle and moves ball outside it', () => {
+    const s = base({ leftY: 200, ball: { x: LEFT_PADDLE_X + PADDLE_W + 1, y: 230, vx: -300, vy: 0 } });
+    const n = step(s, { dir: 0 }, DT, rng);
+    expect(n.ball.vx).toBeGreaterThan(0);
+    expect(n.ball.x).toBeGreaterThanOrEqual(LEFT_PADDLE_X + PADDLE_W);
+  });
+  it('flips vx on the right paddle and moves ball outside it', () => {
+    const s = base({ rightY: 200, ball: { x: RIGHT_PADDLE_X - BALL_SIZE - 1, y: 234, vx: 300, vy: 0 } });
+    const n = step(s, { dir: 0 }, DT, rng);
+    expect(n.ball.vx).toBeLessThan(0);
+    expect(n.ball.x + BALL_SIZE).toBeLessThanOrEqual(RIGHT_PADDLE_X);
+  });
+  it('sets vy from hit offset: top negative, bottom positive', () => {
+    const topHit = step(
+      base({ leftY: 200, ball: { x: LEFT_PADDLE_X + PADDLE_W, y: 190, vx: -300, vy: 0 } }),
+      { dir: 0 }, DT, rng);
+    const bottomHit = step(
+      base({ leftY: 200, ball: { x: LEFT_PADDLE_X + PADDLE_W, y: 270, vx: -300, vy: 0 } }),
+      { dir: 0 }, DT, rng);
+    expect(topHit.ball.vy).toBeLessThan(0);
+    expect(bottomHit.ball.vy).toBeGreaterThan(0);
+  });
+  it('caps ball speed', () => {
+    const s = base({ leftY: 200, ball: { x: LEFT_PADDLE_X + PADDLE_W, y: 275, vx: -BALL_MAX_SPEED, vy: 0 } });
+    const n = step(s, { dir: 0 }, DT, rng);
+    expect(Math.hypot(n.ball.vx, n.ball.vy)).toBeLessThanOrEqual(BALL_MAX_SPEED + 1e-6);
   });
 });
 
-describe('ball', () => {
-  it('bounces off top and bottom walls', () => {
-    let s = { ...playing(), ball: { x: 400, y: 1, vx: 0, vy: -300 } };
-    expect(step(s, none, 0.016).ball.vy).toBeGreaterThan(0);
-    s = { ...playing(), ball: { x: 400, y: C.MAX_BALL_Y - 1, vx: 0, vy: 300 } };
-    expect(step(s, none, 0.016).ball.vy).toBeLessThan(0);
+describe('AI (R-04)', () => {
+  const st = (ballY: number, rightY: number) => base({ rightY, ball: { x: 400, y: ballY, vx: 0, vy: 0 } });
+  it('moves up toward a ball above, limited by aiSpeed', () => {
+    const y = computeAiMove(st(0, 200), DT);
+    expect(y).toBeLessThan(200);
+    expect(200 - y).toBeLessThanOrEqual(AI_SPEED * DT + 1e-9);
   });
-  it('reverses at paddle with angle depending on hit position', () => {
-    const mk = (offset: number) => ({
-      ...playing(), playerY: 200,
-      ball: { x: C.PLAYER_X + C.PADDLE_W + 1, y: 200 + C.PADDLE_H / 2 - C.BALL_SIZE / 2 + offset, vx: -360, vy: 0 },
-    });
-    const mid = step(mk(0), none, 0.016).ball;
-    const low = step(mk(35), none, 0.016).ball;
-    const high = step(mk(-35), none, 0.016).ball;
-    expect(mid.vx).toBeGreaterThan(0);
-    expect(Math.abs(mid.vy)).toBeLessThan(1);
-    expect(low.vy).toBeGreaterThan(0);
-    expect(high.vy).toBeLessThan(0);
+  it('moves down toward a ball below, limited by aiSpeed', () => {
+    const y = computeAiMove(st(480, 200), DT);
+    expect(y).toBeGreaterThan(200);
+    expect(y - 200).toBeLessThanOrEqual(AI_SPEED * DT + 1e-9);
   });
-  it('bounces off the computer paddle', () => {
-    const s = { ...playing(), aiY: 200, ball: { x: C.AI_X - C.BALL_SIZE - 1, y: 230, vx: 360, vy: 0 } };
-    expect(step(s, none, 0.016).ball.vx).toBeLessThan(0);
+  it('does not overshoot a nearby ball', () => {
+    const rightY = 200;
+    const target = rightY + PADDLE_H / 2 + AI_DEAD_ZONE + 2; // ball centre
+    const y = computeAiMove(st(target - BALL_SIZE / 2, rightY), 10);
+    expect(y + PADDLE_H / 2).toBeCloseTo(target);
   });
-  it('speed never exceeds max', () => {
-    const s = { ...playing(), playerY: 200, ball: { x: C.PLAYER_X + C.PADDLE_W + 1, y: 230, vx: -C.MAX_BALL_SPEED, vy: 0 } };
-    const b = step(s, none, 0.016).ball;
-    expect(Math.hypot(b.vx, b.vy)).toBeLessThanOrEqual(C.MAX_BALL_SPEED + 1e-9);
+  it('is slower than max ball vertical speed', () => {
+    expect(AI_SPEED).toBeLessThan(MAX_VY);
+  });
+  it('stays in the field', () => {
+    expect(computeAiMove(st(-100, 0), 1)).toBe(0);
+    expect(computeAiMove(st(1000, HEIGHT - PADDLE_H), 1)).toBe(HEIGHT - PADDLE_H);
+  });
+  it('does not move inside the dead zone', () => {
+    const rightY = 200;
+    const centre = rightY + PADDLE_H / 2;
+    expect(computeAiMove(st(centre + AI_DEAD_ZONE - 1 - BALL_SIZE / 2, rightY), DT)).toBe(rightY);
   });
 });
 
-describe('scoring', () => {
-  it('left exit scores for computer, resets to centre, alternates serve', () => {
-    const s = { ...playing(), playerY: 0, ball: { x: -C.BALL_SIZE - 1, y: 400, vx: -100, vy: 0 } };
-    const n = step(s, none, 0.016);
-    expect(n.aiScore).toBe(1);
+describe('scoring (R-05)', () => {
+  it('computer scores when ball passes left edge; serves toward player', () => {
+    const s = base({ leftY: 0, ball: { x: -BALL_SIZE - 1, y: 400, vx: -100, vy: 0 } });
+    const n = step(s, { dir: 0 }, 0.001, rng);
+    expect(n.computerScore).toBe(1);
     expect(n.playerScore).toBe(0);
-    expect(n.ball.x).toBe((C.FIELD_W - C.BALL_SIZE) / 2);
-    expect(n.serveDirection).toBe(1);
+    expect(n.ball.x).toBe((WIDTH - BALL_SIZE) / 2);
+    expect(n.ball.y).toBe((HEIGHT - BALL_SIZE) / 2);
+    expect(n.ball.vx).toBeLessThan(0);
+  });
+  it('player scores when ball passes right edge; serves toward computer', () => {
+    const s = base({ rightY: 0, ball: { x: WIDTH + 1, y: 400, vx: 100, vy: 0 } });
+    const n = step(s, { dir: 0 }, 0.001, rng);
+    expect(n.playerScore).toBe(1);
+    expect(n.computerScore).toBe(0);
+    expect(n.ball.x).toBe((WIDTH - BALL_SIZE) / 2);
     expect(n.ball.vx).toBeGreaterThan(0);
   });
-  it('right exit scores for player', () => {
-    const s = { ...playing(), aiY: 0, ball: { x: C.FIELD_W + 1, y: 400, vx: 100, vy: 0 } };
-    expect(step(s, none, 0.016).playerScore).toBe(1);
+  it('resetBall centres and directs the serve', () => {
+    expect(resetBall(1).vx).toBeGreaterThan(0);
+    expect(resetBall(-1).vx).toBeLessThan(0);
   });
-  it('wins at 10 and freezes', () => {
-    const s = { ...playing(), playerScore: 9, aiY: 0, ball: { x: C.FIELD_W + 1, y: 400, vx: 100, vy: 0 } };
-    const n = step(s, none, 0.016);
-    expect(n.playerScore).toBe(10);
-    expect(n.status).toBe('over');
+});
+
+describe('win condition (R-06)', () => {
+  it('player reaching 10 ends the game', () => {
+    const s = base({ playerScore: WIN_SCORE - 1, rightY: 0, ball: { x: WIDTH + 1, y: 400, vx: 100, vy: 0 } });
+    const n = step(s, { dir: 0 }, 0.001, rng);
+    expect(n.playerScore).toBe(WIN_SCORE);
+    expect(n.status).toBe('gameover');
     expect(n.winner).toBe('player');
-    expect(step(n, { up: true, down: false }, 0.016)).toBe(n);
-    expect(startOrTogglePause(n)).toBe(n);
   });
-  it('computer can win', () => {
-    const s = { ...playing(), aiScore: 9, playerY: 0, ball: { x: -C.BALL_SIZE - 1, y: 400, vx: -100, vy: 0 } };
-    expect(step(s, none, 0.016).winner).toBe('computer');
+  it('computer reaching 10 ends the game', () => {
+    const s = base({ computerScore: WIN_SCORE - 1, leftY: 0, ball: { x: -BALL_SIZE - 1, y: 400, vx: -100, vy: 0 } });
+    const n = step(s, { dir: 0 }, 0.001, rng);
+    expect(n.status).toBe('gameover');
+    expect(n.winner).toBe('computer');
   });
-});
-
-describe('restart', () => {
-  it('resets everything and plays', () => {
-    const r = restart();
-    expect(r.playerScore + r.aiScore).toBe(0);
-    expect(r.status).toBe('playing');
-    expect(r.winner).toBeNull();
-    expect(r.serveDirection).toBe(-1);
+  it('stops updating after gameover so scores never exceed 10', () => {
+    const s = base({ playerScore: WIN_SCORE, status: 'gameover', winner: 'player', ball: { x: WIDTH + 1, y: 400, vx: 100, vy: 0 } });
+    const n = step(s, { dir: 1 }, 1, rng);
+    expect(n).toBe(s);
   });
-});
-
-describe('ai', () => {
-  it('moves toward ball, capped speed, in bounds', () => {
-    const dt = 0.016;
-    expect(moveAi(100, 400, dt)).toBeGreaterThan(100);
-    expect(moveAi(300, 0, dt)).toBeLessThan(300);
-    expect(moveAi(100, 400, dt) - 100).toBeLessThanOrEqual(C.AI_SPEED * dt + 1e-9);
-    expect(moveAi(0, -500, dt)).toBe(0);
-    expect(moveAi(C.MAX_PADDLE_Y, 9999, dt)).toBe(C.MAX_PADDLE_Y);
-  });
-  it('cap is below max ball vertical speed', () => {
-    expect(C.AI_SPEED).toBeLessThan(C.MAX_BALL_SPEED * Math.sin(C.MAX_BOUNCE_ANGLE));
-  });
-});
-
-describe('validation', () => {
-  it('whitelists keys', () => {
-    expect(keyToAction('ArrowUp')).toBe('up');
-    expect(keyToAction('w')).toBe('up');
-    expect(keyToAction('S')).toBe('down');
-    expect(keyToAction(' ')).toBe('toggle');
-    expect(keyToAction('x')).toBeNull();
-    expect(keyToAction('Enter')).toBeNull();
-  });
-  it('clamp handles NaN and range', () => {
-    expect(C.clamp(NaN, 0, 5)).toBe(0);
-    expect(C.clamp(9, 0, 5)).toBe(5);
-    expect(() => C.validateConfig()).not.toThrow();
-  });
-  it('long simulation keeps values in range', () => {
-    let s = restart();
-    for (let i = 0; i < 20000 && s.status === 'playing'; i++) {
-      s = step(s, { up: i % 100 < 50, down: i % 100 >= 50 }, 1 / 60);
-      expect(s.playerY).toBeGreaterThanOrEqual(0);
-      expect(s.playerY).toBeLessThanOrEqual(C.MAX_PADDLE_Y);
-      expect(s.ball.y).toBeGreaterThanOrEqual(0);
-      expect(s.ball.y).toBeLessThanOrEqual(C.MAX_BALL_Y);
-      expect(Math.hypot(s.ball.vx, s.ball.vy)).toBeLessThanOrEqual(C.MAX_BALL_SPEED + 1e-6);
-      expect(s.playerScore).toBeLessThanOrEqual(10);
-      expect(s.aiScore).toBeLessThanOrEqual(10);
-    }
+  it('does not update while paused (R-10)', () => {
+    const s = base({ status: 'paused' });
+    expect(step(s, { dir: 1 }, 1, rng)).toBe(s);
   });
 });

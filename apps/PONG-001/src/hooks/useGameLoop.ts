@@ -1,35 +1,25 @@
 import { useEffect, useRef } from 'react';
+import { DT_CAP_MS } from '../game/config';
 
-export const FIXED_DT = 1 / 60;
-
-/** Fixed-timestep rAF loop. Calls update(FIXED_DT) zero or more times per frame. */
-export function useGameLoop(update: (dt: number) => void, onHidden: () => void) {
-  const updateRef = useRef(update);
-  const hiddenRef = useRef(onHidden);
-  updateRef.current = update;
-  hiddenRef.current = onHidden;
+/**
+ * requestAnimationFrame loop. Calls tick(dtSeconds) once per frame while active,
+ * with dt clamped to DT_CAP_MS. Cancels the pending frame on unmount/deactivate.
+ */
+export function useGameLoop(tick: (dtSeconds: number) => void, active: boolean) {
+  const tickRef = useRef(tick);
+  tickRef.current = tick;
 
   useEffect(() => {
-    let raf = 0;
+    if (!active) return;
     let last: number | null = null;
-    let acc = 0;
-    const frame = (t: number) => {
-      if (last !== null) {
-        acc += Math.min((t - last) / 1000, 0.25);
-        while (acc >= FIXED_DT) {
-          updateRef.current(FIXED_DT);
-          acc -= FIXED_DT;
-        }
-      }
-      last = t;
-      raf = requestAnimationFrame(frame);
+    let id = 0;
+    const frame = (now: number) => {
+      const dtMs = last === null ? 0 : Math.min(Math.max(now - last, 0), DT_CAP_MS);
+      last = now;
+      tickRef.current(dtMs / 1000);
+      id = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(frame);
-    const vis = () => { if (document.hidden) { hiddenRef.current(); last = null; acc = 0; } };
-    document.addEventListener('visibilitychange', vis);
-    return () => {
-      cancelAnimationFrame(raf);
-      document.removeEventListener('visibilitychange', vis);
-    };
-  }, []);
+    id = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(id);
+  }, [active]);
 }

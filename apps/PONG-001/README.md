@@ -1,35 +1,31 @@
 # Browser Pong
 
-A single-page Pong game (React + TypeScript + Vite). You control the left paddle against a computer-controlled right paddle. No backend, no persistence.
+React + TypeScript + Vite Pong: you (left paddle) vs the computer (right). First to 10 wins. No backend.
 
-## Install
+## Setup
+
 ```
 npm install
 ```
+
 ## Run
+
 ```
 npm run dev
 ```
-## Test
-```
-npm test
-```
-JUnit output is written to `test-results/junit.xml`.
-## Build
-```
-npm run build
-```
-Output: `dist/index.html`.
 
-## Controls
-- ArrowUp / W: move up
-- ArrowDown / S: move down
-- Space: start, pause / resume
-- Restart button: reset the game at any time
+Controls: W/S or Up/Down arrows move your paddle; Space pauses; the Restart button resets the game.
 
-## Rules
-- First side to 10 points wins (no win-by-two).
-- Ball bounces off walls and paddles; the bounce angle depends on where it hits the paddle, and it speeds up on each hit up to a maximum.
-- If the ball passes a side's edge, the other side scores and the ball is served from the centre (first serve toward the player, then alternating).
-- The game pauses automatically when the tab is hidden.
-- The computer paddle has a capped speed, so it can be beaten.
+## Test and build
+
+```
+npm test          # vitest run (jsdom)
+npm run build     # type-check + production build
+```
+
+## Layout
+
+- `src/game/config.ts` constants; `logic.ts` pure `step()` rules; `ai.ts` computer opponent
+- `src/hooks/useKeyboard.ts`, `useGameLoop.ts` input and rAF loop (dt clamped to 50 ms)
+- `src/components/Playfield.tsx` DOM rendering; `src/App.tsx` wiring
+- `src/__tests__/` unit and component tests
