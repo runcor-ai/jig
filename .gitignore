@@ -10,8 +10,8 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 
-# Lattice local state: run records, agent event logs, locks, batch results
-.lattice/
+# Jig local state: run records, agent event logs, locks, batch results
+.jig/
 
 # Interrupted CRM build (stopped by request; incomplete)
 apps/CRM-001/

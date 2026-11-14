@@ -1,4 +1,4 @@
-# One line per app. Each row's fields are variables in examples/pipelines/app.lat.
+# One line per app. Each row's fields are variables in examples/pipelines/app.jig.
 - {id: TODO-001, goal: "A personal todo list with due dates and priorities", constraints: ["React + TypeScript + Vite, no backend", "Vitest tests"]}
 - {id: NOTE-001, goal: "A notes app with tags and search", constraints: ["React + TypeScript + Vite, no backend", "Vitest tests"]}
 - {id: HABIT-001, goal: "A daily habit tracker with streaks", constraints: ["React + TypeScript + Vite, no backend", "Vitest tests"]}

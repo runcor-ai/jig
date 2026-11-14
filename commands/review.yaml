@@ -1,5 +1,5 @@
 # Example user-defined command. Drop a <name>.yaml + <name>.md (+ <name>.schema.json) into
-# ./commands/ (this project) or ~/.lattice/commands/ (all projects) and it becomes callable:
+# ./commands/ (this project) or ~/.jig/commands/ (all projects) and it becomes callable:
 #   review(spec, criteria=["security", "readability"])
 purpose: Review the workspace code against named criteria; every finding must cite a real file and line.
 version: "1.0.0"

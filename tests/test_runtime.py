@@ -3,9 +3,9 @@ import copy
 
 from fixtures import RESEARCH, REVIEW, SPEC, VERIFY, junit_cmd
 
-from lattice.adapters import AgentResponse
-from lattice.config import DEFAULT_CONFIG
-from lattice.script import run_script
+from jig.adapters import AgentResponse
+from jig.config import DEFAULT_CONFIG
+from jig.script import run_script
 
 
 def pipeline(test_mode="pass", extra=""):
@@ -37,7 +37,7 @@ def test_end_to_end_pipeline_and_result_contract(make_rt, tmp_path):
     assert by["review"].policy.tools == ["Read", "Grep", "Glob"]
     assert "React + TypeScript" in by["specify"].prompt                 # list param rendered
     assert '"title": "Pong"' in by["build"].prompt                      # spec passed to build
-    assert len((tmp_path / ".lattice" / "log.jsonl").read_text().splitlines()) == 5
+    assert len((tmp_path / ".jig" / "log.jsonl").read_text().splitlines()) == 5
 
 
 def test_build_policy_has_no_docker_and_denies_info_leaks(make_rt):

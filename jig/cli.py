@@ -1,4 +1,4 @@
-"""lattice CLI: run scripts and single commands, run batches, inspect commands and artifacts."""
+"""jig CLI: run scripts and single commands, run batches, inspect commands and artifacts."""
 from __future__ import annotations
 
 import argparse
@@ -87,7 +87,7 @@ def cmd_exec(args):
         print(f"E_PARSE: {e}")
         return 2
     if len(stmts) != 1 or not isinstance(stmts[0], Statement) or stmts[0].bind:
-        print("exec takes exactly one statement without assignment; use `lattice run` for scripts")
+        print("exec takes exactly one statement without assignment; use `jig run` for scripts")
         return 2
     st = stmts[0]
     res = rt.execute(rt.normalize(st.command, st.target, st.kwargs))
@@ -139,7 +139,7 @@ def cmd_commands(args):
         over = f"  (overrides {c.overrides})" if c.overrides else ""
         print(f"  {name:<12} [{c.source}]{over} {c['purpose']}\n"
               f"               params: {params}; requires: {c['requires'] or '-'}; "
-              f"tools: {pol if c['mode'] == 'agent' else 'none (runs in Lattice)'}")
+              f"tools: {pol if c['mode'] == 'agent' else 'none (runs in Jig)'}")
     print("\nsearched: " + "; ".join(f"{s}={d}{'' if d.is_dir() else ' (missing)'}"
                                      for s, d in command_dirs(Path(args.project))))
     return 0
@@ -190,7 +190,7 @@ def cmd_batch(args):
 
 def cmd_batch_status(args):
     from .batch import format_summary
-    s = read_json(Path(args.project) / ".lattice" / "batches" / args.name / "summary.json")
+    s = read_json(Path(args.project) / ".jig" / "batches" / args.name / "summary.json")
     if not s:
         print(f"no finished batch named '{args.name}'")
         return 1
@@ -204,11 +204,11 @@ def _sandbox_arg(p):
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(prog="lattice", description="Lattice: a scripting language for LLM agents")
-    p.add_argument("--project", default=".", help="project directory (lattice.yaml, commands/, .lattice/)")
+    p = argparse.ArgumentParser(prog="jig", description="Jig: a scripting language for LLM agents")
+    p.add_argument("--project", default=".", help="project directory (jig.yaml, commands/, .jig/)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    r = sub.add_parser("run", help="run a .lat script")
+    r = sub.add_parser("run", help="run a .jig script")
     r.add_argument("script")
     r.add_argument("--replace", action="store_true", help="archive existing artifacts the script re-creates")
     r.add_argument("--continue-on-error", action="store_true")
@@ -219,7 +219,7 @@ def main(argv=None):
     _sandbox_arg(r)
     r.set_defaults(fn=cmd_run)
 
-    e = sub.add_parser("exec", help="execute one statement, e.g. lattice exec 'research(\"passkeys\")'")
+    e = sub.add_parser("exec", help="execute one statement, e.g. jig exec 'research(\"passkeys\")'")
     e.add_argument("statement")
     e.add_argument("--json", action="store_true")
     _sandbox_arg(e)

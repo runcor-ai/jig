@@ -1,7 +1,7 @@
 """Variable binding, dotted lookups, id binding, resume."""
 from fixtures import junit_cmd
 
-from lattice.script import run_script
+from jig.script import run_script
 
 
 def test_bound_variable_passes_artifact_and_dotted_data(make_rt):
@@ -95,7 +95,7 @@ def test_output_of_a_failed_step_is_an_error_not_none(make_rt):
     rt, _ = make_rt({"specify": [{"bad": 1}, {"bad": 1}]})    # schema failure -> output kept but failed
     out = run_script(rt, 'r = research("x")\nspec = specify("y")\nresearch(r.output.summary, question=None)\n')
     assert out["status"] == "failed"
-    rt2, _ = make_rt({"research": [__import__("lattice.adapters", fromlist=["AgentResponse"]).AgentResponse(
+    rt2, _ = make_rt({"research": [__import__("jig.adapters", fromlist=["AgentResponse"]).AgentResponse(
         ok=False, error_code="E_AGENT_FAILED", error="boom")] * 2})
     out = run_script(rt2, 'r = research("x")\nresearch(r.output.summary)\n', continue_on_error=True)
     e = _err(out)

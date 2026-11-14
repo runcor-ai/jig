@@ -1,17 +1,17 @@
 # Commands
 
-Every command is a plugin loaded by `lattice/loader.py`, built-in or not. Run `lattice commands` to see
-what is loaded and from where, and `lattice check` to validate every definition.
+Every command is a plugin loaded by `jig/loader.py`, built-in or not. Run `jig commands` to see
+what is loaded and from where, and `jig check` to validate every definition.
 
 ## Where commands come from
 
 | Order | Directory | Source label |
 |---|---|---|
-| 1 | `lattice/commands/` | builtin |
-| 2 | `~/.lattice/commands/` (or `$LATTICE_USER_COMMANDS`) | user |
+| 1 | `jig/commands/` | builtin |
+| 2 | `~/.jig/commands/` (or `$JIG_USER_COMMANDS`) | user |
 | 3 | `<project>/commands/` | project |
 
-A later definition with the same name replaces an earlier one, and `lattice commands` shows `(overrides …)`.
+A later definition with the same name replaces an earlier one, and `jig commands` shows `(overrides …)`.
 
 ## Files
 
@@ -25,7 +25,7 @@ A later definition with the same name replaces an earlier one, and `lattice comm
 
 | Field | Default | Meaning |
 |---|---|---|
-| `purpose` | required | One line, shown by `lattice commands` |
+| `purpose` | required | One line, shown by `jig commands` |
 | `version` | `"0"` | Free-form |
 | `target` | `{type: artifact_or_text, required: true}` | `text`, `artifact` (an existing id or bound variable), `artifact_or_text`, or `none` |
 | `parameters` | `{}` | `name: {type, default, enum?, items?, description}`. Types: `string`, `integer`, `number`, `boolean`, `list`, `object`, `path`. `max_attempts` and `approval_required` are reserved. |
@@ -70,5 +70,5 @@ A later definition with the same name replaces an earlier one, and `lattice comm
 
 ## Built-in commands
 
-`specify`, `build`, `test`, `verify` and `research`. See their definitions in `lattice/commands/`.
+`specify`, `build`, `test`, `verify` and `research`. See their definitions in `jig/commands/`.
 `review` in this repo's `commands/` is an example project command.

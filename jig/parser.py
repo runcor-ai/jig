@@ -1,6 +1,6 @@
-"""Lattice script parser.
+"""Jig script parser.
 
-Lattice scripts use Python's surface syntax but are their own small language. We use
+Jig scripts use Python's surface syntax but are their own small language. We use
 ``ast.parse`` purely as a tokenizer/grammar (it never executes code) and then accept only a
 whitelist of node types, which the runner in ``script.py`` interprets itself:
 

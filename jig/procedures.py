@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .errors import LatticeError
+from .errors import JigError
 from .store import now_iso
 from .validators import finding
 
@@ -36,10 +36,10 @@ def _run(argv: list[str], cwd: Path, timeout: int, log: Path, env: dict | None =
                                stdin=subprocess.DEVNULL, env={**os.environ, **(env or {})})
             code = p.returncode
         except subprocess.TimeoutExpired:
-            lf.write(f"\n[lattice] TIMEOUT after {timeout}s\n")
+            lf.write(f"\n[jig] TIMEOUT after {timeout}s\n")
             code = None
         except FileNotFoundError as e:
-            lf.write(f"\n[lattice] command not found: {e}\n")
+            lf.write(f"\n[jig] command not found: {e}\n")
             code = 127
     return code, int((time.monotonic() - start) * 1000)
 
@@ -76,9 +76,9 @@ def run_tests(rt: "Runtime", ctx: "ExecContext") -> dict:
     p = ctx.params
     ws = ctx.workspace
     if not ws or not ws.exists():
-        raise LatticeError("E_MISSING_CONTEXT", f"workspace {ws} does not exist")
+        raise JigError("E_MISSING_CONTEXT", f"workspace {ws} does not exist")
     if not p["run"]:
-        raise LatticeError("E_PARAM", "test needs at least one command in run=[...]")
+        raise JigError("E_PARAM", "test needs at least one command in run=[...]")
     log = ctx.run_dir / "test.log"
     # Remove stale reports so old results can never count as a pass.
     for g in p["reports"]:

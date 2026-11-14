@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lattice-script"
-version = "0.1.0"
-description = "Lattice: a model-independent command language for invoking, constraining and evaluating AI agents"
+name = "jig-agents"
+version = "0.3.0"
+description = "Jig: a model-independent command language for invoking, constraining and evaluating AI agents"
 requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -15,13 +15,13 @@ dependencies = ["pyyaml>=6", "jsonschema>=4.18"]
 test = ["pytest>=8"]
 
 [project.scripts]
-lattice = "lattice.cli:main"
+jig = "jig.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["lattice*"]
+include = ["jig*"]
 
 [tool.setuptools.package-data]
-lattice = ["registry/*.yaml", "schemas/*.json", "prompts/*.md"]
+jig = ["registry/*.yaml", "schemas/*.json", "prompts/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -6,9 +6,9 @@ and names the item (for app pipelines it is usually also the artifact id):
     - {id: TODO-001, goal: "Todo list app", stack: [React], standard: simple}
     - {id: NOTE-001, goal: "Notes app",     stack: [React], standard: simple}
 
-Each item runs as its own `lattice run` process, so items are fully isolated; the
+Each item runs as its own `jig run` process, so items are fully isolated; the
 store's file locks make the shared files safe. Results land in
-.lattice/batches/<name>/items/<id>.json and summary.json. --resume skips items that
+.jig/batches/<name>/items/<id>.json and summary.json. --resume skips items that
 already completed and resumes the others step by step.
 """
 from __future__ import annotations
@@ -61,12 +61,12 @@ def _summarize(out: dict | None, code: int, stderr: str) -> dict:
 
 
 def run_batch(project: Path, items_file: Path, script: Path, parallel: int = 3, resume: bool = False,
-              sandbox: str | None = None, echo: Callable[[str], None] = print, lattice_cmd: list[str] | None = None) -> dict:
+              sandbox: str | None = None, echo: Callable[[str], None] = print, jig_cmd: list[str] | None = None) -> dict:
     items = load_items(items_file)
     name = items_file.stem
-    bdir = project / ".lattice" / "batches" / name
+    bdir = project / ".jig" / "batches" / name
     (bdir / "items").mkdir(parents=True, exist_ok=True)
-    cmd = lattice_cmd or [sys.executable, "-m", "lattice"]
+    cmd = jig_cmd or [sys.executable, "-m", "jig"]
     started = time.monotonic()
 
     def work(item: dict) -> dict:

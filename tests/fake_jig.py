@@ -1,4 +1,4 @@
-"""`python fake_lattice.py ...` behaves like `python -m lattice ...` but uses the canned FixtureAdapter.
+"""`python fake_jig.py ...` behaves like `python -m jig ...` but uses the canned FixtureAdapter.
 Used to test real multi-process batches without calling a model."""
 import sys
 from pathlib import Path
@@ -7,10 +7,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import lattice.runtime as runtime_mod  # noqa: E402
-from lattice.adapters import FixtureAdapter  # noqa: E402
-from lattice.cli import main  # noqa: E402
-from lattice.loader import BUILTIN_DIR, load_commands  # noqa: E402
+import jig.runtime as runtime_mod  # noqa: E402
+from jig.adapters import FixtureAdapter  # noqa: E402
+from jig.cli import main  # noqa: E402
+from jig.loader import BUILTIN_DIR, load_commands  # noqa: E402
 
 from fixtures import Responder  # noqa: E402
 

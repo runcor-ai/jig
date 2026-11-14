@@ -1,5 +1,5 @@
 # App pipeline, run once per item of a batch file. Variables come from the item: id, goal, constraints
-#   lattice batch examples/batches/apps.yaml --script examples/pipelines/app.lat --parallel 3
+#   jig batch examples/batches/apps.yaml --script examples/pipelines/app.jig --parallel 3
 spec = specify(goal, constraints=constraints, id=id)
 build(spec)
 test(spec)

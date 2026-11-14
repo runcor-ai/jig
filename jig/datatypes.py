@@ -1,4 +1,4 @@
-"""Built-in functions and data types for Lattice scripts: list, map, queue, set (and strings).
+"""Built-in functions and data types for Jig scripts: list, map, queue, set (and strings).
 
 Everything here runs locally and costs nothing; only commands call agents. Methods are
 dispatched through the fixed ``METHODS`` table, never ``getattr``, so a script can reach only
@@ -11,7 +11,7 @@ from collections import deque
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from .errors import LatticeError
+from .errors import JigError
 
 
 @dataclass
@@ -20,8 +20,8 @@ class Limits:
     max_int: int = 2 ** 63
 
 
-def fail(msg: str) -> LatticeError:
-    return LatticeError("E_SCRIPT", msg)
+def fail(msg: str) -> JigError:
+    return JigError("E_SCRIPT", msg)
 
 
 class Queue:

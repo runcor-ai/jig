@@ -1,6 +1,6 @@
-# Project configuration for Lattice. Anything not set here uses the built-in
-# defaults in lattice/config.py (including the tool boundaries per command).
-store: .lattice            # artifacts, runs, logs, batch results
+# Project configuration for Jig. Anything not set here uses the built-in
+# defaults in jig/config.py (including the tool boundaries per command).
+store: .jig            # artifacts, runs, logs, batch results
 workspace_root: apps       # build workspaces: apps/<ID>
 
 agent:

@@ -1,6 +1,6 @@
 """Command runtime: normalize -> validate params -> resolve context -> dispatch -> validate output -> persist.
 
-Every command (built-in or user-defined) is a loaded plugin (lattice/loader.py) and runs
+Every command (built-in or user-defined) is a loaded plugin (jig/loader.py) and runs
 through `Runtime.execute`. Commands differ only in their definition files.
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ import jsonschema
 from . import prompts
 from .adapters import AgentRequest, ToolPolicy, make_adapter
 from .config import ConfigError, deep_merge, load_config
-from .errors import LatticeError
+from .errors import JigError
 from .loader import Command, load_commands
 from .procedures import POSTPROCESS, PROCEDURES
 from .sandbox import make_sandbox
@@ -50,7 +50,7 @@ class ExecContext:
         ports = (self.manifest or {}).get("ports") or {}
         e = {f"{k.upper()}_PORT": str(v) for k, v in ports.items()}
         if self.artifact_id:
-            e["LATTICE_ARTIFACT_ID"] = self.artifact_id
+            e["JIG_ARTIFACT_ID"] = self.artifact_id
         return e
 
 
@@ -103,10 +103,10 @@ class Runtime:
         try:
             cmd = self.commands.get(command)
             if cmd is None:
-                raise LatticeError("E_UNKNOWN_COMMAND", f"unknown command '{command}'. Loaded: "
+                raise JigError("E_UNKNOWN_COMMAND", f"unknown command '{command}'. Loaded: "
                                                         f"{', '.join(sorted(self.commands))}")
             if inv.get("controls", {}).get("approval_required"):
-                raise LatticeError("E_PARAM", "approval_required is not supported in v0.2 (no gated commands)")
+                raise JigError("E_PARAM", "approval_required is not supported in v0.2 (no gated commands)")
             ctx = self._prepare(inv, cmd, run_id, run_dir)
             result["artifact_id"] = ctx.artifact_id
             self.store.set_run_status(run_dir, state="running", command=command, artifact_id=ctx.artifact_id,
@@ -114,7 +114,7 @@ class Runtime:
             if self.sandbox:
                 ok, why = self.sandbox.check()
                 if not ok:
-                    raise LatticeError("E_UNAVAILABLE", f"sandbox unavailable: {why}")
+                    raise JigError("E_UNAVAILABLE", f"sandbox unavailable: {why}")
             if cmd["mode"] == "agent":
                 output, validation, execution = self._run_agent(ctx)
                 result["execution"].update(execution)
@@ -137,7 +137,7 @@ class Runtime:
             if ctx.artifact_id and output is not None:
                 self.store.record_stage(ctx.artifact_id, command, run_id, result["status"], output,
                                         {**validation, "params": ctx.params}, result["execution"].get("cost_usd"))
-        except LatticeError as e:
+        except JigError as e:
             result["status"] = _status_for(e.code)
             result["error"] = e.to_dict()
         except ConfigError as e:
@@ -164,10 +164,10 @@ class Runtime:
             for stage in cmd["requires"]:
                 st = ctx.manifest["stages"].get(stage)
                 if not st:
-                    raise LatticeError("E_MISSING_CONTEXT", f"{cmd.name} requires stage '{stage}' of "
+                    raise JigError("E_MISSING_CONTEXT", f"{cmd.name} requires stage '{stage}' of "
                                                             f"{ctx.artifact_id}, which has not run")
                 if st["status"] != "completed":
-                    raise LatticeError("E_MISSING_CONTEXT", f"{cmd.name} requires stage '{stage}' of "
+                    raise JigError("E_MISSING_CONTEXT", f"{cmd.name} requires stage '{stage}' of "
                                                             f"{ctx.artifact_id}, whose last run ended "
                                                             f"'{st['status']}'")
             ctx.spec = self.store.stage_output(ctx.artifact_id, "specify")
@@ -179,7 +179,7 @@ class Runtime:
         schema = cmd["parameters"]
         unknown = [k for k in given if k not in schema]
         if unknown:
-            raise LatticeError("E_PARAM", f"{cmd.name}: unknown parameter(s) {unknown}; accepted: "
+            raise JigError("E_PARAM", f"{cmd.name}: unknown parameter(s) {unknown}; accepted: "
                                           f"{sorted(schema) or 'none'}")
         out = {}
         for name, ps in schema.items():
@@ -196,11 +196,11 @@ class Runtime:
                   "number": isinstance(v, (int, float)) and not isinstance(v, bool),
                   "boolean": isinstance(v, bool), "list": isinstance(v, list), "object": isinstance(v, dict)}[t]
             if not ok:
-                raise LatticeError("E_PARAM", f"{cmd.name}: parameter '{name}' must be {t}, got {type(v).__name__}")
+                raise JigError("E_PARAM", f"{cmd.name}: parameter '{name}' must be {t}, got {type(v).__name__}")
             if t == "list" and ps.get("items") == "string" and not all(isinstance(x, str) for x in v):
-                raise LatticeError("E_PARAM", f"{cmd.name}: parameter '{name}' must be a list of strings")
+                raise JigError("E_PARAM", f"{cmd.name}: parameter '{name}' must be a list of strings")
             if "enum" in ps and v not in ps["enum"]:
-                raise LatticeError("E_PARAM", f"{cmd.name}: parameter '{name}' must be one of {ps['enum']}")
+                raise JigError("E_PARAM", f"{cmd.name}: parameter '{name}' must be one of {ps['enum']}")
             if t == "path":
                 self._safe_path(v)
             out[name] = v
@@ -211,9 +211,9 @@ class Runtime:
         try:
             p.relative_to(self.project_dir)
         except ValueError:
-            raise LatticeError("E_PARAM", f"path '{rel}' is outside the project directory") from None
+            raise JigError("E_PARAM", f"path '{rel}' is outside the project directory") from None
         if not p.is_file():
-            raise LatticeError("E_PARAM", f"file '{rel}' does not exist")
+            raise JigError("E_PARAM", f"file '{rel}' does not exist")
         return p
 
     def read_untrusted(self, rel: str) -> str:
@@ -225,26 +225,26 @@ class Runtime:
         kind = spec["type"]
         if kind == "none":
             if t is not None:
-                raise LatticeError("E_PARAM", f"{ctx.command} takes no target")
+                raise JigError("E_PARAM", f"{ctx.command} takes no target")
         elif t is None:
             if spec.get("required"):
-                raise LatticeError("E_PARAM", f"{ctx.command} requires a target")
+                raise JigError("E_PARAM", f"{ctx.command} requires a target")
         elif not isinstance(t, str):
-            raise LatticeError("E_PARAM", f"{ctx.command}: target must be a string or an artifact")
+            raise JigError("E_PARAM", f"{ctx.command}: target must be a string or an artifact")
         elif kind == "artifact" or (kind == "artifact_or_text" and ID_RE.match(t)):
             if not self.store.exists(t):
-                raise LatticeError("E_UNKNOWN_ARTIFACT", f"artifact '{t}' does not exist. Known: "
+                raise JigError("E_UNKNOWN_ARTIFACT", f"artifact '{t}' does not exist. Known: "
                                                          f"{', '.join(self.store.list_ids()) or 'none'}")
             ctx.artifact_id = t
         elif not t.strip():
-            raise LatticeError("E_PARAM", f"{ctx.command}: target text is empty")
+            raise JigError("E_PARAM", f"{ctx.command}: target text is empty")
         if ctx.cmd["artifact"] == "create":
             declared = ctx.params.get("id") or context.get("declared_id")
             if declared:
                 if not ID_RE.match(declared):
-                    raise LatticeError("E_PARAM", f"artifact id '{declared}' must look like ABC-001")
+                    raise JigError("E_PARAM", f"artifact id '{declared}' must look like ABC-001")
                 if self.store.exists(declared):
-                    raise LatticeError("E_ARTIFACT_EXISTS", f"artifact {declared} already exists")
+                    raise JigError("E_ARTIFACT_EXISTS", f"artifact {declared} already exists")
             ctx.manifest = {"declared_id": declared}
 
     def _uses_workspace(self, cmd: Command) -> bool:
@@ -257,7 +257,7 @@ class Runtime:
             try:
                 ws.relative_to(self.project_dir)
             except ValueError:
-                raise LatticeError("E_PARAM", "path must be inside the project directory") from None
+                raise JigError("E_PARAM", "path must be inside the project directory") from None
         elif m.get("workspace"):
             ws = self.project_dir / m["workspace"]
         else:
@@ -268,7 +268,7 @@ class Runtime:
             m = self.store.update_manifest(ctx.artifact_id, workspace=rel)
             ctx.manifest = m
         elif self._uses_workspace(ctx.cmd) and not writes and not ws.exists():
-            raise LatticeError("E_MISSING_CONTEXT", f"workspace {ws} does not exist")
+            raise JigError("E_MISSING_CONTEXT", f"workspace {ws} does not exist")
         return ws
 
     def _create_artifact(self, ctx: ExecContext, output: dict) -> str:
@@ -280,7 +280,7 @@ class Runtime:
             m = self.store.create_artifact(aid, ctx.target, {"created_by_run": ctx.run_id,
                                                              "command": ctx.command}, code=code)
         except FileExistsError as e:  # another worker claimed the declared id meanwhile
-            raise LatticeError("E_ARTIFACT_EXISTS", str(e)) from None
+            raise JigError("E_ARTIFACT_EXISTS", str(e)) from None
         ctx.manifest = m
         return m["id"]
 
@@ -346,7 +346,7 @@ class Runtime:
                 if attempt < max_attempts and resp.error_code == "E_AGENT_FAILED" and cmd["idempotent"]:
                     feedback = None
                     continue
-                raise LatticeError(resp.error_code or "E_AGENT_FAILED", resp.error or "agent failed",
+                raise JigError(resp.error_code or "E_AGENT_FAILED", resp.error or "agent failed",
                                    {"attempts": attempt, "execution": execution})
             output = resp.structured_output
             validation = self.validate_output(cmd, output, ctx)

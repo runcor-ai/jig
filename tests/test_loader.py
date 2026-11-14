@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from lattice.cli import main
-from lattice.loader import BUILTIN_DIR, CommandDefError, load_commands
+from jig.cli import main
+from jig.loader import BUILTIN_DIR, CommandDefError, load_commands
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -75,7 +75,7 @@ def test_invalid_command_name(tmp_path):
 
 
 def test_cli_commands_and_check_reflect_loaded_commands(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("LATTICE_USER_COMMANDS", str(tmp_path / "user"))
+    monkeypatch.setenv("JIG_USER_COMMANDS", str(tmp_path / "user"))
     write_cmd(tmp_path / "user", "summarize", "purpose: Summarize a document\ntool_policy: none\n")
     write_cmd(tmp_path / "commands", "tag", "purpose: Tag things\ntool_policy: none\n")
     assert main(["--project", str(tmp_path), "commands"]) == 0
@@ -86,14 +86,14 @@ def test_cli_commands_and_check_reflect_loaded_commands(tmp_path, capsys, monkey
 
 
 def test_cli_check_reports_broken_definition(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("LATTICE_USER_COMMANDS", str(tmp_path / "none"))
+    monkeypatch.setenv("JIG_USER_COMMANDS", str(tmp_path / "none"))
     write_cmd(tmp_path / "commands", "broken", "purpose: p\nvalidators: [nope]\n")
     assert main(["--project", str(tmp_path), "check"]) == 1
     assert "INVALID" in capsys.readouterr().out
 
 
 def test_unknown_tool_policy_is_reported_by_check(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("LATTICE_USER_COMMANDS", str(tmp_path / "none"))
+    monkeypatch.setenv("JIG_USER_COMMANDS", str(tmp_path / "none"))
     write_cmd(tmp_path / "commands", "odd", "purpose: p\ntool_policy: superpowers\n")
     main(["--project", str(tmp_path), "check"])
     assert "superpowers" in capsys.readouterr().out
@@ -140,7 +140,7 @@ def test_review_example_uses_the_citation_validator():
 
 
 def test_cli_check_reports_template_typo(tmp_path, capsys, monkeypatch):
-    monkeypatch.setenv("LATTICE_USER_COMMANDS", str(tmp_path / "none"))
+    monkeypatch.setenv("JIG_USER_COMMANDS", str(tmp_path / "none"))
     write_cmd(tmp_path / "commands", "greet", "purpose: p\n", prompt="Hello $nmae")
     assert main(["--project", str(tmp_path), "check"]) == 1
     out = capsys.readouterr().out

@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
-SKIP_DIRS = {"node_modules", "target", ".git", "dist", "build", ".lattice", ".mvn", "test-results", "coverage"}
+SKIP_DIRS = {"node_modules", "target", ".git", "dist", "build", ".jig", ".mvn", "test-results", "coverage"}
 
 
 @dataclass

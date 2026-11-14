@@ -10,7 +10,7 @@ Caller notes:
 
 Existing workspace state: $workspace_state
 
-After you finish, Lattice will run these commands itself, in this directory, and parse JUnit XML reports. They must succeed:
+After you finish, Jig will run these commands itself, in this directory, and parse JUnit XML reports. They must succeed:
 $test_run
 
 Working method:

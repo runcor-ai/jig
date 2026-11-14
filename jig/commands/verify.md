@@ -5,7 +5,7 @@ Verify the implementation in your current directory (the artifact workspace) aga
 Specification:
 <data name="spec">$spec</data>
 
-Recorded test results (from Lattice's own test run, not from the build agent):
+Recorded test results (from Jig's own test run, not from the build agent):
 <data name="tests">$tests</data>
 
 Items to verify (produce exactly one entry per id): $expected_ids

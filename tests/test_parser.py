@@ -1,6 +1,6 @@
 import pytest
 
-from lattice.parser import ParseError, Ref, parse
+from jig.parser import ParseError, Ref, parse
 
 CMDS = {"specify", "build", "test", "verify", "research"}
 

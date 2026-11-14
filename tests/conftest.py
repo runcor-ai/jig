@@ -7,10 +7,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from lattice.adapters import FixtureAdapter  # noqa: E402
-from lattice.config import DEFAULT_CONFIG  # noqa: E402
-from lattice.loader import BUILTIN_DIR, load_commands  # noqa: E402
-from lattice.runtime import Runtime  # noqa: E402
+from jig.adapters import FixtureAdapter  # noqa: E402
+from jig.config import DEFAULT_CONFIG  # noqa: E402
+from jig.loader import BUILTIN_DIR, load_commands  # noqa: E402
+from jig.runtime import Runtime  # noqa: E402
 
 from fixtures import Responder  # noqa: E402
 

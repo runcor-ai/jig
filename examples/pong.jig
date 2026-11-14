@@ -1,4 +1,4 @@
-# Simple Pong game. Run with:  py -m lattice run examples/pong.lat
+# Simple Pong game. Run with:  py -m jig run examples/pong.jig
 spec = specify("A simple Pong game in the browser: two paddles, a ball, score to 10, "
                "player vs computer, keyboard controls, restart button",
                constraints=["React + TypeScript + Vite, no backend",

@@ -1,6 +1,6 @@
 # Script language
 
-Lattice scripts use Python's syntax, but they are not Python. The parser accepts a fixed set of
+Jig scripts use Python's syntax, but they are not Python. The parser accepts a fixed set of
 constructs and the runner interprets them itself. Nothing is ever executed as Python. Only **command calls**
 (`specify`, `build`, `research`, your own commands) call an agent and cost anything; everything else runs
 locally.
@@ -80,11 +80,11 @@ A stack is a list (`append` / `pop`). Map keys and set items must be strings, nu
 `queue`, `set`. These names are reserved: they cannot be assigned, and a command with one of these names
 would be shadowed.
 
-`print(...)` output is shown by `lattice run` (prefixed `|`) and returned in `--json` output under `log`.
+`print(...)` output is shown by `jig run` (prefixed `|`) and returned in `--json` output under `log`.
 
 ## Limits
 
-These stop runaway scripts. Set them in `lattice.yaml`:
+These stop runaway scripts. Set them in `jig.yaml`:
 
 ```yaml
 script:
@@ -108,7 +108,7 @@ the line number. A lookup of a missing field fails with `E_PARAM` and lists the 
 - `--resume` replays the previous run of the same script with the same variables. Steps are matched in the
   order they ran, by command and inputs. Completed steps are reused up to the first step that differs, and
   from there everything runs for real. That makes resume safe in loops, where the same call can appear more
-  than once. Each run's step journal is in `.lattice/scripts/<key>.json`.
+  than once. Each run's step journal is in `.jig/scripts/<key>.json`.
 
 ## What is rejected
 

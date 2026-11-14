@@ -1,12 +1,12 @@
 # Error codes
 
-`lattice errors` prints this list. Statuses: `blocked` = E_MISSING_CONTEXT, `unavailable` = E_UNAVAILABLE / E_AGENT_UNAVAILABLE, otherwise `failed`.
+`jig errors` prints this list. Statuses: `blocked` = E_MISSING_CONTEXT, `unavailable` = E_UNAVAILABLE / E_AGENT_UNAVAILABLE, otherwise `failed`.
 
 | Code | Meaning |
 |---|---|
 | E_PARSE | Script could not be parsed or uses disallowed syntax |
 | E_SCRIPT | Script failed while running: type error, bad index, or a loop/size/step limit |
-| E_UNKNOWN_COMMAND | Command is not loaded (see `lattice commands`) |
+| E_UNKNOWN_COMMAND | Command is not loaded (see `jig commands`) |
 | E_COMMAND_DEF | A command definition file is invalid |
 | E_PARAM | Parameter missing, unknown, or of the wrong type |
 | E_UNKNOWN_ARTIFACT | Referenced artifact does not exist |

@@ -1,4 +1,4 @@
-"""Project configuration (lattice.yaml) merged over built-in defaults."""
+"""Project configuration (jig.yaml) merged over built-in defaults."""
 from __future__ import annotations
 
 import copy
@@ -18,7 +18,7 @@ INFO_LEAK_DENY = [f"Bash({c}:*)" for c in (
     "last", "history", "lsof", "df", "mount", "getent", "dscl", "scutil")]
 
 DEFAULT_CONFIG: dict[str, Any] = {
-    "store": ".lattice",
+    "store": ".jig",
     "workspace_root": "apps",
     "agent": {
         "adapter": "claude_code",
@@ -29,7 +29,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     # Tool boundaries, enforced by Claude Code (--tools / --allowedTools / --disallowedTools,
     # --permission-mode dontAsk, --setting-sources project). Commands name one of these, or
-    # define their own inline. lattice.yaml may override any of them.
+    # define their own inline. jig.yaml may override any of them.
     "tool_policies": {
         "none": {"tools": []},
         "read_workspace": {"tools": ["Read", "Grep", "Glob"], "deny": INFO_LEAK_DENY},
@@ -71,7 +71,7 @@ def deep_merge(base: dict, over: dict) -> dict:
 
 
 def load_config(project_dir: Path) -> dict[str, Any]:
-    cfg_path = Path(project_dir) / "lattice.yaml"
+    cfg_path = Path(project_dir) / "jig.yaml"
     if cfg_path.exists():
         return deep_merge(DEFAULT_CONFIG, yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {})
     return copy.deepcopy(DEFAULT_CONFIG)

@@ -7,8 +7,8 @@ A command is defined by files next to each other in a command directory:
     <name>.schema.json   output JSON schema (or give `output_schema:` inline in the yaml)
 
 Directories, in load order (later ones override earlier ones with the same name):
-    1. lattice/commands/          built-in standard library
-    2. ~/.lattice/commands/       user commands      (override with $LATTICE_USER_COMMANDS)
+    1. jig/commands/          built-in standard library
+    2. ~/.jig/commands/       user commands      (override with $JIG_USER_COMMANDS)
     3. <project>/commands/        project commands
 
 Definition fields (all optional except `purpose`):
@@ -22,7 +22,7 @@ Definition fields (all optional except `purpose`):
     requires       stages of the artifact that must have completed, e.g. [specify]
     mode           agent | procedure                      (procedure = built-in runner, e.g. run_tests)
     procedure      name of a built-in procedure when mode is procedure
-    tool_policy    name of a policy in lattice config, or inline {tools, allow, deny} (default: none)
+    tool_policy    name of a policy in jig config, or inline {tools, allow, deny} (default: none)
     prompt         template file (default: <name>.md)
     output_schema  schema file (default: <name>.schema.json) or an inline schema mapping
     validators     names of built-in validators run after schema validation
@@ -43,7 +43,7 @@ import jsonschema
 import yaml
 
 BUILTIN_DIR = Path(__file__).resolve().parent / "commands"
-# Placeholders every template may use besides its own parameters (see lattice/prompts.py).
+# Placeholders every template may use besides its own parameters (see jig/prompts.py).
 CONTEXT_PLACEHOLDERS = {"command", "artifact_id", "target", "parameters", "spec", "tests", "expected_ids",
                         "context", "workspace_state"}
 NAME_RE = re.compile(r"^[a-z][a-z0-9_]{0,39}$")
@@ -75,7 +75,7 @@ class Command:
 
 
 def command_dirs(project_dir: Path) -> list[tuple[str, Path]]:
-    user = Path(os.environ.get("LATTICE_USER_COMMANDS") or Path.home() / ".lattice" / "commands")
+    user = Path(os.environ.get("JIG_USER_COMMANDS") or Path.home() / ".jig" / "commands")
     return [("builtin", BUILTIN_DIR), ("user", user), ("project", Path(project_dir) / "commands")]
 
 

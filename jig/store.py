@@ -1,6 +1,6 @@
 """Filesystem persistence for artifacts, runs and batch results.
 
-Layout (under the configured store dir, default .lattice/):
+Layout (under the configured store dir, default .jig/):
     artifacts/<ID>/manifest.json                 current state of the artifact
     artifacts/<ID>/stages/<stage>/<run_id>.json   every stage output ever produced (append-only)
     artifacts/<ID>/checkpoints/<label>/           checkpoint snapshots

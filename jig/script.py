@@ -1,4 +1,4 @@
-"""Script execution: an interpreter for the Lattice language (see docs/language.md).
+"""Script execution: an interpreter for the Jig language (see docs/language.md).
 
 Binding results to variables:
 
@@ -36,7 +36,7 @@ from typing import Any, Callable
 
 from .datatypes import BUILTINS, Limits, Queue, call_method, fail, guard, precheck, type_name
 from .datatypes import truthy as data_truthy
-from .errors import LatticeError
+from .errors import JigError
 from .parser import (Assign, Attr, AugAssign, BinOp, BoolOp, Break, Call, Compare, Cond, Continue, ExprStmt, For,
                      FStr, If, Index, Method, ParseError, Pass, Ref, Slice, Statement, Unary, While, parse, walk)
 from .runtime import Runtime
@@ -77,7 +77,7 @@ def to_data(v: Any) -> Any:
     """Convert a script value to plain JSON data, as passed to a command."""
     if isinstance(v, Bound):
         if not v.result.get("artifact_id"):
-            raise LatticeError("E_PARAM", f"'{v.name}' has no artifact (its command did not create one); "
+            raise JigError("E_PARAM", f"'{v.name}' has no artifact (its command did not create one); "
                                           f"use {v.name}.output.<field> to pass data instead")
         return v.result["artifact_id"]
     if isinstance(v, (list, tuple)):
@@ -106,13 +106,13 @@ def _num(v: Any) -> bool:
 
 def _lookup(ref: Ref, variables: dict) -> Any:
     if ref.name not in variables:
-        raise LatticeError("E_PARAM", f"variable '{ref.name}' is not defined")
+        raise JigError("E_PARAM", f"variable '{ref.name}' is not defined")
     val = variables[ref.name]
     if isinstance(val, Bound):
         if not ref.path:
             return val
         if ref.path[0] == "output" and val.result.get("output") is None:
-            raise LatticeError("E_PARAM", f"'{ref}' not found: '{ref.name}' has no output (its "
+            raise JigError("E_PARAM", f"'{ref}' not found: '{ref.name}' has no output (its "
                                           f"{val.result.get('command')} step ended '{val.result.get('status')}')")
         val = val.view()
     for i, key in enumerate(ref.path):
@@ -123,7 +123,7 @@ def _lookup(ref: Ref, variables: dict) -> Any:
         else:
             where = ".".join((ref.name, *ref.path[:i]))
             keys = sorted(val) if isinstance(val, dict) else type_name(val)
-            raise LatticeError("E_PARAM", f"'{ref}' not found: '{where}' has no '{key}' (available: {keys})")
+            raise JigError("E_PARAM", f"'{ref}' not found: '{where}' has no '{key}' (available: {keys})")
     return val
 
 
@@ -137,7 +137,7 @@ def _explicit_id(st: Statement, variables: dict) -> str | None:
     if isinstance(v, Ref):
         try:
             v = _lookup(v, variables)
-        except LatticeError:
+        except JigError:
             return None
     return v if isinstance(v, str) and v else None
 
@@ -164,14 +164,14 @@ def plan_bindings(rt: Runtime, stmts: list[Statement], replace: bool, variables:
             continue
         aid = cands[0]
         if rt.store.exists(aid) and not replace:
-            raise LatticeError("E_ARTIFACT_EXISTS",
+            raise JigError("E_ARTIFACT_EXISTS",
                                f"line {stmts[ci].line} would create {aid}, which already exists. Use --replace "
                                f"to archive it and start over, --resume to continue it, or a different id")
         bindings[ci] = aid
         used.add(aid)
     for aid in explicit:
         if rt.store.exists(aid) and not replace:
-            raise LatticeError("E_ARTIFACT_EXISTS", f"script creates {aid}, which already exists. Use --replace "
+            raise JigError("E_ARTIFACT_EXISTS", f"script creates {aid}, which already exists. Use --replace "
                                                     f"to start over or --resume to continue it")
     return bindings
 
@@ -224,7 +224,7 @@ class Interp:
         for s in stmts:
             self.exec(s)
 
-    def _script_error(self, s: Any, e: LatticeError, command: str | None = None) -> None:
+    def _script_error(self, s: Any, e: JigError, command: str | None = None) -> None:
         err = e.to_dict()
         err["message"] = f"line {s.line}: {err['message']}" if command is None else err["message"]
         self.results.append({"line": s.line, "source": s.source,
@@ -283,7 +283,7 @@ class Interp:
                 raise _Continue
             elif isinstance(s, Pass):
                 pass
-        except LatticeError as e:
+        except JigError as e:
             self._script_error(s, e)
         except PY_ERRORS as e:
             self._script_error(s, fail(f"{type(e).__name__}: {e}"))
@@ -329,7 +329,7 @@ class Interp:
         try:
             target = to_data(self.eval(st.target))
             kwargs = {k: to_data(self.eval(v)) for k, v in st.kwargs.items()}
-        except LatticeError as e:
+        except JigError as e:
             self._script_error(st, e, command=st.command)
         except PY_ERRORS as e:
             self._script_error(st, fail(f"line {st.line}: {type(e).__name__}: {e}"), command=st.command)
@@ -362,7 +362,7 @@ class Interp:
         elif st.bind_target is not None:
             try:
                 self.assign(st.bind_target, Bound(res, "result"))
-            except LatticeError as e:
+            except JigError as e:
                 self._script_error(st, e)
         if res["status"] in HALT_STATUSES:
             self.status = "failed"
@@ -404,7 +404,7 @@ class Interp:
             if isinstance(base, dict) and e.name in base:
                 return base[e.name]
             keys = sorted(base) if isinstance(base, dict) else type_name(base)
-            raise LatticeError("E_PARAM", f"{type_name(base)} has no '{e.name}' (available: {keys})")
+            raise JigError("E_PARAM", f"{type_name(base)} has no '{e.name}' (available: {keys})")
         if isinstance(e, Index):
             return self.index(self.eval(e.base), self.eval(e.key))
         if isinstance(e, Slice):
@@ -471,7 +471,7 @@ class Interp:
             if isinstance(key, (list, dict, set)):
                 raise fail(f"map key must be a string, number, bool or null, got {type_name(key)}")
             if key not in base:
-                raise LatticeError("E_PARAM", f"map has no key {key!r} (available: {sorted(map(str, base))})")
+                raise JigError("E_PARAM", f"map has no key {key!r} (available: {sorted(map(str, base))})")
             return base[key]
         if isinstance(base, (list, str)):
             if not isinstance(key, int) or isinstance(key, bool):
@@ -557,9 +557,9 @@ def run_script(rt: Runtime, source: str, replace: bool = False, continue_on_erro
         for s in nested:
             aid = _explicit_id(s, variables)
             if aid and rt.store.exists(aid) and not (replace or resume):
-                raise LatticeError("E_ARTIFACT_EXISTS", f"line {s.line} creates {aid}, which already exists. Use "
+                raise JigError("E_ARTIFACT_EXISTS", f"line {s.line} creates {aid}, which already exists. Use "
                                                         f"--replace to start over or --resume to continue it")
-    except LatticeError as e:
+    except JigError as e:
         return {"status": "failed", "error": e.to_dict(), "results": []}
     bindings = {id(top[i]): aid for i, aid in planned.items()}
     it = Interp(rt, variables, replace=replace, resume=resume, continue_on_error=continue_on_error,
@@ -589,7 +589,7 @@ def _already_completed(rt: Runtime, command: str, target: Any, kwargs: dict, con
         return None
     try:
         params = rt._validate_params(cmd, dict(kwargs))
-    except LatticeError:
+    except JigError:
         return None
     if st.get("params") is not None and st["params"] != params:
         return None  # inputs changed: run it again

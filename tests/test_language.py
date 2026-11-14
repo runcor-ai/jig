@@ -4,9 +4,9 @@ import copy
 import pytest
 
 from fixtures import RESEARCH
-from lattice.adapters import AgentResponse
-from lattice.parser import ParseError, parse
-from lattice.script import run_script
+from jig.adapters import AgentResponse
+from jig.parser import ParseError, parse
+from jig.script import run_script
 
 
 def _research(summary):
@@ -265,10 +265,10 @@ def test_resume_stops_replaying_at_the_first_changed_step(make_rt):
 def test_resume_journal_is_per_script_and_variables(make_rt):
     rt, adapter = make_rt()
     src = "research(topic)"
-    run_script(rt, src, variables={"topic": "a"}, script_id="p.lat")
-    out = run_script(rt, src, variables={"topic": "b"}, script_id="p.lat", resume=True)
+    run_script(rt, src, variables={"topic": "a"}, script_id="p.jig")
+    out = run_script(rt, src, variables={"topic": "b"}, script_id="p.jig", resume=True)
     assert not out["results"][0]["result"].get("skipped")
-    out = run_script(rt, src, variables={"topic": "a"}, script_id="p.lat", resume=True)
+    out = run_script(rt, src, variables={"topic": "a"}, script_id="p.jig", resume=True)
     assert out["results"][0]["result"].get("skipped")
 
 
@@ -276,7 +276,7 @@ def test_resume_journal_is_per_script_and_variables(make_rt):
 def test_every_example_script_parses(commands):
     from pathlib import Path
     root = Path(__file__).resolve().parents[1] / "examples"
-    for f in root.rglob("*.lat"):
+    for f in root.rglob("*.jig"):
         parse(f.read_text(encoding="utf-8"), set(commands),
               predefined={"id", "goal", "constraints", "topic", "question", "requirements", "max_fixes"})
 
@@ -287,7 +287,7 @@ def test_factory_example_runs_with_fix_loop(make_rt):
     from pathlib import Path
     from fixtures import junit_cmd
     root = Path(__file__).resolve().parents[1] / "examples"
-    src = (root / "pipelines" / "factory.lat").read_text(encoding="utf-8")
+    src = (root / "pipelines" / "factory.jig").read_text(encoding="utf-8")
     src = re.sub(r"TEST = \[.*?\]\n", f"TEST = ['{junit_cmd()}']\n", src, flags=re.S)
     src = src.replace(', expect_files=["dist/index.html"]', "")
     variables = json.loads((root / "batches" / "factory.json").read_text(encoding="utf-8"))

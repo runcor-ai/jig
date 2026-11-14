@@ -1,15 +1,15 @@
-# Lattice v0.2: review brief (after refactor)
+# Jig v0.2: review brief (after refactor)
 
-Please review critically. This is a refactor of Lattice v0.1 done by an AI coding agent (Claude Code) from a
+Please review critically. This is a refactor of Jig v0.1 done by an AI coding agent (Claude Code) from a
 refactor brief written by an earlier reviewer. Check whether each requested change was actually made, whether
 anything regressed, and whether the safety claims hold.
 
-## What Lattice is
+## What Jig is
 
-A small scripting language for LLM agents. A `.lat` script is a sequence of command calls. The runtime turns
+A small scripting language for LLM agents. A `.jig` script is a sequence of command calls. The runtime turns
 each into a tool-restricted Claude Code call (`claude -p`), validates the output (JSON Schema plus
 deterministic checks against the real workspace and logs), retries once with the validation findings, and
-records everything under `.lattice/`.
+records everything under `.jig/`.
 
 ```python
 spec = specify("A simple Pong game", constraints=["React + TypeScript + Vite, no backend"], id="PONG-001")
@@ -23,17 +23,17 @@ review(spec, criteria=["correctness", "readability"])   # a project-defined comm
 
 | Request | Done | Where |
 |---|---|---|
-| Remove the 17 generic commands, decision models, `deploy`, and the CRM/enterprise stack scaffolding | Yes. Also removed the native control commands (approve, checkpoint, rollback, package, report, validate) and the profiles system; `specify` takes free-text `constraints` instead. | deleted `lattice/registry/`, `profiles.py` |
-| Directory-based command loader (`./commands/`, `~/.lattice/commands/`), defined by `<name>.yaml` + `<name>.md` | Yes. Load order built-in → user → project; later wins; overrides are reported. Optional `<name>.schema.json` or inline `output_schema`. Invalid definitions fail with file and reason. | `lattice/loader.py` |
-| Keep 4–5 built-ins in the same plugin format | `specify`, `build`, `test`, `verify`, `research` | `lattice/commands/*.yaml/.md/.schema.json` |
-| Bind outputs to variables and pass them on (`spec = specify(...)`, `build(spec)`), alongside `id=` | Yes. A bound variable passed as a value means its artifact id. | `lattice/script.py` |
-| Property access (`spec.id`, `spec.output.summary`) without enabling code execution | Yes. Dotted refs parse to `Ref(name, path)` and are resolved as data lookups, not Python attributes. `_`-prefixed names, subscripts, method calls and nested calls are rejected. | `lattice/parser.py` |
+| Remove the 17 generic commands, decision models, `deploy`, and the CRM/enterprise stack scaffolding | Yes. Also removed the native control commands (approve, checkpoint, rollback, package, report, validate) and the profiles system; `specify` takes free-text `constraints` instead. | deleted `jig/registry/`, `profiles.py` |
+| Directory-based command loader (`./commands/`, `~/.jig/commands/`), defined by `<name>.yaml` + `<name>.md` | Yes. Load order built-in → user → project; later wins; overrides are reported. Optional `<name>.schema.json` or inline `output_schema`. Invalid definitions fail with file and reason. | `jig/loader.py` |
+| Keep 4–5 built-ins in the same plugin format | `specify`, `build`, `test`, `verify`, `research` | `jig/commands/*.yaml/.md/.schema.json` |
+| Bind outputs to variables and pass them on (`spec = specify(...)`, `build(spec)`), alongside `id=` | Yes. A bound variable passed as a value means its artifact id. | `jig/script.py` |
+| Property access (`spec.id`, `spec.output.summary`) without enabling code execution | Yes. Dotted refs parse to `Ref(name, path)` and are resolved as data lookups, not Python attributes. `_`-prefixed names, subscripts, method calls and nested calls are rejected. | `jig/parser.py` |
 | Keep `ast.parse` non-evaluating | Yes; 24 rejection cases tested | `tests/test_parser.py` |
-| Remove `docker` from the `build` allow-list | Yes, and `Bash(docker:*)` is explicitly denied | `lattice/config.py` |
-| `--sandbox docker` on `run`/`batch` running `claude -p` in an ephemeral container with only the workspace mounted | Yes (also on `exec`). Test commands also run in the container. Image `lattice-agent:0.1` (Node 22, Claude Code 2.1.325, user `node`); flags `--rm --cap-drop ALL --security-opt no-new-privileges`, plus pid, memory and cpu limits. The token is passed by env-var name only. | `lattice/sandbox.py`, `docker/Dockerfile` |
-| Block unintended read-only auto-approvals with `--disallowedTools` | Yes, best-effort: a deny-list of information-leaking read-only commands. It is documented as a list, not a boundary. | `INFO_LEAK_DENY` in `lattice/config.py` |
+| Remove `docker` from the `build` allow-list | Yes, and `Bash(docker:*)` is explicitly denied | `jig/config.py` |
+| `--sandbox docker` on `run`/`batch` running `claude -p` in an ephemeral container with only the workspace mounted | Yes (also on `exec`). Test commands also run in the container. Image `jig-agent:0.1` (Node 22, Claude Code 2.1.325, user `node`); flags `--rm --cap-drop ALL --security-opt no-new-privileges`, plus pid, memory and cpu limits. The token is passed by env-var name only. | `jig/sandbox.py`, `docker/Dockerfile` |
+| Block unintended read-only auto-approvals with `--disallowedTools` | Yes, best-effort: a deny-list of information-leaking read-only commands. It is documented as a list, not a boundary. | `INFO_LEAK_DENY` in `jig/config.py` |
 | Remove `bench.py` and dead code | Yes (`bench.py`, suites, results, decision and stack validators) | — |
-| `lattice commands` / `check` reflect loaded commands | Yes: source, overrides, searched directories; `check` validates definitions and tool policies | `lattice/cli.py` |
+| `jig commands` / `check` reflect loaded commands | Yes: source, overrides, searched directories; `check` validates definitions and tool policies | `jig/cli.py` |
 | Tests pass against the new loader, variable syntax and batch runner | **85 tests pass** | `tests/` |
 
 ## Decisions made during the refactor (approved by the user)
@@ -60,7 +60,7 @@ review(spec, criteria=["correctness", "readability"])   # a project-defined comm
   `$placeholders`; the sandbox root filesystem is read-only (live: `/`, `/etc` and `/usr/local` refuse writes,
   while `npm install`, `npx` and `claude` still work).
 - **Full Pong pipeline from an empty workspace:** specify → build → test → verify → review all passed on the
-  first attempt in about 3.5 min. Lattice's own test run: 36 tests and the production build passed. `verify`
+  first attempt in about 3.5 min. Jig's own test run: 36 tests and the production build passed. `verify`
   covered all 10 requirements with checked evidence (verdict pass). `review` (the project command) found a
   real ball-tunnelling bug.
 - **Live 3-way parallel research batch:** 3/3 completed in 36.5s, each first-attempt, with every cited URL
@@ -78,7 +78,7 @@ review(spec, criteria=["correctness", "readability"])   # a project-defined comm
 
 1. Is dotted-reference resolution as data lookup, with `_` rejection and no subscripts, a sound replacement
    for Python attribute access?
-2. Are there gaps in the plugin format: missing fields, or validation that `lattice check` should do but
+2. Are there gaps in the plugin format: missing fields, or validation that `jig check` should do but
    doesn't?
 3. Is the container configuration adequate for running agent-written code? What would you add (network
    egress limits, read-only root, seccomp)?
@@ -87,9 +87,9 @@ review(spec, criteria=["correctness", "readability"])   # a project-defined comm
 ## Map
 
 ```
-lattice/parser.py      grammar + whitelist            lattice/loader.py     command plugins
-lattice/script.py      variables, ids, resume         lattice/runtime.py    execute/validate/retry/persist
-lattice/validators.py  built-in checks                lattice/procedures.py test runner + post hooks
-lattice/sandbox.py     docker sandbox                 lattice/batch.py      parallel batches
-lattice/commands/      built-in standard library      commands/             project commands (review)
+jig/parser.py      grammar + whitelist            jig/loader.py     command plugins
+jig/script.py      variables, ids, resume         jig/runtime.py    execute/validate/retry/persist
+jig/validators.py  built-in checks                jig/procedures.py test runner + post hooks
+jig/sandbox.py     docker sandbox                 jig/batch.py      parallel batches
+jig/commands/      built-in standard library      commands/             project commands (review)
 ```

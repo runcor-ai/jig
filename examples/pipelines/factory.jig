@@ -1,6 +1,6 @@
 # Requirements factory: a list of requirements in, built and checked apps out, with retries.
 # Variables: requirements (a list of {id, goal, constraints}) and an optional max_fixes.
-#   lattice run examples/pipelines/factory.lat --vars examples/batches/factory.json --continue-on-error
+#   jig run examples/pipelines/factory.jig --vars examples/batches/factory.json --continue-on-error
 # --continue-on-error keeps going when a step fails (e.g. verify's verdict is not a pass), so the fix
 # loop below can react to it instead of the whole run stopping.
 TEST = ["npm install --no-audit --no-fund",

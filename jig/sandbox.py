@@ -17,7 +17,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-IMAGE = "lattice-agent:0.1"
+IMAGE = "jig-agent:0.1"
 # The root filesystem is read-only. Only these are writable (plus the /workspace bind mount):
 #   /tmp        scratch space for npm, vitest, etc.
 #   /home/node  HOME: npm cache (~/.npm, including npx binaries, hence `exec`) and Claude Code's own
@@ -50,7 +50,7 @@ class DockerSandbox:
             return False, "docker daemon is not running"
         p = subprocess.run([self.docker, "image", "inspect", self.image], capture_output=True, text=True)
         if p.returncode != 0:
-            return False, f"image {self.image} not built: run `lattice sandbox-build`"
+            return False, f"image {self.image} not built: run `jig sandbox-build`"
         if not self.token_var():
             return False, ("no credentials for the container: run `claude setup-token` and set "
                            "CLAUDE_CODE_OAUTH_TOKEN (or ANTHROPIC_API_KEY)")

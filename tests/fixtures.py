@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-from lattice.adapters import AgentResponse
+from jig.adapters import AgentResponse
 
 HERE = Path(__file__).resolve().parent
 PY = Path(sys.executable).as_posix()
