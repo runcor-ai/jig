@@ -134,3 +134,7 @@ cd apps/PONG-001 && npm install && npm run dev     # http://localhost:5173/
 
 To regenerate it, move or delete `apps/PONG-001/` (otherwise `build` continues the existing code) and run
 `py -m lattice run examples/pong.lat --replace`.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
