@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .errors import ERROR_CODES
 from .loader import CommandDefError, command_dirs, load_commands
-from .parser import ParseError, parse
+from .parser import ParseError, Statement, parse
 from .script import run_script
 from .store import read_json
 
@@ -60,14 +60,22 @@ def cmd_run(args):
     for kv in args.var or []:
         k, _, v = kv.partition("=")
         variables[k] = v
+    on_log = None if args.json else (lambda line: print(f"  | {line}", flush=True))
+    script_path = Path(args.script).resolve()
+    try:
+        script_id = script_path.relative_to(rt.project_dir).as_posix()
+    except ValueError:
+        script_id = script_path.as_posix()
     out = run_script(rt, source, replace=args.replace, continue_on_error=args.continue_on_error,
-                     on_start=on_start, on_result=on_result, variables=variables, resume=args.resume)
+                     on_start=on_start, on_result=on_result, variables=variables, resume=args.resume,
+                     on_log=on_log, script_id=script_id)
     if args.json:
         print(json.dumps(out, indent=2, default=str))
     else:
         if out.get("error"):
             print(f"error: {out['error']['code']}: {out['error']['message']}")
-        print(f"\nscript {out['status']}: {out.get('executed', 0)}/{out.get('total', 0)} statements executed")
+        print(f"\nscript {out['status']}: {out.get('executed', 0)} command step(s) run "
+              f"({out.get('total', 0)} command call(s) in the script)")
     return 0 if out["status"] == "completed" else 1
 
 
@@ -78,7 +86,7 @@ def cmd_exec(args):
     except ParseError as e:
         print(f"E_PARSE: {e}")
         return 2
-    if len(stmts) != 1 or stmts[0].bind:
+    if len(stmts) != 1 or not isinstance(stmts[0], Statement) or stmts[0].bind:
         print("exec takes exactly one statement without assignment; use `lattice run` for scripts")
         return 2
     st = stmts[0]

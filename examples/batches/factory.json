@@ -1,0 +1,9 @@
+{
+  "max_fixes": 2,
+  "requirements": [
+    {"id": "TODO-001", "goal": "A personal todo list with due dates and priorities",
+     "constraints": ["React + TypeScript + Vite, no backend", "Vitest + @testing-library/react with jsdom for tests"]},
+    {"id": "NOTE-001", "goal": "A notes app with tags and search",
+     "constraints": ["React + TypeScript + Vite, no backend", "Vitest + @testing-library/react with jsdom for tests"]}
+  ]
+}

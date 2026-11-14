@@ -5,6 +5,7 @@
 | Code | Meaning |
 |---|---|
 | E_PARSE | Script could not be parsed or uses disallowed syntax |
+| E_SCRIPT | Script failed while running: type error, bad index, or a loop/size/step limit |
 | E_UNKNOWN_COMMAND | Command is not loaded (see `lattice commands`) |
 | E_COMMAND_DEF | A command definition file is invalid |
 | E_PARAM | Parameter missing, unknown, or of the wrong type |

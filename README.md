@@ -20,7 +20,7 @@ Requirements: Python 3.11+ with `pyyaml` and `jsonschema`, and the `claude` CLI 
 Node.js for the example apps, and Docker for `--sandbox docker`.
 
 ```bash
-py -m pytest -q                                  # 85 offline tests, no model calls
+py -m pytest -q                                  # 128 offline tests, no model calls
 py -m lattice check                              # command definitions, agent, sandbox
 py -m lattice commands                           # loaded commands and where they came from
 py -m lattice run examples/pong.lat --replace    # build Pong (about 5 min)
@@ -30,18 +30,40 @@ py -m lattice batch examples/batches/research.yaml --script examples/pipelines/r
 
 ## Script language
 
-- **Statements:** `command(target, name=value, ...)` or `name = command(...)`.
-- **Arguments:** literals (strings, numbers, booleans, `None`/`null`, lists, dicts) or variable references.
-- **Bound variables:** `spec = specify(...)` keeps the whole result.
-  - Passing `spec` as a value means its artifact id: `build(spec)`.
-  - Dotted lookups read its data: `spec.id`, `spec.status`, `spec.output.summary`, `spec.output.requirements`.
-- **Batch variables:** batch rows supply variables, e.g. `research(topic, question=question)`.
-- **Never executed.** `ast.parse` is used only as a grammar, with a node whitelist. Imports, loops, operators,
-  subscripts, f-strings, method calls, nested calls and names starting with `_` are all rejected.
-- **Literal ids work too.** `specify("x")` followed by `build("TOY-001")` makes `specify` create exactly
-  `TOY-001`.
-- **Re-running.** Re-creating an existing id is refused. `--replace` archives the old artifact first, and
-  `--resume` skips steps that already completed with the same inputs.
+Full reference: [docs/language.md](docs/language.md).
+
+```python
+q = queue(requirements)                       # supplied with --vars or by a batch row
+while len(q) > 0:
+    req = q.pop()
+    spec = specify(req.goal, id=req.id)
+    build(spec)
+    v = verify(spec)
+    for attempt in range(2):                  # bounded retries (run with --continue-on-error)
+        if v.output.verdict.result == "pass":
+            break
+        build(spec, notes=v.output.summary)
+        v = verify(spec)
+```
+
+- **Commands are the only steps that cost anything.** A call is `command(target, name=value, ...)`,
+  either on its own or as `name = command(...)`. Everything else runs locally.
+- **Control flow:** `if`/`elif`/`else`, `for`, `while` (always capped, `script.max_while_iterations`),
+  `break`, `continue`.
+- **Expressions:** arithmetic, comparisons, `and`/`or`/`not`, `in`, indexing and slices, f-strings,
+  builtins (`len`, `range`, `sorted`, `str`, `print`, ...).
+- **Data types:** `list`, `map`, `queue` and `set`, with a fixed set of methods (`append`, `pop`, `push`,
+  `put`, `get`, `add`, ...). They are passed to commands as JSON.
+- **Failed steps stop the script** unless you pass `--continue-on-error`. Retry loops need that flag,
+  because a `verify` whose verdict is not a pass counts as a failed step.
+- **Bound results:** `spec = specify(...)` keeps the whole result. Passing `spec` to a command means its
+  artifact id. Lookups read its data: `spec.id`, `spec.status`, `spec.output.requirements[0].id`.
+- **Never executed as Python.** `ast.parse` is used only as a grammar with a node whitelist, and the runner
+  interprets it. Imports, `def`, `class`, `lambda`, comprehensions, `try`, `with`, unknown methods and names
+  starting with `_` are rejected before anything runs. Size and step limits stop runaway scripts.
+- **Re-running.** Re-creating an existing id is refused. `--replace` archives the old artifact first.
+  `--resume` replays the previous run step by step and continues from the first step that differs,
+  which also works inside loops.
 
 ## Commands
 

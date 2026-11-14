@@ -1,0 +1,36 @@
+# Requirements factory: a list of requirements in, built and checked apps out, with retries.
+# Variables: requirements (a list of {id, goal, constraints}) and an optional max_fixes.
+#   lattice run examples/pipelines/factory.lat --vars examples/batches/factory.json --continue-on-error
+# --continue-on-error keeps going when a step fails (e.g. verify's verdict is not a pass), so the fix
+# loop below can react to it instead of the whole run stopping.
+TEST = ["npm install --no-audit --no-fund",
+        "npx vitest run --reporter=junit --outputFile=test-results/junit.xml",
+        "npm run build"]
+
+queue_in = queue(requirements)
+report = map()
+
+while len(queue_in) > 0:
+    req = queue_in.pop()
+    spec = specify(req.goal, constraints=req.constraints, id=req.id)
+    build(spec, test_run=TEST)
+    t = test(spec, run=TEST, expect_files=["dist/index.html"])
+    v = verify(spec)
+
+    # Up to max_fixes rebuilds, using the gaps verify found as notes.
+    for attempt in range(max_fixes):
+        gaps = []
+        for item in v.output.items:
+            if item.status != "satisfied":
+                gaps.append(f"{item.id}: {item.notes}")
+        if len(gaps) == 0:
+            break
+        print(f"{spec.id}: fixing {len(gaps)} gap(s), attempt {attempt + 1}")
+        build(spec, test_run=TEST, notes="; ".join(gaps))
+        t = test(spec, run=TEST, expect_files=["dist/index.html"])
+        v = verify(spec)
+
+    verdict = v.output.verdict.result if v.output else "none"
+    report[spec.id] = {"tests": t.status, "verify": verdict}
+
+print(report)
