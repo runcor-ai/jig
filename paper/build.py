@@ -321,13 +321,13 @@ table.stack td:first-child::before{display:none}
 
 /* Print / PDF */
 @page{size:A4;margin:20mm 18mm 20mm 18mm;
-  @bottom-left{content:"DESCRIBING REALITY FOR AI";font-family:"IBM Plex Mono",Consolas,monospace;font-size:7pt;letter-spacing:.25em;color:#8a8e99}
+  @bottom-left{content:"ABSTRACTION FOR AI WORK";font-family:"IBM Plex Mono",Consolas,monospace;font-size:7pt;letter-spacing:.25em;color:#8a8e99}
   @bottom-right{content:counter(page);font-family:"IBM Plex Mono",Consolas,monospace;font-size:8pt;color:#8a8e99}}
 @page :first{@bottom-left{content:none}@bottom-right{content:none}}
 @media print{
   body{font-size:10.4pt;line-height:1.5;padding:0}
   .page{max-width:none}
-  .cover{min-height:250mm;break-after:page;border-bottom:none;padding-block:10mm 0}
+  .cover{min-height:238mm;break-after:page;border-bottom:none;padding-block:10mm 0}
   .toc{break-after:page;border-bottom:none}
   h2.sec{break-before:page;margin-top:0;border-top:none;font-size:24pt}
   h3{break-after:avoid;font-size:12.5pt}
@@ -351,7 +351,7 @@ def extra_css():
 
 
 # The cover's status: the byline's date is the paper's as-of date, not when the run started, so the run is named here.
-STATUS = "Version 0.3"
+STATUS = "Version 0.4"
 RUN_LINE = "With a short experiment &nbsp;·&nbsp; 14 Nov 2026"
 
 
@@ -374,7 +374,7 @@ def page(body, toc, subtitle, started, updated):
     <p class="sub">{htmlmod.escape(subtitle or "Controlling complexity by working with AI at the right level, and measuring that the level holds")}</p>
     <div class="lede">
       <p>A biologist explaining a heartbeat does not talk about quantum physics. Every field controls complexity by working at the right level. AI tooling has built powerful machinery: agent teams, hooked harnesses, orchestration frameworks. The way of working itself is still buried inside it, hard to read, change or measure as a unit.</p>
-      <p>This paper argues for one: scripts of contracted steps, with the prompts one level down, and every claim checked and every way of working measured before it is trusted.</p>
+      <p>This paper argues for a level above that machinery: scripts of contracted steps, with the prompts one level down, and every claim checked and every way of working measured before it is trusted.</p>
     </div>
   </div>
   <div class="foot">

@@ -1,0 +1,156 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Abstraction for AI Work</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column of serif text; tables and figures may run a little wider;
+   mono, letter-spaced labels for structure, as in the Runcor Lattice white paper. */
+:root{
+  --ink:#1b1d23; --text:#25282f; --muted:#5a5e68; --faint:#8a8e99;
+  --rule:#d6d8dd; --rule2:#c4c7cf; --wash:#f6f8fb; --wash2:#ebecef;
+  --navy:#1e4f8c; --navy-soft:#e9eff7; --todo:#8a5a00; --todo-bg:#fbf3e2; --paper:#ffffff;
+  --serif:Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:light;
+}
+body{background:var(--paper);color:var(--text);font-family:var(--serif);font-size:17px;line-height:1.62;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 64px}
+.page{max-width:760px;margin:0 auto}
+p,li{text-wrap:pretty}
+a{color:var(--navy)}
+strong{color:var(--ink)}
+.eyebrow,.mono{font-family:var(--mono);font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+
+/* Cover */
+.cover{min-height:min(88vh,780px);display:flex;flex-direction:column;justify-content:space-between;padding-block:56px 32px;
+  border-bottom:1px solid var(--rule)}
+.cover h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,7vw,68px);line-height:1.04;
+  color:var(--ink);margin:28px 0 18px;letter-spacing:-.01em;text-wrap:balance}
+.cover .sub{font-size:clamp(20px,2.6vw,26px);line-height:1.35;color:var(--text);max-width:30ch;margin:0 0 36px}
+.cover .lede{border-top:2px solid var(--navy);padding-top:18px;max-width:46ch;color:var(--muted);font-size:17px}
+.cover .lede p{margin:0 0 8px}
+.cover .foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:40px}
+.status{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--navy);background:var(--navy-soft);padding:4px 10px;border-radius:2px}
+
+/* Contents */
+.toc{padding-block:40px 24px;border-bottom:1px solid var(--rule)}
+.toc ol{list-style:none;margin:16px 0 0;padding:0;columns:2;column-gap:40px}
+.toc li{break-inside:avoid;display:flex;gap:12px;padding:5px 0;border-bottom:1px dotted var(--rule);font-size:15px;line-height:1.35}
+.toc .n{font-family:var(--mono);font-size:11.5px;color:var(--navy);min-width:7.4em;white-space:nowrap;padding-top:2px}
+.toc a{color:var(--text);text-decoration:none}
+.toc a:hover{color:var(--navy);text-decoration:underline}
+
+/* Sections */
+h2.sec{font-family:var(--serif);font-weight:400;font-size:32px;line-height:1.15;color:var(--ink);
+  margin:72px 0 20px;padding-top:20px;border-top:1px solid var(--rule2);text-wrap:balance}
+h2.sec .secnum{display:block;font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--navy);margin-bottom:10px}
+h3{font-family:var(--serif);font-weight:700;font-size:19px;color:var(--ink);margin:36px 0 10px;text-wrap:balance}
+p{margin:0 0 14px}
+ul,ol{padding-left:22px;margin:0 0 14px}
+li{margin-bottom:6px} li>p{margin:0 0 6px}
+blockquote{margin:22px 0;padding:14px 20px;background:var(--wash);border-left:2px solid var(--navy);color:var(--text)}
+blockquote p:last-child{margin-bottom:0}
+code{font-family:var(--mono);font-size:.84em;background:var(--wash2);padding:1px 4px;border-radius:2px;overflow-wrap:anywhere}
+pre{font-family:var(--mono);font-size:13px;line-height:1.5;background:var(--wash);border:1px solid var(--rule);
+  padding:14px 16px;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 16px}
+pre code{background:none;padding:0;font-size:inherit}
+.todo{font-family:var(--mono);font-size:.78em;color:var(--todo);background:var(--todo-bg);padding:1px 5px;border-radius:2px;
+  overflow-wrap:anywhere}
+time{font-variant-numeric:tabular-nums}
+
+/* Figures */
+figure.fig{margin:28px 0}
+figure.fig img{display:block;width:auto;max-width:100%;height:auto;margin:0 auto;border:1px solid var(--rule);background:#fff}
+figcaption{font-size:14px;line-height:1.45;color:var(--muted);margin-top:8px}
+.figlab{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--navy);margin-right:6px}
+
+/* Tables: always fit the column. */
+.tblwrap{margin:20px 0 22px}
+table.tbl{width:100%;border-collapse:collapse;table-layout:auto;font-size:14px;line-height:1.42;
+  font-variant-numeric:tabular-nums;border-top:2px solid var(--ink)}
+.tbl th{font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);text-align:left;vertical-align:bottom;padding:9px 10px 7px;border-bottom:1px solid var(--rule2)}
+.tbl td{vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--rule);overflow-wrap:break-word;hyphens:auto}
+.tbl td:first-child{color:var(--ink)}
+.tbl td.num{text-align:center;white-space:nowrap}
+.tbl tbody tr:nth-child(even) td{background:var(--wash)}
+.tbl td p{margin:0 0 4px} .tbl td p:last-child{margin:0}
+.tbl td ul{margin:0;padding-left:16px}
+table.dense{font-size:12px} .dense th{font-size:9px;letter-spacing:.04em;padding:7px 5px;hyphens:auto;overflow-wrap:break-word} .dense td{padding:6px 5px} .dense td:first-child{width:24%;min-width:9em}
+table.roomy{font-size:13.5px}
+/* Stacked cards: one card per row, header labels beside each value. */
+table.stack, table.stack tbody, table.stack tr, table.stack td{display:block;width:100%}
+table.stack{border-top:none}
+table.stack thead{display:none}
+table.stack tr{border-top:2px solid var(--ink);padding:10px 0 6px;margin-bottom:12px;break-inside:avoid}
+table.stack tbody tr:nth-child(even) td{background:none}
+table.stack td{border:none;padding:3px 0;display:grid;grid-template-columns:minmax(8em,30%) 1fr;gap:14px}
+table.stack td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);padding-top:3px}
+table.stack td:first-child{display:block;font-weight:700;font-size:15.5px;padding-bottom:6px}
+table.stack td:first-child::before{display:none}
+
+/* Phones: every table becomes cards. */
+@media (max-width:640px){
+  body{font-size:16px}
+  .toc ol{columns:1}
+  h2.sec{font-size:27px;margin-top:56px}
+  table.tbl, table.tbl tbody, table.tbl tr, table.tbl td{display:block;width:100%}
+  table.tbl{border-top:none}
+  table.tbl thead{display:none}
+  table.tbl tr{border-top:2px solid var(--ink);padding:8px 0 4px;margin-bottom:10px}
+  table.tbl tbody tr:nth-child(even) td{background:none}
+  table.tbl td{border:none;padding:3px 0;display:grid;grid-template-columns:42% 1fr;gap:10px}
+  table.tbl td::before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);padding-top:3px}
+  table.tbl td:first-child{display:block;font-weight:700}
+  table.tbl td:first-child::before{display:none}
+}
+
+/* Print / PDF */
+@page{size:A4;margin:20mm 18mm 20mm 18mm;
+  @bottom-left{content:"ABSTRACTION FOR AI WORK";font-family:"IBM Plex Mono",Consolas,monospace;font-size:7pt;letter-spacing:.25em;color:#8a8e99}
+  @bottom-right{content:counter(page);font-family:"IBM Plex Mono",Consolas,monospace;font-size:8pt;color:#8a8e99}}
+@page :first{@bottom-left{content:none}@bottom-right{content:none}}
+@media print{
+  body{font-size:10.4pt;line-height:1.5;padding:0}
+  .page{max-width:none}
+  .cover{min-height:238mm;break-after:page;border-bottom:none;padding-block:10mm 0}
+  .toc{break-after:page;border-bottom:none}
+  h2.sec{break-before:page;margin-top:0;border-top:none;font-size:24pt}
+  h3{break-after:avoid;font-size:12.5pt}
+  figure.fig,blockquote,pre{break-inside:avoid}
+  figure.fig img{max-height:205mm;width:auto;max-width:100%;margin:0 auto}
+  table.tbl{font-size:8.6pt} .tbl th{font-size:6.8pt} table.dense{font-size:7.6pt} .dense th{font-size:6.2pt}
+  .tbl tr{break-inside:avoid}
+  .tbl thead{display:table-header-group}
+  table.stack thead{display:none}
+  table.stack td:first-child{font-size:10pt}
+  a{color:inherit;text-decoration:none}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style><main style="max-width:760px;margin:24px auto"><h3>A Jig script calling a Jig script</h3>
+<p><strong>Levels stack.</strong> A Jig script can itself become a step. Declared as a command, with its inputs as variables and its <code>result</code> as an answer checked against a schema like any other, a whole way of working is called as one line from the level above. The game script, about forty lines with its build, tests, verification, fix rounds and review, becomes <code>make_game</code>. Like any single step, it declares the shape of its answer, so <code>r.output.id</code> and <code>r.output.tests</code> below are checked against that schema when the game script returns, before the factory reads them. This is the whole factory that builds three games at the same time, without its comments:</p>
+<pre><code>GAMES = [{"id": "PONG-003", "file": "pong.md"},
+         {"id": "TETRIS-002", "file": "tetris.md"},
+         {"id": "SNAKE-002", "file": "snake.md"}]
+
+results = make_game(each=GAMES, parallel=3)
+
+passed = []
+for r in results:
+    if r.status == "completed":
+        passed.append(r.output.id)
+    elif r.output and "tests" in r.output:
+        print(f"{r.output.id} needs a look: tests {r.output.tests}, verify {r.output.verdict}")
+    else:
+        print("a game stopped early; see its record in .jig/")
+
+print(f"{len(passed)} of {len(GAMES)} games pass: {passed}")
+if len(passed) != len(GAMES):
+    fail(f"{len(GAMES) - len(passed)} game(s) did not pass")</code></pre>
+<p>Run on 14 November 2026, the three games were built at the same time in five minutes, and each passed its tests and had every must-have requirement verified, with no fix rounds. The inner steps are still checked and recorded on their own artifacts, so one can always go down a level and look, which is what section 02 asks of a level. A way of working rated at one level can then be used as a component at the next, as a rated bolt is in a machine. The syntax is in the language reference (<a href="https://runcor-ai.github.io/jig/language#calling-another-script">calling another script</a>) and the command format in <a href="https://runcor-ai.github.io/jig/commands#script-commands-a-script-as-one-step">script commands</a>; the factory and the game script are <a href="https://github.com/runcor-ai/jig/blob/master/factory/factory.jig"><code>factory/factory.jig</code></a> and <a href="https://github.com/runcor-ai/jig/blob/master/factory/game.jig"><code>factory/game.jig</code></a>.</p>
+
+</main>
