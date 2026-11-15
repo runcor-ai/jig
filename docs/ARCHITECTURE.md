@@ -107,8 +107,8 @@ the resulting way of working on sealed cases, with its failure modes and its unc
 experiment: the thinking behind working with AI at scale, from generating work to measuring it, because the work
 can no longer be done in the weeds.
 
-- **Subtitle:** Why AI work cannot scale through prompts and orchestration scripts, and what a layer of abstraction
-  must separate, check and measure.
+- **Subtitle:** Why AI work cannot scale while the way of working is buried in the plumbing, and what a layer of
+  abstraction must separate, check and measure.
 - **Thesis statement:** AI work cannot scale through ad-hoc prompts or brittle orchestration scripts. A prompt
   mixes what is wanted, what the model sees, what it may do and how its answer is judged into one string; an
   orchestration script adds plumbing around it. At that level every success is the agent's own report, and nothing

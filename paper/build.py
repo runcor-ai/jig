@@ -373,7 +373,7 @@ def page(body, toc, subtitle, started, updated):
     <h1>Abstraction for AI Work</h1>
     <p class="sub">{htmlmod.escape(subtitle or "Controlling complexity by working with AI at the right level, and measuring that the level holds")}</p>
     <div class="lede">
-      <p>A biologist explaining a heartbeat does not talk about quantum physics. Every field controls complexity by working at the right level. AI work has no such level yet: we still work in the weeds, prompt by prompt.</p>
+      <p>A biologist explaining a heartbeat does not talk about quantum physics. Every field controls complexity by working at the right level. AI tooling has built powerful machinery: agent teams, hooked harnesses, orchestration frameworks. The way of working itself is still buried inside it, hard to read, change or measure as a unit.</p>
       <p>This paper argues for one: scripts of contracted steps, with the prompts one level down, and every claim checked and every way of working measured before it is trusted.</p>
     </div>
   </div>
