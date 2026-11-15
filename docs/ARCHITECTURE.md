@@ -6,9 +6,9 @@ this, this wins.
 
 ## 0. The thesis, mapped to the code
 
-> AI work cannot scale through ad-hoc prompts or brittle orchestration scripts. It must operate at a dedicated
-> layer of abstraction that separates the definition of the work from the mechanics of executing it, and treats
-> measurement at scale as a property of the layer rather than an afterthought.
+> AI work cannot scale while the way of working is buried in the plumbing. It needs a dedicated layer of
+> abstraction that lifts the definition of the work above the mechanics of executing it, checks every claim before
+> it is used, and treats measurement at scale as a property of the layer rather than an afterthought.
 
 | Thesis claim | What the code does | Holds? |
 |---|---|---|
@@ -104,18 +104,19 @@ evidence checks, composed by a restricted script whose every agent call is a vis
 the resulting way of working on sealed cases, with its failure modes and its uncertainty.
 
 **Decision (14 Nov 2026):** keep the title **Abstraction for AI Work**. The paper is a thought paper with a short
-experiment: the thinking behind working with AI at scale, from generating work to measuring it, because the work
-can no longer be done in the weeds.
+experiment: the thinking behind working with AI at scale, from generating work to measuring it, because the way
+of working can no longer stay buried in the plumbing.
 
 - **Subtitle:** Why AI work cannot scale while the way of working is buried in the plumbing, and what a layer of
   abstraction must separate, check and measure.
-- **Thesis statement:** AI work cannot scale through ad-hoc prompts or brittle orchestration scripts. A prompt
-  mixes what is wanted, what the model sees, what it may do and how its answer is judged into one string; an
-  orchestration script adds plumbing around it. At that level every success is the agent's own report, and nothing
-  is precise enough to be compared, repeated or measured. AI work must move to a layer of abstraction that
-  separates the definition of the work from the mechanics of executing it, checks every claim before it is used,
-  and makes measurement at scale a property of the layer: only a precise, versioned definition of a way of working
-  can be run on many cases, compared, taken apart and rated.
+- **Thesis statement:** The machinery for AI work is now strong: orchestration frameworks, agent teams, and harnesses with deterministic
+  hooks. What is missing is a level above it. The way of working is spread across prompts in code, tool rules in
+  configs, checks in hook scripts and coordination in agent messages, so it is hard to read as a whole, every
+  change touches the plumbing, success is often the agent's own report, and the process is rarely a unit precise
+  enough to be compared, repeated or measured. To happen reliably at scale, AI work needs a dedicated layer of
+  abstraction that lifts the definition of the work above the mechanics of executing it, checks every claim before
+  it is used, and makes measurement at scale a property of the layer: only a precise, versioned definition of a
+  way of working can be run on many cases, compared, taken apart and rated.
 
 ## 4. Where Jig sits
 
@@ -133,11 +134,11 @@ broader than one row can show. The last row lists only what Jig's code implement
 
 ## 5. The opening narrative (applied in README.md and the paper)
 
-> Working with an AI agent directly means working in the weeds: wording prompts, granting tools, and accepting the
-> agent's own report that the job is done. Orchestration scripts move the weeds rather than leaving them: the prompts
-> are still in the code, success is whatever the script happens to parse, and changing one step means editing
-> plumbing. Under variance (the same request giving different results), many people (each encoding their own
-> judgement) and scale (many items, many runs), that breaks down, and nothing is precise enough to measure.
+> The machinery for AI work is now strong: orchestration frameworks, agent teams, and harnesses with deterministic
+> hooks. What is missing is a level above it. The way of working is spread across prompts in code, tool rules in
+> configs, checks in hook scripts and coordination in agent messages, so it is hard to read as a whole, every
+> change touches the plumbing, success is often the agent's own report, and the process is rarely a unit precise
+> enough to be compared, repeated or measured.
 >
 > Jig moves the work up a level. The script defines the work: which steps, in what order, with which inputs and
 > which agent, and what to do when a check fails. Each step's mechanics (its prompt, tools, answer format and checks)

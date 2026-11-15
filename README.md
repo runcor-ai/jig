@@ -1,11 +1,10 @@
 # Jig v0.3
 
-**Jig is a layer of abstraction for AI work.** AI work cannot scale through ad-hoc prompts or brittle
-orchestration scripts. Working with an agent directly means working in the weeds: wording prompts, granting tools,
-and accepting the agent's own report that the job is done. Orchestration scripts move the weeds rather than leaving
-them: the prompts are still in the code, success is whatever the script happens to parse, and changing one step
-means editing plumbing. That works for one task watched closely. Under variance, many people and many runs, it
-breaks down, and nothing is precise enough to measure.
+**Jig is a layer of abstraction for AI work.** The machinery for AI work is now strong: orchestration frameworks,
+agent teams, and harnesses with deterministic hooks. What is missing is a level above it. The way of working is
+spread across prompts in code, tool rules in configs, checks in hook scripts and coordination in agent messages,
+so it is hard to read as a whole, every change touches the plumbing, success is often the agent's own report, and
+the process is rarely a unit precise enough to be compared, repeated or measured.
 
 Jig separates the **definition of the work** from the **mechanics of executing it**. The script says which steps
 run, in what order, with which inputs and which agent. Each step's prompt, tools, answer format and checks are
