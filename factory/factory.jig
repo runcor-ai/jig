@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# SOFTWARE FACTORY: three browser games, each built by make_game.
+# SOFTWARE FACTORY: three browser games, built at the same time by make_game.
 #
 # make_game is factory/game.jig used as one step (commands/make_game.yaml): for one
 # requirements file it runs specify, build, test, verify, up to 2 fix rounds and
@@ -7,24 +7,27 @@
 #
 #   py -m jig run factory/factory.jig --continue-on-error
 #
-# The games are built one after another (about 5 minutes and $1 each). To build
-# them at the same time instead, use batch (see factory/game.jig).
+# each= runs make_game once per game, each in its own process, parallel= at a time,
+# and waits for all of them. The results come back as a list, in the same order.
+# Three games take about as long as one (about 5 minutes, about $1 each).
 # ─────────────────────────────────────────────────────────────────────────────
 
-GAMES = [{"id": "PONG-001", "file": "pong.md"},
-         {"id": "TETRIS-001", "file": "tetris.md"},
-         {"id": "SNAKE-001", "file": "snake.md"}]
+GAMES = [{"id": "PONG-003", "file": "pong.md"},
+         {"id": "TETRIS-002", "file": "tetris.md"},
+         {"id": "SNAKE-002", "file": "snake.md"}]
+
+# One line starts all three and waits until every game has finished.
+results = make_game(each=GAMES, parallel=3)
 
 passed = []
-for g in GAMES:
-    r = make_game(g.file, id=g.id)
-    # A game that still fails after its fix rounds is reported, and the others go on.
+for r in results:
+    # A game that still fails after its fix rounds is reported; the others still count.
     if r.status == "completed":
-        passed.append(g.id)
+        passed.append(r.output.id)
     elif r.output and "tests" in r.output:
-        print(f"{g.id} needs a look: tests {r.output.tests}, verify {r.output.verdict}")
+        print(f"{r.output.id} needs a look: tests {r.output.tests}, verify {r.output.verdict}")
     else:
-        print(f"{g.id} stopped early; see its record in .jig/")
+        print("a game stopped early; see its record in .jig/")
 
 print(f"{len(passed)} of {len(GAMES)} games pass: {passed}")
 # The factory run counts as failed unless every game passes.

@@ -653,20 +653,20 @@ For each game, the script:
 Every step is recorded, so `py -m jig show PONG-001 verify` shows the full evidence for each requirement.
 
 **The same factory in a few lines.** [`factory/factory.jig`](https://github.com/runcor-ai/jig/blob/master/factory/factory.jig)
-calls `game.jig` as one step, `make_game` (`commands/make_game.yaml`), once per game:
+calls `game.jig` as one step, `make_game` (`commands/make_game.yaml`), for all three games at the same time:
 
 ```python
-for g in GAMES:
-    r = make_game(g.file, id=g.id)
+results = make_game(each=GAMES, parallel=3)     # one process per game; waits for all
+for r in results:
     if r.status == "completed":
-        passed.append(g.id)
+        passed.append(r.output.id)
 ```
 
 ```bash
 py -m jig run factory/factory.jig --continue-on-error
 ```
 
-This builds the games one after another; the batch command above builds them at the same time.
+One game is `make_game("pong.md", id="PONG-003")`; `each=` runs it for every game in the list.
 
 ---
 

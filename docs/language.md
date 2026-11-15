@@ -113,6 +113,17 @@ for g in GAMES:
 The call waits until the called script has finished. Assigning `result` has no effect when a script is run
 directly.
 
+To run a script command for many items at the same time, give it a list with `each=` and a cap with
+`parallel=`. Each item runs in its own process; the line waits for all of them and binds a list of results
+in the items' order:
+
+```python
+results = make_game(each=[{"id": "PONG-003", "file": "pong.md"},
+                          {"id": "SNAKE-002", "file": "snake.md"}], parallel=2)
+for r in results:
+    print(r.output.id, r.status)
+```
+
 ## Limits
 
 These stop runaway scripts. Set them in `jig.yaml`:

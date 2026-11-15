@@ -208,11 +208,11 @@ for attempt in range(3):
 </tbody>
 </table>
 </div><p>What is <strong>encapsulated</strong>, and therefore written once and changed in one place, is everything that makes a step work: its prompt, its tools, its answer format and its checks. What stays <strong>explicit</strong>, and therefore readable by anyone, is the definition of the work: which steps, in what order, with which inputs and which agent, and what to do when a check fails. A Jig script never contains a prompt or a tool permission, and unlike orchestration code it is never executed as general code: the runner interprets a small, fixed set of constructs and rejects the rest before anything runs.</p>
-<p><strong>Levels stack.</strong> A Jig script can itself become a step. Declared as a command, with its inputs as variables and its <code>result</code> as an answer checked against a schema like any other, a whole way of working is called as one line from the level above. The game factory's script, with its build, tests, verification, fix rounds and review, becomes <code>make_game</code>, and a factory of three games is a loop over it:</p>
-<pre><code>for g in GAMES:
-    r = make_game(g.file, id=g.id)       # a whole Jig script, as one step
+<p><strong>Levels stack.</strong> A Jig script can itself become a step. Declared as a command, with its inputs as variables and its <code>result</code> as an answer checked against a schema like any other, a whole way of working is called as one line from the level above. The game factory's script, with its build, tests, verification, fix rounds and review, becomes <code>make_game</code>, and a factory of three games, built at the same time, is a few lines over it:</p>
+<pre><code>results = make_game(each=GAMES, parallel=3)   # a whole Jig script, as one step, per game
+for r in results:
     if r.status != "completed":
-        print(f"{g.id} needs a look")</code></pre>
+        print(f"{r.output.id} needs a look")</code></pre>
 <p>Its inner steps are still checked and recorded on their own artifacts, so one can always go down a level and look, which is what section 02 asks of a level. A way of working rated at one level can then be used as a component at the next, as a rated bolt is in a machine.</p>
 
 <h2 id="04-what-the-layer-guarantees-and-what-it-does-not" class="sec"><span class="secnum">04</span><span class="sectitle">What the layer guarantees, and what it does not</span></h2>

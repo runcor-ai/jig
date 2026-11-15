@@ -105,9 +105,28 @@ output_schema:
 - **Re-running:** `--replace` and `--resume` on the outer script apply to the inner ones too. With
   `--resume`, a completed call is reused whole, and a failed one resumes inside, step by step.
 - **Limits:** scripts can call scripts up to `script.max_depth` deep (default 3), so a script that calls
-  itself stops. Calls run one after another; to build many items at the same time, use `jig batch`.
+  itself stops.
 
-`factory/factory.jig` uses `make_game` to build three games in a few lines.
+### Many items at the same time: `each=` and `parallel=`
+
+```python
+results = make_game(each=GAMES, parallel=3)    # GAMES: [{"id": "PONG-003", "file": "pong.md"}, ...]
+for r in results:
+    print(r.output.id, r.status)
+```
+
+- Each item is a map of the command's target variable (`file`) and parameters (`id`). Parameters given
+  outside `each=` apply to every item.
+- Every item runs in its own `jig run` process, as in a batch, with its own artifact, folder and ports;
+  at most `parallel` (default 3) run at once. The line waits until all have finished.
+- The result is a list, in the items' order, each entry exactly like the result of a single call. One
+  failed item does not stop the others. The step fails if any item failed; with `--continue-on-error` the
+  script reads each `r.status` and decides.
+- The step's run folder keeps each item's variables, result and stderr. Its cost is the total.
+- `--resume` reuses a completed parallel call, and resumes unfinished items inside, step by step.
+- `each=` works with script commands.
+
+`factory/factory.jig` builds three games at the same time in a few lines.
 
 ## Built-in commands
 

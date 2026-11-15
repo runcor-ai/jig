@@ -358,11 +358,14 @@ class Interp:
         self.results.append({"line": st.line, "source": st.source, "step": k, "result": res})
         if self.on_result:
             self.on_result(st, res)
+        # A parallel call (each=[...]) gives one result per item, bound as a list in the items' order.
+        many = isinstance(res.get("items"), list)
         if st.bind:
-            self.vars[st.bind] = Bound(res, st.bind)
+            self.vars[st.bind] = [Bound(x, st.bind) for x in res["items"]] if many else Bound(res, st.bind)
         elif st.bind_target is not None:
             try:
-                self.assign(st.bind_target, Bound(res, "result"))
+                self.assign(st.bind_target, [Bound(x, "result") for x in res["items"]] if many
+                            else Bound(res, "result"))
             except JigError as e:
                 self._script_error(st, e)
         if res["status"] in HALT_STATUSES:

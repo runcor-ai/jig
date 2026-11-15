@@ -7,7 +7,11 @@ from __future__ import annotations
 
 import copy
 import json
+import os
+import subprocess
+import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
@@ -24,7 +28,7 @@ from .sandbox import make_sandbox
 from .store import ID_RE, Store, write_json
 from .validators import VALIDATORS, ValidationContext, finding
 
-CONTROL_KEYS = {"approval_required", "max_attempts", "agent"}
+CONTROL_KEYS = {"approval_required", "max_attempts", "agent", "each", "parallel"}
 FILE_TOOLS = {"Read", "Grep", "Glob", "Write", "Edit", "Bash"}
 MAX_UNTRUSTED_CHARS = 200_000
 
@@ -52,6 +56,28 @@ class ExecContext:
         if self.artifact_id:
             e["JIG_ARTIFACT_ID"] = self.artifact_id
         return e
+
+
+def _script_outcome(cmd: Command, inner: dict) -> tuple[Any, list[dict], dict, list[dict]]:
+    """(output, findings, execution, steps) for a script run as one step, from its run_script summary."""
+    results = inner.get("results", [])
+    steps = [{"line": r["line"], "command": r["result"].get("command"), "status": r["result"].get("status"),
+              "artifact_id": r["result"].get("artifact_id"),
+              "run_id": (r["result"].get("execution") or {}).get("run_id")} for r in results]
+    costs = [(r["result"].get("execution") or {}).get("cost_usd") for r in results if not r["result"].get("skipped")]
+    findings = []
+    failed = [r for r in results if r["result"].get("status") != "completed"]
+    first = f"; first failed step, line {failed[0]['line']}: {_why(failed[0]['result'])}" if failed else ""
+    if inner.get("status") != "completed":
+        why = (inner.get("error") or {}).get("message") or f"{inner.get('step_failures', 0)} step(s) failed"
+        findings.append(finding("script_failed", f"{cmd['script']} {inner.get('status')}: {why}"
+                                                 f"{first if not inner.get('error') else ''}"))
+    elif "result" not in inner and failed:
+        findings.append(finding("script_failed", f"{cmd['script']} set no result{first}"))
+    execution = {"script": cmd["script"], "steps": len([s for s in steps if s["command"]]),
+                 "cost_usd": round(sum(c for c in costs if c), 6) if any(costs) else None}
+    output = inner.get("result")
+    return ({} if output is None else output), findings, execution, steps
 
 
 def _why(res: dict) -> str:
@@ -84,7 +110,8 @@ class Runtime:
         self._adapters = {self.adapter.name: self.adapter}
         self.sandbox = make_sandbox(sandbox) if isinstance(sandbox, str) or sandbox is None else sandbox
         self.echo = echo
-        self.script_depth = 0                            # scripts calling scripts (script commands)
+        self.script_depth = int(os.environ.get("JIG_SCRIPT_DEPTH") or 0)   # scripts calling scripts
+        self.jig_cmd = [sys.executable, "-m", "jig"]     # how a parallel call (each=) starts its processes
         self.script_flags: dict | None = None            # --replace / --resume of the outermost script run
 
     # ── contract ────────────────────────────────────────────────────────
@@ -103,6 +130,8 @@ class Runtime:
 
     # ── execute ─────────────────────────────────────────────────────────
     def execute(self, inv: dict) -> dict:
+        if {"each", "parallel"} & set(inv.get("controls") or {}):
+            return self._execute_each(inv)
         command = inv.get("command")
         run_id, run_dir = self.store.new_run(str(command))
         write_json(run_dir / "invocation.json", inv)
@@ -317,7 +346,8 @@ class Runtime:
             variables[cmd["target"].get("as", "target")] = ctx.target
         indent = "    " * (depth + 1)
         echo = self.echo
-        on_start = (lambda st: echo(f"{indent}> {cmd.name}, line {st.line}: {st.source.splitlines()[0]}"))             if echo else None
+        on_start = (lambda st: echo(f"{indent}> {cmd.name}, line {st.line}: {st.source.splitlines()[0]}")) \
+            if echo else None
         on_result = (lambda st, res: echo(f"{indent}  {res['command']}: {res['status']}")) if echo else None
         on_log = (lambda line: echo(f"{indent}| {line}")) if echo else None
         flags = self.script_flags or {}
@@ -329,27 +359,128 @@ class Runtime:
                                on_start=on_start, on_result=on_result, on_log=on_log, script_id=cmd["script"])
         finally:
             self.script_depth = depth
-        costs = [r["result"].get("execution", {}).get("cost_usd") for r in inner["results"]
-                 if not r["result"].get("skipped")]
-        steps = [{"line": r["line"], "command": r["result"].get("command"), "status": r["result"].get("status"),
-                  "artifact_id": r["result"].get("artifact_id"),
-                  "run_id": (r["result"].get("execution") or {}).get("run_id")} for r in inner["results"]]
+        output, findings, execution, steps = _script_outcome(cmd, inner)
         write_json(ctx.run_dir / "script.json", {"script": cmd["script"], "variables": variables,
                                                  "status": inner["status"], "error": inner.get("error"),
                                                  "steps": steps, "log": inner.get("log", [])})
-        findings = []
-        failed = [r for r in inner["results"] if r["result"].get("status") != "completed"]
-        first = f"; first failed step, line {failed[0]['line']}: {_why(failed[0]['result'])}" if failed else ""
-        if inner["status"] != "completed":
-            why = (inner.get("error") or {}).get("message") or f"{inner.get('step_failures', 0)} step(s) failed"
-            findings.append(finding("script_failed", f"{cmd['script']} {inner['status']}: {why}"
-                                                     f"{first if not inner.get('error') else ''}"))
-        elif "result" not in inner and failed:
-            findings.append(finding("script_failed", f"{cmd['script']} set no result{first}"))
-        execution = {"script": cmd["script"], "steps": len([s for s in steps if s["command"]]),
-                     "cost_usd": round(sum(c for c in costs if c), 6) if any(costs) else None}
-        output = inner.get("result")
-        return ({} if output is None else output), findings, execution
+        return output, findings, execution
+
+    # ── parallel calls: make_game(each=[...], parallel=3) ───────────────
+    def _execute_each(self, inv: dict) -> dict:
+        """A script command for every item of a list, each item in its own `jig run` process (as in a
+        batch), at most `parallel` at once. The result's `items` are the per-item results, in order, each
+        shaped like the result of a single call; the script binds them as a list."""
+        command, controls = inv.get("command"), dict(inv.get("controls") or {})
+        run_id, run_dir = self.store.new_run(f"{command}-each")
+        write_json(run_dir / "invocation.json", inv)
+        result = {"command": command, "status": "failed", "artifact_id": None, "output": None, "items": [],
+                  "validation": {"passed": False, "findings": []},
+                  "execution": {"run_id": run_id, "cost_usd": None, "parallel": None}, "error": None}
+        started = time.monotonic()
+        try:
+            jobs, parallel, cmd = self._each_jobs(inv, controls)
+            flags = self.script_flags or {}
+            if self.echo:
+                self.echo(f"    · {command}: {len(jobs)} item(s), {parallel} at a time")
+
+            def work(job: tuple[int, dict, dict, str]) -> dict:
+                n, params, variables, label = job
+                vars_path = run_dir / f"item-{n + 1}.vars.json"
+                write_json(vars_path, variables)
+                argv = [*self.jig_cmd, "--project", str(self.project_dir), "run", cmd["script_path"],
+                        "--vars", str(vars_path), "--json"]
+                argv += ["--continue-on-error"] if cmd["continue_on_error"] else []
+                argv += ["--resume"] if flags.get("resume") else []
+                argv += ["--replace"] if flags.get("replace") else []
+                argv += ["--sandbox", self.sandbox.name] if self.sandbox else []
+                if self.echo:
+                    self.echo(f"    · [start] {label}")
+                t0 = time.monotonic()
+                p = subprocess.run(argv, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                                   stdin=subprocess.DEVNULL,
+                                   env={**os.environ, "JIG_SCRIPT_DEPTH": str(self.script_depth + 1)})
+                (run_dir / f"item-{n + 1}.stderr.log").write_text(p.stderr, encoding="utf-8")
+                try:
+                    inner = json.loads(p.stdout)
+                except json.JSONDecodeError:
+                    inner = {"status": "failed", "results": [], "error": {
+                        "code": "E_SCRIPT", "message": f"runner exited {p.returncode}: {p.stderr[-300:]}"}}
+                write_json(run_dir / f"item-{n + 1}.result.json", inner)
+                res = self._item_result(cmd, inner, params, run_id, run_dir)
+                res["execution"].update(item=n + 1, wall_s=round(time.monotonic() - t0, 1))
+                if self.echo:
+                    self.echo(f"    · [{'done' if res['status'] == 'completed' else 'FAIL'}] {label}: "
+                              f"{res['status']} ({res['execution']['wall_s']}s)")
+                return res
+
+            with ThreadPoolExecutor(max_workers=parallel) as pool:
+                result["items"] = list(pool.map(work, jobs))
+            items = result["items"]
+            costs = [r["execution"].get("cost_usd") for r in items]
+            ok = sum(r["status"] == "completed" for r in items)
+            result["output"] = {"completed": ok, "total": len(items)}
+            result["execution"].update(parallel=parallel, cost_usd=round(sum(c for c in costs if c), 6)
+                                       if any(costs) else None)
+            findings = []
+            for i, r in enumerate(items):
+                if r["status"] != "completed":
+                    why = "; ".join(f["message"] for f in r["validation"]["findings"] if f["severity"] == "error")
+                    findings.append(finding("item_failed", f"item {i + 1}: {why[:400]}"))
+            result["validation"] = {"passed": not findings, "findings": findings}
+            result["status"] = "failed" if findings else "completed"
+            if findings:
+                result["error"] = {"code": "E_VALIDATION",
+                                   "message": f"{len(items) - ok} of {len(items)} item(s) did not complete"}
+        except JigError as e:
+            result["status"] = _status_for(e.code)
+            result["error"] = e.to_dict()
+        result["execution"]["duration_ms_wall"] = int((time.monotonic() - started) * 1000)
+        write_json(run_dir / "result.json", result)
+        self.store.append_log({"run_id": run_id, "command": command, "artifact_id": None,
+                               "status": result["status"], "error": result["error"], "items": len(result["items"]),
+                               "cost_usd": result["execution"].get("cost_usd")})
+        return result
+
+    def _each_jobs(self, inv: dict, controls: dict) -> tuple[list, int, Command]:
+        command = inv.get("command")
+        cmd = self.commands.get(command)
+        if cmd is None:
+            raise JigError("E_UNKNOWN_COMMAND", f"unknown command '{command}'")
+        items, parallel = controls.get("each"), controls.get("parallel", 3)
+        if cmd["mode"] != "script":
+            raise JigError("E_PARAM", f"{command}: each= works with script commands (mode: script)")
+        if not isinstance(items, list) or not items or not all(isinstance(i, dict) for i in items):
+            raise JigError("E_PARAM", f"{command}: each= needs a non-empty list of maps, one per item")
+        if not isinstance(parallel, int) or isinstance(parallel, bool) or parallel < 1:
+            raise JigError("E_PARAM", f"{command}: parallel= must be a whole number of at least 1")
+        if inv.get("target") is not None:
+            raise JigError("E_PARAM", f"{command}: with each=, every item carries its own target")
+        max_depth = int((self.config.get("script") or {}).get("max_depth", 3))
+        if self.script_depth >= max_depth:
+            raise JigError("E_SCRIPT", f"{command}: scripts nested more than {max_depth} deep (script.max_depth)")
+        tvar = cmd["target"].get("as", "target") if cmd["target"]["type"] != "none" else None
+        shared = inv.get("parameters") or {}
+        jobs = []
+        for n, item in enumerate(items):
+            params = self._validate_params(cmd, {**shared, **{k: v for k, v in item.items() if k != tvar}})
+            variables = dict(params)
+            if tvar:
+                if cmd["target"].get("required") and item.get(tvar) is None:
+                    raise JigError("E_PARAM", f"{command}: item {n + 1} has no '{tvar}' (the target)")
+                variables[tvar] = item.get(tvar)
+            jobs.append((n, params, variables, str(variables.get("id") or variables.get(tvar) or n + 1)))
+        return jobs, parallel, cmd
+
+    def _item_result(self, cmd: Command, inner: dict, params: dict, run_id: str, run_dir: Path) -> dict:
+        output, findings, execution, steps = _script_outcome(cmd, inner)
+        validation = self.validate_output(cmd, output, ExecContext(cmd.name, cmd, None, params, {}, run_id, run_dir))
+        findings = findings + validation["findings"]
+        passed = not any(f["severity"] == "error" for f in findings)
+        return {"command": cmd.name, "status": "completed" if passed else "failed", "artifact_id": None,
+                "output": output, "validation": {"passed": passed, "findings": findings},
+                "execution": {**execution, "inner_steps": steps},
+                "error": None if passed else {"code": "E_VALIDATION", "message": "output failed validation; "
+                                                                                  "see findings"}}
 
     # ── agent execution ─────────────────────────────────────────────────
     def agent_settings(self, cmd: Command) -> dict:

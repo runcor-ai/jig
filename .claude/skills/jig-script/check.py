@@ -48,12 +48,14 @@ def main() -> int:
     for s in calls:
         c = cmds[s.command]
         allowed = set(c["parameters"]) | {"max_attempts", "approval_required", "agent"}   # accepted by every command
+        if c["mode"] == "script":
+            allowed |= {"each", "parallel"}                    # a parallel call: make_game(each=[...], parallel=3)
         for k in s.kwargs:
             if k not in allowed:
                 problems.append(f"line {s.line}: {s.command}() has no parameter '{k}' "
                                 f"(has: {', '.join(sorted(allowed)) or 'none'})")
         tgt = c["target"]
-        if tgt.get("required") and tgt.get("type") != "none" and s.target is None:
+        if tgt.get("required") and tgt.get("type") != "none" and s.target is None and "each" not in s.kwargs:
             problems.append(f"line {s.line}: {s.command}() needs a target")
     for p in problems:
         print(p)

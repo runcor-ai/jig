@@ -54,7 +54,7 @@ Requirements: Python 3.11+ with `pyyaml` and `jsonschema`, and the `claude` CLI 
 Node.js for the example apps, and Docker for `--sandbox docker`.
 
 ```bash
-py -m pytest -q                                  # 149 offline tests, no model calls
+py -m pytest -q                                  # 158 offline tests, no model calls
 py -m jig check                              # command definitions, agent, sandbox
 py -m jig commands                           # loaded commands and where they came from
 py -m jig run examples/pong.jig --replace    # build Pong (about 5 min)
@@ -200,18 +200,19 @@ whatever the script assigns to `result` comes back as the step's output, checked
 factory is then a few lines ([`factory/factory.jig`](factory/factory.jig)):
 
 ```python
-for g in GAMES:
-    r = make_game(g.file, id=g.id)          # specify, build, test, verify, fix rounds, review
+results = make_game(each=GAMES, parallel=3)    # all three at once: specify, build, test, verify, fix, review
+for r in results:
     if r.status == "completed":
-        passed.append(g.id)
+        passed.append(r.output.id)
 ```
 
 ```bash
-py -m jig run factory/factory.jig --continue-on-error    # one game after another
+py -m jig run factory/factory.jig --continue-on-error
 ```
 
-The inner steps are still checked and recorded on their own artifacts, and `--resume` continues inside a
-nested call. Calls run one after another; `batch` above runs the games at the same time. See
+`each=` runs the step once per item, each in its own process as in a batch, and returns the results as a
+list in order. The inner steps are still checked and recorded on their own artifacts, and `--resume`
+continues inside them. See
 [docs/commands.md](docs/commands.md#script-commands-a-script-as-one-step).
 
 First run, 14 November 2026: all three completed side by side in 5.5 minutes (reported usage $2.50).

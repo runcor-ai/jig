@@ -147,3 +147,75 @@ def test_the_repo_factory_is_a_few_lines_over_make_game(commands):
     assert commands["make_game"]["mode"] == "script"
     stmts = parse((ROOT / "factory" / "factory.jig").read_text(encoding="utf-8"), set(commands))
     assert [s.command for s in walk(stmts) if isinstance(s, Statement)] == ["make_game"]
+
+
+# ── parallel calls: make(each=[...], parallel=N), each item in its own process ──
+import sys as _sys  # noqa: E402
+from pathlib import Path as _Path  # noqa: E402
+
+FAKE_JIG = [_sys.executable, str(_Path(__file__).resolve().parent / "fake_jig.py")]
+
+PARALLEL = """
+GAMES = [{"id": "PONG-001", "file": "pong.md"}, {"id": "SNAKE-001", "file": "snake.md"},
+         {"id": "TETRIS-001", "file": "tetris.md"}]
+rs = make(each=GAMES, parallel=3)
+for r in rs:
+    print(r.output.id + ": " + r.status)
+"""
+
+
+def parallel_project(tmp_path, inner=INNER):
+    rt, adapter = project(tmp_path, inner=inner)
+    rt.jig_cmd = FAKE_JIG
+    return rt
+
+
+def test_a_parallel_call_runs_every_item_and_returns_a_list_in_order(tmp_path):
+    rt = parallel_project(tmp_path)
+    out = run_script(rt, PARALLEL)
+    assert out["status"] == "completed", out
+    assert out["log"] == ["PONG-001: completed", "SNAKE-001: completed", "TETRIS-001: completed"]
+    step = out["results"][0]["result"]
+    assert step["output"] == {"completed": 3, "total": 3} and step["execution"]["parallel"] == 3
+    assert [i["output"]["file"] for i in step["items"]] == ["pong.md", "snake.md", "tetris.md"]
+    for aid in ("PONG-001", "SNAKE-001", "TETRIS-001"):         # each game built in its own process
+        assert rt.store.manifest(aid)["stages"]["test"]["status"] == "completed"
+    assert [s["command"] for s in step["items"][0]["execution"]["inner_steps"]] == ["specify", "build", "test"]
+
+
+def test_one_failing_item_does_not_stop_the_others(tmp_path):
+    rt = parallel_project(tmp_path, inner=INNER.replace(
+        "if t.status", 'if id == "SNAKE-001":\n    fail("snake broke")\nif t.status'))
+    out = run_script(rt, PARALLEL, continue_on_error=True)
+    assert out["log"] == ["PONG-001: completed", "SNAKE-001: failed", "TETRIS-001: completed"]
+    step = out["results"][0]["result"]
+    assert step["status"] == "failed" and step["output"] == {"completed": 2, "total": 3}
+    assert "snake broke" in step["validation"]["findings"][0]["message"]
+    # without --continue-on-error a failed item stops the outer script after all items finished
+    (tmp_path / "b").mkdir()
+    rt2 = parallel_project(tmp_path / "b")
+    (tmp_path / "b" / "pipelines" / "make.jig").write_text('result = {"id": id, "tests": "x"}\nfail("no")\n')
+    out = run_script(rt2, PARALLEL)
+    assert out["status"] == "failed" and out["log"] == []
+
+
+def test_resume_reuses_a_completed_parallel_call(tmp_path):
+    rt = parallel_project(tmp_path)
+    assert run_script(rt, PARALLEL)["status"] == "completed"
+    out = run_script(rt, PARALLEL, resume=True)
+    assert out["status"] == "completed" and out["results"][0]["result"].get("skipped")
+    assert out["log"] == ["PONG-001: completed", "SNAKE-001: completed", "TETRIS-001: completed"]
+
+
+@pytest.mark.parametrize("call,msg", [
+    ('make(each=[], parallel=2)', "non-empty list"),
+    ('make(each=[{"file": "a.md", "id": "A-001"}], parallel=0)', "at least 1"),
+    ('make("a.md", each=[{"file": "a.md", "id": "A-001"}])', "carries its own target"),
+    ('make(each=[{"id": "A-001"}])', "has no 'file'"),
+    ('make(each=[{"file": "a.md", "nope": 1}])', "unknown parameter"),
+    ('specify(each=[{"x": 1}])', "works with script commands"),
+])
+def test_bad_parallel_calls(tmp_path, call, msg):
+    rt = parallel_project(tmp_path)
+    res = run_script(rt, call + "\n")["results"][0]["result"]
+    assert res["status"] == "failed" and msg in res["error"]["message"], res

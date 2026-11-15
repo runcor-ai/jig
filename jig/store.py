@@ -77,13 +77,25 @@ def write_json(path: Path, data: Any) -> None:
     fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".tmp-", suffix=".json")
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
-    os.replace(tmp, path)
+    _busy_retry(lambda: os.replace(tmp, path))
 
 
 def read_json(path: Path, default: Any = None) -> Any:
     if not path.exists():
         return default
-    return json.loads(path.read_text(encoding="utf-8"))
+    return json.loads(_busy_retry(lambda: path.read_text(encoding="utf-8")))
+
+
+def _busy_retry(fn, tries: int = 40, wait_s: float = 0.025):
+    """On Windows a file being replaced by another process (parallel items) is briefly locked, and
+    reading or replacing it raises PermissionError. Wait and try again, for up to about a second."""
+    for n in range(tries):
+        try:
+            return fn()
+        except PermissionError:
+            if n == tries - 1:
+                raise
+            time.sleep(wait_s)
 
 
 class Store:
