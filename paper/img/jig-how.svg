@@ -33,7 +33,7 @@
   <text x="366" y="66" font-weight="600" fill="#0b0b0b">Plain logic runs locally</text>
   <text x="366" y="88" fill="#52514e">ifs, loops, lists, text: instant, free</text>
   <line x1="310" y1="250" x2="346" y2="250" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
-  <path d="M 312 180 C 330 180, 330 80, 346 80" fill="none" stroke="#52514e" stroke-width="1.5" marker-end="url(#ar)"/>
+  <path d="M 310 150 H 326 Q 330 150 330 146 V 75 Q 330 71 334 71 H 347" fill="none" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
 
   <rect x="350" y="128" width="290" height="230" rx="10" fill="#fcfcfb" stroke="#2a78d6" stroke-width="1.5"/>
   <text x="366" y="154" font-weight="600" fill="#0b0b0b">Each step goes through its contract</text>
