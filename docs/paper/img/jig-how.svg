@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640" font-family="Segoe UI, system-ui, sans-serif" font-size="15">
+  <rect width="1000" height="640" fill="#fcfcfb"/>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#52514e"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1baf7a"/></marker>
+    <marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#eb6834"/></marker>
+  </defs>
+
+  <!-- 1. the person and the script -->
+  <text x="20" y="30" font-size="13" letter-spacing="2" fill="#898781">1  WRITE</text>
+  <rect x="20" y="42" width="290" height="58" rx="10" fill="#fcfcfb" stroke="#c3c2b7"/>
+  <text x="36" y="66" font-weight="600" fill="#0b0b0b">A person describes the work</text>
+  <text x="36" y="88" fill="#52514e">or the jig-script skill writes it</text>
+  <line x1="165" y1="100" x2="165" y2="124" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
+
+  <rect x="20" y="128" width="290" height="300" rx="10" fill="#eaf1fb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="36" y="154" font-weight="600" fill="#0b0b0b">A Jig script</text>
+  <g font-family="Consolas, ui-monospace, monospace" font-size="13.5" fill="#0b0b0b">
+    <text x="36" y="186"><tspan fill="#2a78d6" font-weight="600">spec = specify</tspan>(brief, format="facts")</text>
+    <text x="36" y="212"><tspan fill="#2a78d6" font-weight="600">build</tspan>(spec, agent="luna")</text>
+    <text x="36" y="238"><tspan fill="#898781">for</tspan> attempt <tspan fill="#898781">in</tspan> range(3):</text>
+    <text x="52" y="264">t = <tspan fill="#2a78d6" font-weight="600">test</tspan>(spec, run=TEST)</text>
+    <text x="52" y="290">v = <tspan fill="#2a78d6" font-weight="600">verify</tspan>(spec)</text>
+    <text x="52" y="316"><tspan fill="#898781">if</tspan> t.status == "completed" ...:</text>
+    <text x="68" y="342"><tspan fill="#898781">break</tspan></text>
+    <text x="52" y="368"><tspan fill="#2a78d6" font-weight="600">build</tspan>(spec, notes=gaps)</text>
+  </g>
+  <text x="36" y="404" fill="#52514e" font-size="13.5">blue = a step (an AI agent, or test: no AI)</text>
+
+  <!-- 2. the runner -->
+  <text x="350" y="30" font-size="13" letter-spacing="2" fill="#898781">2  THE RUNNER READS IT, LINE BY LINE</text>
+  <rect x="350" y="42" width="290" height="58" rx="10" fill="#fcfcfb" stroke="#c3c2b7"/>
+  <text x="366" y="66" font-weight="600" fill="#0b0b0b">Plain logic runs locally</text>
+  <text x="366" y="88" fill="#52514e">ifs, loops, lists, text: instant, free</text>
+  <line x1="310" y1="250" x2="346" y2="250" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M 312 180 C 330 180, 330 80, 346 80" fill="none" stroke="#52514e" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <rect x="350" y="128" width="290" height="230" rx="10" fill="#fcfcfb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="366" y="154" font-weight="600" fill="#0b0b0b">Each step goes through its contract</text>
+  <text x="366" y="176" fill="#52514e" font-size="13.5">written once, one level down</text>
+  <g fill="#0b0b0b">
+    <text x="366" y="208">• the prompt template</text>
+    <text x="366" y="236">• the tools it may use</text>
+    <text x="380" y="256" fill="#52514e" font-size="13.5">(verify can read but not change code)</text>
+    <text x="366" y="284">• the exact answer format</text>
+    <text x="366" y="312">• the code checks on the answer</text>
+    <text x="366" y="340">• who does it: <tspan font-weight="600">agent="opus" / "luna"</tspan></text>
+  </g>
+  <line x1="640" y1="243" x2="676" y2="243" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- 3. the agent -->
+  <text x="680" y="30" font-size="13" letter-spacing="2" fill="#898781">3  THE WORK</text>
+  <rect x="680" y="128" width="300" height="230" rx="10" fill="#fdf0e9" stroke="#eb6834" stroke-width="1.5"/>
+  <text x="696" y="154" font-weight="600" fill="#0b0b0b">An AI agent does the step</text>
+  <text x="696" y="180" fill="#0b0b0b">Claude Opus through Claude Code,</text>
+  <text x="696" y="202" fill="#0b0b0b">or GPT-6 Luna through Codex,</text>
+  <text x="696" y="224" fill="#0b0b0b">inside its tool boundary</text>
+  <line x1="696" y1="244" x2="964" y2="244" stroke="#e1e0d9"/>
+  <text x="696" y="270" font-weight="600" fill="#0b0b0b">or no AI at all</text>
+  <text x="696" y="294" fill="#0b0b0b">test runs the real test commands</text>
+  <text x="696" y="316" fill="#0b0b0b">and reads the real reports</text>
+  <text x="696" y="342" fill="#52514e" font-size="13.5">facts, not a model's opinion</text>
+  <line x1="830" y1="358" x2="830" y2="390" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- 4. checks -->
+  <text x="680" y="384" font-size="13" letter-spacing="2" fill="#898781" text-anchor="end" transform="translate(-14,0)">4  CHECKED</text>
+  <rect x="560" y="394" width="420" height="104" rx="10" fill="#fcfcfb" stroke="#1baf7a" stroke-width="1.5"/>
+  <text x="576" y="420" font-weight="600" fill="#0b0b0b">Every answer is checked by code, not trusted</text>
+  <text x="576" y="444" fill="#0b0b0b">files it claims exist · functions it cites are in the file</text>
+  <text x="576" y="466" fill="#0b0b0b">tests it cites really ran · the verdict is computed</text>
+  <text x="576" y="488" fill="#52514e" font-size="13.5">a failed check: one retry, with the problems listed</text>
+  <path d="M 980 446 C 1000 446, 1000 243, 984 243" fill="none" stroke="#eb6834" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ao)"/>
+
+  <!-- 5. result back -->
+  <rect x="20" y="452" width="500" height="96" rx="10" fill="#fcfcfb" stroke="#1baf7a" stroke-width="1.5"/>
+  <text x="36" y="478" font-weight="600" fill="#0b0b0b">5  The result goes back to the script</text>
+  <text x="36" y="502" fill="#0b0b0b">spec.status · v.output.verdict · t.status ...</text>
+  <text x="36" y="526" fill="#52514e" font-size="13.5">so the next line can decide: stop, fix, or move on</text>
+  <line x1="556" y1="446" x2="524" y2="490" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
+  <line x1="165" y1="452" x2="165" y2="432" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
+
+  <!-- records and rating -->
+  <rect x="560" y="516" width="420" height="32" rx="8" fill="#f6f6f3" stroke="#e1e0d9"/>
+  <text x="576" y="537" fill="#52514e" font-size="13.5">Recorded: every prompt, answer, check and cost (.jig/)</text>
+
+  <rect x="20" y="572" width="960" height="52" rx="10" fill="#f6f6f3" stroke="#c3c2b7"/>
+  <text x="36" y="595" font-weight="600" fill="#0b0b0b">Above it all: the whole script is a way of working</text>
+  <text x="36" y="615" fill="#52514e" font-size="13.5">The Reality Engine runs it on unseen cases and rates it: how often it is right, why it fails, and which steps matter.</text>
+</svg>
