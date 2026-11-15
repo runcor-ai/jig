@@ -24,17 +24,31 @@ if v.output.verdict.result != "pass":
 
 ## Play what it made
 
-These three games were built side by side by Jig's game factory, in 5.5 minutes, from three short
-requirement files. Each passed its real tests and had every requirement verified against the code:
+Jig's game factory builds a browser game from a short requirements file: spec, code, real tests, every
+requirement checked against the code, up to two fix rounds, and a code review. It has built the same three
+games twice, from the same requirement files:
 
-| Game | Requirements | Tests | Play |
+| Game | Requirements | Version 1 | Version 2 |
 |---|---|---|---|
-| Pong | [pong.md](https://github.com/runcor-ai/jig/blob/master/requirements/pong.md) | 36 passed | **[Play Pong](play/pong/)** |
-| Falling blocks | [tetris.md](https://github.com/runcor-ai/jig/blob/master/requirements/tetris.md) | 41 passed | **[Play falling blocks](play/tetris/)** |
-| Snake | [snake.md](https://github.com/runcor-ai/jig/blob/master/requirements/snake.md) | 26 passed | **[Play Snake](play/snake/)** |
+| Pong | [pong.md](https://github.com/runcor-ai/jig/blob/master/requirements/pong.md) | 36 tests passed · **[Play](play/pong/)** | 48 tests passed · **[Play](play/pong-v2/)** |
+| Falling blocks | [tetris.md](https://github.com/runcor-ai/jig/blob/master/requirements/tetris.md) | 41 tests passed · **[Play](play/tetris/)** | 31 tests passed · **[Play](play/tetris-v2/)** |
+| Snake | [snake.md](https://github.com/runcor-ai/jig/blob/master/requirements/snake.md) | 26 tests passed · **[Play](play/snake/)** | 21 tests passed · **[Play](play/snake-v2/)** |
 
-The script that made them: [factory/game.jig](https://github.com/runcor-ai/jig/blob/master/factory/game.jig).
-The code review still found small defects in each.
+Every game passed its tests and had every must-have requirement verified, with no fix rounds needed. The
+code review still found small defects in each, and the two versions differ: the requirements fix what a
+game must do, not how it is written.
+
+- **Version 1** came from a batch run of the one-game script,
+  [factory/game.jig](https://github.com/runcor-ai/jig/blob/master/factory/game.jig): 5.5 minutes for all three.
+- **Version 2** came from [factory/factory.jig](https://github.com/runcor-ai/jig/blob/master/factory/factory.jig),
+  a Jig script that calls `game.jig` as one step for all three games at the same time: 5.0 minutes, $1.99.
+
+```python
+GAMES = [{"id": "PONG-003", "file": "pong.md"},
+         {"id": "TETRIS-002", "file": "tetris.md"},
+         {"id": "SNAKE-002", "file": "snake.md"}]
+results = make_game(each=GAMES, parallel=3)     # game.jig, once per game, all at once
+```
 
 ## Read
 
@@ -53,7 +67,7 @@ The code review still found small defects in each.
 git clone https://github.com/runcor-ai/jig && cd jig
 py -m pytest -q                      # offline tests, no model calls
 py -m jig check                      # command definitions, agent, sandbox
-py -m jig batch factory/games.yaml --script factory/game.jig --parallel 3 --continue-on-error
+py -m jig run factory/factory.jig --continue-on-error              # the three games, at the same time
 ```
 
 Requirements: Python 3.11+ with `pyyaml` and `jsonschema`, the `claude` CLI logged in, and Node.js for

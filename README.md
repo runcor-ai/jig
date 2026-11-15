@@ -212,10 +212,22 @@ py -m jig run factory/factory.jig --continue-on-error
 
 `each=` runs the step once per item, each in its own process as in a batch, and returns the results as a
 list in order. The inner steps are still checked and recorded on their own artifacts, and `--resume`
-continues inside them. See
-[docs/commands.md](docs/commands.md#script-commands-a-script-as-one-step).
+continues inside them. See [docs/commands.md](docs/commands.md#script-commands-a-script-as-one-step).
 
-First run, 14 November 2026: all three completed side by side in 5.5 minutes (reported usage $2.50).
+Version 2 of the three games, 14 November 2026, from `factory/factory.jig`: all three built at the same
+time in 5.0 minutes (reported usage $1.99).
+
+| Game | Requirements | Tests | Verdict | Fix rounds | Review findings |
+|---|---|---|---|---|---|
+| `PONG-003` | 12 (10 must) | 48 passed | pass | 0 | 3 low |
+| `TETRIS-002` (falling blocks) | 13 (12 must) | 31 passed | pass | 0 | 4 low |
+| `SNAKE-002` | 11 (10 must) | 21 passed | pass | 0 | 1 medium, 2 low |
+
+Review still flagged issues the tests passed, for example a Snake tick timer that restarts on every
+direction change. [Play both versions on the website](https://runcor-ai.github.io/jig/).
+
+Version 1, the first run, 14 November 2026, from the batch command above: all three completed side by side
+in 5.5 minutes (reported usage $2.50).
 
 | Game | Requirements | Tests | Verdict | Fix rounds | Review findings |
 |---|---|---|---|---|---|
