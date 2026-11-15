@@ -8,13 +8,16 @@ this, this wins.
 
 > AI work cannot scale while the way of working is buried in the plumbing. It needs a dedicated layer of
 > abstraction that lifts the definition of the work above the mechanics of executing it, checks every claim before
-> it is used, and treats measurement at scale as a property of the layer rather than an afterthought.
+> it is used, and treats measurement at scale as a property of the layer rather than an afterthought. The layer
+> is a control plane, not an orchestrator: it governs what work is permitted, what counts as verified evidence, and
+> how reliable a way of working is shown to be, whoever does each step.
 
 | Thesis claim | What the code does | Holds? |
 |---|---|---|
 | **The unit of work is defined above the prompt** | The unit is a step: one command call under a contract, on an artifact (section 1). A script names steps, inputs and agents; it never contains a prompt or a tool permission | Yes |
 | **Mechanics are abstracted** | Encapsulated in the command definition, one level down: the prompt template (`*.md`), the tool policy, the output JSON Schema, the validators and post-processors, the retry rule, the timeout, the `requires` stages (`jig/loader.py`, `jig/commands/`). Encapsulated in the runtime: agent invocation and flags (`jig/adapters/`), event parsing, cost capture, context injection, artifact storage, the step journal, batch processes, ports and locks | Yes |
 | **Definition is decoupled from execution** | The same script runs with a different agent per step (`agent="opus"` / `"luna"`, two adapters), under `--sandbox docker`, as one run or a parallel batch, and resumes with `--resume`. Changing a prompt, a check or a model changes no script | Yes, for two agent hosts |
+| **A control plane, whoever does the step** | The script names each step's worker. Models through two adapters, chosen per step with `agent=` (`jig/adapters/`, `runtime.agent_for`); deterministic code as a procedure with no model (`test`, `jig/procedures.py`); a whole script as one step (`mode: script`, `runtime._run_script_step`, `_execute_each`). The contract, checks and record are the same for each. Human experts as a worker (`agent="experts"`) are a design only (`docs/design/expert-agents.md`) | Yes for models, code and sub-scripts; **not built** for human experts. The shipped checks suit building and research; other work needs new contracts and checks |
 | **Claims are checked, not trusted** | Schema validation, evidence validators, a model-free `test` procedure and a computed verdict (sections 1–2) | For evidence and consistency, not meaning (section 2) |
 | **Measurement is built in** | Every way of working is plain, versionable files (a script plus command definitions with a `version` field). Every step writes the same structured record under `.jig/runs/`: inputs, prompt, agent events, validated output, findings, cost. `jig batch` runs one script over many items with a per-item summary | **In part.** The layer makes ways of working measurable: a precise unit, uniform records, repeatable runs. It does not compute ratings, ranges or significance; those come from an external instrument (in the pilot study, The Reality Engine) |
 
@@ -120,6 +123,12 @@ of working can no longer stay buried in the plumbing.
   it is used, and makes measurement at scale a property of the layer: only a precise, versioned definition of a
   way of working can be run on many cases, compared, taken apart and rated.
 
+**Version 0.5 (15 Nov 2026):** the paper frames the layer as a **control plane, not an orchestrator**:
+orchestration frameworks manage how agents run and coordinate; this layer governs what work is permitted, what
+counts as verified evidence, and how reliable a way of working is shown to be, whoever does each step (a frontier
+or small model, deterministic code, a sub-script, or, planned, human experts). Section 03 adds a non-code example,
+a regulatory review, stated as a design: only `research` and its source checks ship today.
+
 ## 4. Where Jig sits
 
 Descriptions of other approaches are of their general design, at the level of their public documentation; each is
@@ -147,3 +156,7 @@ broader than one row can show. The last row lists only what Jig's code implement
 > are written once, one level down, and the runtime executes them on whichever agent host the script names. Because
 > a way of working is now a precise, versioned definition that leaves the same record on every run, it can be run
 > on many cases, compared with another, taken apart and rated.
+>
+> It is a control plane, not an orchestrator: orchestration frameworks manage how agents run and coordinate; Jig
+> governs what work is permitted, what counts as verified evidence, and how reliable a way of working is shown to
+> be, whoever does each step: a model, deterministic code, another Jig script, or (planned) human experts.

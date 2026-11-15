@@ -12,6 +12,14 @@ written once, one level down, and the runtime runs them on whichever agent host 
 working is then a precise, versioned definition that leaves the same record on every run, it can be run on many
 cases, compared, taken apart and rated.
 
+**A control plane, not an orchestrator.** Orchestration frameworks manage how agents run and coordinate. Jig
+sits above them: it governs what work is permitted (each step's tool policy), what counts as verified evidence
+(schemas, evidence checks and a computed verdict), and how reliable a way of working is shown to be (a versioned
+definition and the same record on every run, ready to be rated). It does not depend on who does a step: a frontier
+or small model (`agent="opus"`, `agent="luna"`), deterministic code (`test`), or another Jig script (`make_game`).
+Human experts as a worker (`agent="experts"`) are planned, not built. The shipped steps and checks are shaped for
+building software and for research; other kinds of work need their own contracts and checks.
+
 ```python
 spec = specify("A simple Pong game: two paddles, a ball, score to 10, player vs computer",
                constraints=["React + TypeScript + Vite, no backend"], id="PONG-001")
@@ -45,7 +53,7 @@ it. The details, with every claim tied to the code and a comparison with DSPy, L
 Commands are plugins. The five built-ins use exactly the format you use to add your own.
 
 **Website:** <https://runcor-ai.github.io/jig/>, with the guide, the thought paper
-([Abstraction for AI Work](https://runcor-ai.github.io/jig/paper/), with a short experiment).
+([Abstraction for AI Work](https://runcor-ai.github.io/jig/paper/), Version 0.5, with a short experiment).
 
 ## Quick start
 
