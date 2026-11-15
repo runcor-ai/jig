@@ -36,7 +36,7 @@
   <path d="M 310 150 H 326 Q 330 150 330 146 V 75 Q 330 71 334 71 H 347" fill="none" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
 
   <rect x="350" y="128" width="290" height="230" rx="10" fill="#fcfcfb" stroke="#2a78d6" stroke-width="1.5"/>
-  <text x="366" y="154" font-weight="600" fill="#0b0b0b">Each step goes through its contract</text>
+  <text x="366" y="154" font-weight="600" fill="#0b0b0b">Each step runs under its contract</text>
   <text x="366" y="176" fill="#52514e" font-size="13.5">written once, one level down</text>
   <g fill="#0b0b0b">
     <text x="366" y="208">• the prompt template</text>
@@ -49,7 +49,7 @@
   <line x1="640" y1="243" x2="676" y2="243" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
 
   <!-- 3. the agent -->
-  <text x="680" y="30" font-size="13" letter-spacing="2" fill="#898781">3  THE WORK</text>
+  <text x="680" y="30" font-size="13" letter-spacing="2" fill="#898781">3  EXECUTION: AN AGENT, OR CODE</text>
   <rect x="680" y="128" width="300" height="230" rx="10" fill="#fdf0e9" stroke="#eb6834" stroke-width="1.5"/>
   <text x="696" y="154" font-weight="600" fill="#0b0b0b">An AI agent does the step</text>
   <text x="696" y="180" fill="#0b0b0b">Claude Opus through Claude Code,</text>
@@ -63,7 +63,7 @@
   <line x1="830" y1="358" x2="830" y2="390" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
 
   <!-- 4. checks -->
-  <text x="680" y="384" font-size="13" letter-spacing="2" fill="#898781" text-anchor="end" transform="translate(-14,0)">4  CHECKED</text>
+  <text x="680" y="384" font-size="13" letter-spacing="2" fill="#898781" text-anchor="end" transform="translate(-14,0)">4  DETERMINISTIC CHECKS</text>
   <rect x="560" y="394" width="420" height="104" rx="10" fill="#fcfcfb" stroke="#1baf7a" stroke-width="1.5"/>
   <text x="576" y="420" font-weight="600" fill="#0b0b0b">Every answer is checked by code, not trusted</text>
   <text x="576" y="444" fill="#0b0b0b">files it claims exist · functions it cites are in the file</text>
@@ -80,10 +80,11 @@
   <line x1="165" y1="452" x2="165" y2="432" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
 
   <!-- records and rating -->
+  <line x1="770" y1="498" x2="770" y2="513" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
   <rect x="560" y="516" width="420" height="32" rx="8" fill="#f6f6f3" stroke="#e1e0d9"/>
-  <text x="576" y="537" fill="#52514e" font-size="13.5">Recorded: every prompt, answer, check and cost (.jig/)</text>
+  <text x="576" y="537" fill="#52514e" font-size="13.5">Recorded on the artifact: prompt, answer, checks, cost</text>
 
   <rect x="20" y="572" width="960" height="52" rx="10" fill="#f6f6f3" stroke="#c3c2b7"/>
-  <text x="36" y="595" font-weight="600" fill="#0b0b0b">Above it all: the whole script is a way of working</text>
+  <text x="36" y="595" font-weight="600" fill="#0b0b0b">Above it all: the whole Jig script is a way of working</text>
   <text x="36" y="615" fill="#52514e" font-size="13.5">The Reality Engine runs it on unseen cases and rates it: how often it is right, why it fails, and which steps matter.</text>
 </svg>
