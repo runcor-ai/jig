@@ -41,7 +41,7 @@ The code review still found small defects in each.
 | | |
 |---|---|
 | **[The Jig guide](guide.md)** | Start here: the language and every command, from the beginning |
-| **[Pilot study: Abstraction for AI Work](paper/)** ([PDF](paper/Abstraction-for-AI-Work.pdf)) | Jig measured by [The Reality Engine](https://therealityengine.ca): four ways of building software, the script taken apart step by step, and a trust score from sealed briefs |
+| **[Abstraction for AI Work](paper/)** ([PDF](paper/Abstraction-for-AI-Work.pdf)) | A thought paper: why AI work cannot scale through prompts and orchestration scripts, and what a layer of abstraction must separate, check and measure, with a short experiment measured by [The Reality Engine](https://therealityengine.ca) |
 | [Language reference](language.md) | Every statement, operator, data type and builtin |
 | [Commands](commands.md) | How commands are defined, and how to add your own |
 | [Safety model](safety.md) | Tool boundaries, the sandbox and known limits |

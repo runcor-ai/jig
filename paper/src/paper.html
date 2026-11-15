@@ -1,23 +1,27 @@
 <h1>Abstraction for AI Work</h1>
-<p><em>Controlling complexity by working with AI at the right level, and measuring that the level holds</em></p>
+<p><em>Why AI work cannot scale through prompts and orchestration scripts, and what a layer of abstraction must separate, check and measure</em></p>
 <p>LLM Jester · <time datetime="2026-11-14">14 November 2026</time></p>
 
 <h2>Summary</h2>
-<p>A biologist explaining how a heart pumps does not talk about quantum physics. Quantum physics is not wrong, and every heartbeat depends on it, but at the level of cells, muscles and blood its detail is summed up in a few reliable rules. Working at that level is what makes the problem possible to think about. Every mature field controls complexity this way, and each level can be trusted only as far as the level below has been measured to behave as assumed.</p>
-<p>Work with AI has no such levels yet. Every interaction happens at the bottom: prompt wording, tool permissions, model versions, and the agent's own account of what it did. This paper proposes a higher level, and tests it.</p>
-<p><strong>The level.</strong> <a href="https://github.com/runcor-ai/jig">Jig</a> is a small scripting language that describes AI work as <em>requirements</em>, <em>steps</em>, <em>results</em> and <em>checks</em>. A step such as <code>build(spec)</code> is a contract: what the agent may do, what its answer must contain, and how code checks the answer before the next step may use it. The prompts, tools, retries and records sit one level down, written once. The syntax is small and documented (<a href="https://runcor-ai.github.io/jig/guide">the Jig guide</a>, <a href="https://runcor-ai.github.io/jig/language">the language reference</a>), and nobody has to learn it first: a Claude Code skill in the Jig repository writes a Jig script from a plain-language request and checks it before anything runs (Appendix A).</p>
-<p><img src="img/jig-how.svg" alt="Figure 1: How a Jig script works. A person, or the jig-script skill, writes the script. The runner reads it line by line: plain logic runs locally for free, and each step goes through its contract (prompt template, tools, answer format, checks, and who does it) to an AI agent, or to no AI at all for the real tests. Every answer is checked by code, retried once if it fails, recorded, and handed back to the script, which decides what happens next. The whole script is a way of working that the Reality Engine rates."></p>
-<p><strong>The measurement.</strong> <a href="https://therealityengine.ca">The Reality Engine</a> tests AI systems "the way science tests ideas": every option on the same unseen cases, rules locked in advance, a sealed final check. Here it measured Jig's own way of building software. Four ways of working (the builder reading the spec as prose or as the FACTS notes that won the engine's first case study, built by Claude Opus or by the small, cheap GPT-6 Luna) were compared on six hard game briefs; the winner's script was then taken apart step by step; and the best design met the others on six sealed briefs. Every game was scored by hidden acceptance tests that no builder ever saw.</p>
-<p><strong>The result.</strong> The final design, Luna building from FACTS notes inside Jig's full script, passed all <strong>36 of 36</strong> hidden checks on the sealed briefs: a trust score of 100 percent. With every case passing, the honest statement is a bound: the true rate is very likely above about 90 percent per check, and above about 54 percent per brief. Every way of working, Opus and Luna alike, also passed all 144 checks of the hard comparison briefs. The take-apart found the one pattern with some content: with a FACTS spec, Luna's reliability rested on the script's checks (test and verify switched off: 78 percent; no fix rounds: 89 percent), while with a prose spec it held without them. No step's effect was proven at this size. Luna inside the script matched Opus at about a thirtieth of the build cost.</p>
-<p><strong>What this does and does not show.</strong> It confirms what is largely expected: on small, well-specified builds with a stated interface, current models get the logic right. The contribution is not a new capability but the bridge: a way of working defined precisely enough by Jig to be measured, measured by the Reality Engine with locked rules and a sealed check, and taken apart to show which of its steps carry its reliability. Finding where such a way of working breaks is the next step.</p>
+<p>A biologist explaining how a heart pumps does not talk about quantum physics. Quantum physics is not wrong, and every heartbeat depends on it, but at the level of cells, muscles and blood its detail is summed up in a few reliable rules. Every mature field controls complexity this way: it works at a level of description with its own vocabulary, and trusts that level only as far as it has been measured to hold.</p>
+<p><strong>The thesis.</strong> AI work cannot scale through ad-hoc prompts or brittle orchestration scripts. A prompt mixes what is wanted, what the model sees, what it may do and how its answer is judged into one string; an orchestration script adds the plumbing of calls, parsing and retries around it. At that level every change is local, every success is the agent's own report, and nothing is precise enough to be compared, repeated or measured. To happen reliably at scale, AI work must move to a dedicated <strong>layer of abstraction</strong> that separates the <em>definition of the work</em> from the <em>mechanics of executing it</em>, checks every claim before it is used, and treats <strong>measurement at scale</strong> as a property of the layer rather than an afterthought. Measurement needs a unit to measure: only once a way of working is a precise, versioned definition can it be run on many cases, compared with another, taken apart and rated.</p>
+<p><strong>The layer, in practice.</strong> <a href="https://github.com/runcor-ai/jig">Jig</a> is a small language built on this thesis. A person writes a script of <em>steps</em> (<code>specify</code>, <code>build</code>, <code>test</code>, <code>verify</code>, or ones they define); each step is a contract written once, one level down, holding its prompt, its permitted tools, the exact shape of its answer and the checks on that answer. The syntax is small and documented (<a href="https://runcor-ai.github.io/jig/guide">the Jig guide</a>, <a href="https://runcor-ai.github.io/jig/language">the language reference</a>), and nobody has to learn it first: a Claude Code skill writes a Jig script from a plain-language request and checks it before anything runs (Appendix A).</p>
+<p><img src="img/jig-how.svg" alt="Figure 1: How a Jig script works. A person, or the jig-script skill, writes the script. The runner reads it line by line: plain logic runs locally for free, and each step goes through its contract (prompt template, tools, answer format, checks, and who does it) to an AI agent, or to no AI at all for the real tests. Every answer is checked by code, retried once if it fails, recorded, and handed back to the script, which decides what happens next. The whole script is a way of working that can be measured."></p>
+<p><strong>A short experiment.</strong> To show the thinking end to end, one way of building software was defined in Jig and measured on unseen cases (section 07): four variants on six hard briefs, the script taken apart step by step, and a sealed final check, all scored by hidden tests no builder saw. The way of working held: 36 of 36 sealed checks right, with a small, cheap model matching a strong one at about a thirtieth of the build cost. That confirms what is largely expected for simple, well-specified builds; it is offered as an illustration of working at the higher level, not as a new capability.</p>
 
-<h2>01 The problem: complexity, not capability</h2>
-<p>Modern AI agents are capable. Given a one-line brief, an agent can produce a working browser game in a few minutes. The difficulty is everything around that capability. To use an agent well, a person has to manage the wording of the prompt, the tools the agent may use and what it could do with them, whether its report ("all tests pass") is true, what went wrong when something did, how often the same request gives a good result, and which model, version and settings were used.</p>
-<p>Each of these is manageable alone. Together, across many tasks, people and teams, they are not. The usual answer is to tune by opinion: change a prompt, try a few demos, keep what looks better. A good demo does not make a reliable system, and a system nobody can reason about cannot be made reliable.</p>
-<p>The limiting factor is not what the model can do. It is how much complexity a person must hold in mind to use it, and how little of what the agent claims has been checked.</p>
+<h2>01 Working in the weeds</h2>
+<p>Modern AI agents are capable. Given a one-line brief, an agent can produce a working browser game in a few minutes. The difficulty is everything around that capability. Working with an agent directly means working in the weeds: choosing the wording of the prompt, granting tools and hoping the agent uses them well, and accepting the agent's own report that the job is done.</p>
+<p>That report is checked by nothing outside the agent. The tools are limited by nothing outside it. The process leaves nothing anyone can audit or repeat. The usual remedy is an orchestration script, code that strings prompts together with calls, parsing and retries. It helps for one task watched closely, but it moves the weeds rather than leaving them: the prompts are still in the code, the success criteria are still whatever the script happens to parse, and changing one step means editing plumbing.</p>
+<p>At this level, work does not scale in three ways:</p>
+<ul>
+<li><strong>Variance.</strong> The same request gives different results on different days and inputs, and nothing records how often it goes right or why it goes wrong.</li>
+<li><strong>People.</strong> Each person's prompts and scripts encode their own judgement; nobody else can read them as a description of the work, and nothing stops two people from doing the same work two different ways.</li>
+<li><strong>Measurement.</strong> To know whether a change made things better, the thing changed must be precise enough to hold everything else fixed. A prompt edited by hand, inside a script edited by hand, never is. So AI systems are tuned by opinion, and a good demo is taken for a reliable system.</li>
+</ul>
+<p>The limiting factor is not what the model can do. It is the level at which the work is described.</p>
 
-<h2>02 The idea: levels of description</h2>
-<p>Every mature field handles complexity the same way: it works at a level of description with its own vocabulary, and sums up the level below in rules it can rely on. Anderson made the argument for science: each level has its own laws, and knowing the level below does not remove the need for them (Anderson, 1972). Software engineering made the same move with layered systems and information hiding (Dijkstra, 1968; Parnas, 1972), and with contracts that say what a component promises (Meyer, 1992).</p>
+<h2>02 Levels of description</h2>
+<p>Every mature field handles complexity the same way. Anderson made the argument for science: each level has its own laws, and knowing the level below does not remove the need for them (Anderson, 1972). Software engineering made the same move with layered systems and information hiding (Dijkstra, 1968; Parnas, 1972), and with contracts that say what a component promises (Meyer, 1992).</p>
 <table>
 <thead><tr><th>Field</th><th>Lower level</th><th>Higher level</th><th>What the higher level says</th></tr></thead>
 <tbody>
@@ -25,174 +29,79 @@
 <tr><td>Computing</td><td>Transistors, machine code</td><td>Programming languages</td><td>"Sort this list"</td></tr>
 <tr><td>Engineering</td><td>Material behaviour</td><td>Components with ratings</td><td>"This bolt holds 10 kN"</td></tr>
 <tr><td><strong>AI work, with Jig</strong></td><td>Prompts: their wording, tool permissions, tokens, models, and the agent's own account of what it did</td><td>A Jig script, whose steps call the prompts and whose results are checked by code</td><td><code>build(spec)</code>, <code>verify(spec)</code>, <code>for brief in briefs: …</code></td></tr>
-<tr><td><strong>AI work, measured</strong></td><td>One run of a script</td><td>A way of working, rated by the Reality Engine</td><td>"Right on 36 of 36 unseen briefs": a rating, like the bolt's</td></tr>
+<tr><td><strong>AI work, measured</strong></td><td>One run of a script</td><td>A way of working, rated on unseen cases</td><td>"Right on 36 of 36 unseen briefs": a rating, like the bolt's</td></tr>
 </tbody>
 </table>
-<p>Three properties make a level useful: its own <strong>vocabulary</strong>, <strong>hidden detail</strong> (summed up, not removed: one can always go down a level and look), and <strong>known limits</strong>. A bolt is rated; a chemical rule holds over a range of conditions. The third property is the one most often missed. A level is only as good as the evidence that it holds, and that evidence comes from measurement on cases nobody chose to make it look good. Jig supplies the level (section 03); the Reality Engine supplies the measurement (sections 04 to 07).</p>
+<p>Three properties make a level useful: its own <strong>vocabulary</strong>; <strong>hidden detail</strong>, summed up rather than removed, so that one can always go down a level and look; and <strong>known limits</strong>. A bolt is rated; a chemical rule holds over a range of conditions. The third property is the one most often missed, and it is the one that connects abstraction to measurement: a level is only as good as the evidence that it holds, and that evidence comes only from measuring it on cases nobody chose to make it look good.</p>
 <p>The last two rows are the point of this paper. A person working with AI should no more write prompts than a programmer writes machine code: they write a script whose steps call the prompts, and they choose a way of working by its rating, as an engineer chooses a bolt.</p>
 
-<h2>03 Jig: a level of description for AI work</h2>
-<p>A Jig script talks only about the things a person cares about. This is the heart of the script measured in this paper (Appendix A gives it whole):</p>
+<h2>03 The layer for AI work</h2>
+<p>The unit of work at the layer is a <strong>step</strong>: one command call, executed under a contract, against a persistent record of the item being made (an <em>artifact</em>, with its workspace and every result so far). A script composes steps; the steps carry the mechanics.</p>
 <pre><code>spec = specify("Build the browser game described in the brief", brief=brief,
-               constraints=STACK, format=format, agent="opus")
-b = build(spec, test_run=RUN, agent=builder)
-for attempt in range(max_fixes + 1):
-    t = test(spec, run=TEST, expect_files=["dist/index.html"])     # the real tests (no AI)
-    v = verify(spec, agent="opus")                                  # every requirement checked
-    if t.status == "completed" and every_must_requirement_satisfied:
+               constraints=STACK, format="facts", agent="opus")
+build(spec, test_run=TEST, agent="luna")
+for attempt in range(3):
+    t = test(spec, run=TEST)                       # the real tests: no AI
+    v = verify(spec, agent="opus")                 # every requirement checked
+    if t.status == "completed" and all_must_requirements_met(v):
         break
-    build(spec, notes=gaps_found, agent=builder)                    # a fix round</code></pre>
-<p>The script never mentions a prompt, a tool permission, a retry or a log file. Those exist one level down, in each step's definition: a prompt template, a tool policy (for example, <code>verify</code> may read code but not change it, and <code>build</code> cannot run <code>docker</code> or read system information), the exact format the answer must have, and the code checks that run on it. Only a step reaches an AI agent, and a step is always its own line, so every AI interaction is visible to a reader. Everything else (ifs, loops, lists, text) runs locally and costs nothing.</p>
-<p>Each word at this level is backed by code, not by the agent's word:</p>
+    build(spec, notes=gaps_found, agent="luna")   # a fix round</code></pre>
+<p>Five concerns that a prompt mixes into one string are held apart:</p>
+<table>
+<thead><tr><th>Concern</th><th>Where it lives</th><th>What the layer does with it</th></tr></thead>
+<tbody>
+<tr><td><strong>Intent</strong> (what is wanted)</td><td>The step's target and parameters, in the script</td><td>Validates every parameter against its declared type; reads briefs and other inputs as untrusted data, fenced and never followed as instructions</td></tr>
+<tr><td><strong>Context</strong> (what the agent sees)</td><td>The step's prompt template, one level down</td><td>Injects only named, recorded results of earlier steps (the spec, the test results, the workspace state); refuses to run a step whose prerequisite steps have not completed</td></tr>
+<tr><td><strong>Execution</strong> (what the agent may do)</td><td>The step's tool policy, and the agent chosen in the script (<code>agent="opus"</code>, <code>agent="luna"</code>)</td><td>Has the agent's host enforce the tools the step may use: <code>verify</code> may read code but not change it, and <code>build</code> may not run <code>docker</code> or read system information</td></tr>
+<tr><td><strong>Verification</strong> (how the answer is judged)</td><td>The step's answer format and checks, one level down</td><td>Accepts an answer only if it matches its schema and passes deterministic checks against the workspace and records; retries once with the findings</td></tr>
+<tr><td><strong>Control</strong> (what happens next)</td><td>The script</td><td>Runs plain logic locally; makes every agent call a visible line; caps loops and stops on a failed step unless the script handles it</td></tr>
+</tbody>
+</table>
+<p>What is <strong>encapsulated</strong>, and therefore written once and changed in one place, is everything that makes a step work: its prompt, its tools, its answer format and its checks. What stays <strong>explicit</strong>, and therefore readable by anyone, is the definition of the work: which steps, in what order, with which inputs and which agent, and what to do when a check fails. A script never contains a prompt or a tool permission, and it is never executed as general code: the runner interprets a small, fixed set of constructs and rejects the rest before anything runs.</p>
+
+<h2>04 What the layer guarantees, and what it does not</h2>
+<p>A level is only worth having if its statements are reliable, so its guarantees must be stated exactly.</p>
+<p><strong>What is guaranteed by code, on every step.</strong> An answer that does not match its schema is rejected. A file a build claims to have written must exist. A function cited as evidence must occur in the file named. A test cited as evidence must exist in the recorded test run, and the tests themselves are run for real by a step with no model in it. A web source cited by research must appear in the agent's own search and fetch results. The overall verdict of verification is computed by a fixed rule (pass only if every must-have requirement is reported satisfied and the recorded tests passed), not taken from the agent. Every prompt, answer, check and cost is recorded.</p>
+<p><strong>What is not.</strong> These checks test <em>evidence and consistency</em>, not meaning. They catch an agent that claims work it did not do, cites code that does not exist, or reports tests that never ran; they do not catch a wrong answer backed by real evidence. The verdict's rule is fixed, but one of its inputs is still an AI judgement, the verifier's status for each requirement. Correctness rests on the tests the script's author supplies. The tool boundary is enforced by the agent's host (Claude Code's tool flags, or Codex's sandbox, which is coarser), not by Jig itself; a container sandbox exists for real isolation. And the shipped checks are shaped for building and research: a new kind of work needs new checks to get the same guarantees.</p>
+<p>This is the honest shape of the layer: it makes fabrication and missing evidence impossible to pass on silently, and it leaves the question "is it right?" to tests and to measurement. That is exactly why measurement belongs inside the abstraction rather than after it.</p>
+
+<h2>05 Scale</h2>
+<p>Working at the layer is what makes the work scale, along each of the three axes on which prompting fails.</p>
 <ul>
-<li><strong>Built</strong>: every file the agent says it created exists, and no secrets were written.</li>
-<li><strong>Tested</strong>: the real test commands ran and the real JUnit reports say they passed. No AI takes part in this step.</li>
-<li><strong>Verified</strong>: every requirement was checked against the code; every function cited as evidence appears in the file named, and every test cited exists in the recorded run. The verdict is computed by code.</li>
+<li><strong>Many items.</strong> One script serves any number of items. A batch runs it for every row of a list, in parallel, each item in its own process and folder, with a summary of status, time and cost per item, and a resume that skips what is done.</li>
+<li><strong>Many people.</strong> A script reads as a description of the work, so it can be reviewed, shared and repeated. People who do not write code describe the work in plain language and a skill writes the script; the contracts underneath stay the same.</li>
+<li><strong>Change without disturbance.</strong> The model behind a step, the wording of its prompt or the strictness of its checks can change underneath while every script above stays the same, and the agent for a step is a single word in the script.</li>
 </ul>
-<p>Two features were added to connect Jig to the Reality Engine. A step can name its agent, <code>agent="luna"</code>, so the same script runs with Claude Opus through Claude Code or GPT-6 Luna through Codex, each inside its own tool boundary. And <code>specify(format="facts")</code> writes the spec as FACTS notes, the winning format of the Reality Engine's first case study: one short fact per line under THINGS, VALUES, RULES, LINKS and TIMING (Appendix A). The build step then reads the notes instead of the prose spec.</p>
 
-<h2>04 How the experiment works</h2>
-<p>The question is the one the Reality Engine asks of any system: how far can this way of working be trusted, and what makes it better? A <em>way of working</em> is the trial pipeline of Appendix A with a set of choices.</p>
-<table>
-<thead><tr><th>Way of working</th><th>The builder reads</th><th>The builder is</th><th>Role</th></tr></thead>
-<tbody>
-<tr><td>OPUS_PROSE</td><td>the prose spec</td><td>Claude Opus</td><td>control: the game factory as it works today</td></tr>
-<tr><td>OPUS_FACTS</td><td>FACTS notes</td><td>Claude Opus</td><td>does FACTS help a strong builder?</td></tr>
-<tr><td>LUNA_PROSE</td><td>the prose spec</td><td>GPT-6 Luna</td><td>can a small, cheap builder do the work?</td></tr>
-<tr><td>LUNA_FACTS</td><td>FACTS notes</td><td>GPT-6 Luna</td><td>does FACTS help the small builder, as it helped reasoning?</td></tr>
-</tbody>
-</table>
-<p>Claude Opus always writes the spec and does the verifying, the stack and test commands are the same for all, and every way of working gets up to two fix rounds fed by what the tests and verification found.</p>
-<p><strong>Items.</strong> Eighteen short briefs for browser games, each asking for a playable game and for its rules as named functions in <code>src/logic.ts</code>, each with six hidden acceptance checks (108 in all): six hard briefs for the comparison and take-apart (poker hand ranking, Reversi, checkers with compulsory and multiple captures, Go capture with suicide and ko, cribbage hand counting, chess move legality with pins and checkmate), three for screening and three for confirming in build-out (sliding puzzle, sea battle, towers; number grid, peg jump, five-letter word guess), and six sealed (the game of life, a code breaker, a box pusher, blackjack, lights out, dice poker). The six checks of a brief share one build and form a cluster, so ranges resample briefs, not checks.</p>
-<p><strong>Scoring.</strong> After the pipeline finishes, the hidden checks are copied into the built app and run under the pack's own test configuration. A check scores 1 if it passes. A build that failed, has no <code>src/logic.ts</code> or does not compile scores 0 on all six. The user interface is not scored.</p>
-<p><strong>Stages.</strong> <em>Compare</em>: all four ways of working on the six hard briefs. <em>Take apart</em>: the winner's script, not its wording: four parts, the spec format and three of the script's steps (the test step, the verify step, the fix rounds), each switched off alone and in every combination, sixteen versions on the same briefs. <em>Build out</em>: a designer, Claude Opus with no tools, writes new versions of two text parts (an extra rule for the spec writer, extra notes for the builder) from the engine's brief, which holds scores and counts only; each is screened on fresh briefs, and the promising ones confirmed on more. <em>Confirm</em>: the best design meets the control and the runner-up on the sealed briefs, opened once.</p>
-<p><img src="img/p2-pipeline.svg" alt="Figure 2: The bridge. Jig defines the way of working precisely enough to be a candidate; the Reality Engine runs it on unseen briefs, scores it with hidden tests, takes it apart and reports how far it can be trusted."></p>
-
-<h2>05 How we kept it honest</h2>
-<p>The Reality Engine's rules apply unchanged; the pack adds its own.</p>
+<h2>06 Knowing the level holds: measurement as part of the layer</h2>
+<p>Abstraction without measurement is a convenient story of unknown accuracy. The layer is designed so that measurement at scale is possible by construction:</p>
 <ul>
-<li><strong>Locked before any build.</strong> Pilot 2's plan, the engine and the pack's code were fingerprinted at 15:03 on 14 November 2026 (lock <code>2660f8ee5c4e8f2f</code>) and committed to the repository before the first build. The engine's lock covers only code, so the pack also ships <code>frozen.py</code>, the sha256 of every brief, hidden test, reference implementation and the trial pipeline; the pack refuses to start if any has changed.</li>
-<li><strong>Hidden tests proven first.</strong> Every hidden test was run against a reference implementation of its brief; all 144 tests of all 24 briefs written pass (<code>check_references.py</code>). A wrong test would otherwise punish a correct build.</li>
-<li><strong>The builder never sees the exam.</strong> Hidden tests are copied in only after the pipeline has finished, and the pack voids any build whose agent event logs mention the hidden tests' folder or file names.</li>
-<li><strong>A fixed control and a sealed check</strong>, opened once at 16:52.</li>
-<li><strong>Failures count; nothing is deleted.</strong> A failed build scores 0 on all its checks. Every voided build and record is kept, renamed, with its reason written beside it.</li>
+<li><strong>A precise unit.</strong> A way of working is a set of plain files (a script and the step definitions it uses) with a fixed agent per step. Two ways of working differ in named, versioned ways, so everything else can be held fixed while one thing changes.</li>
+<li><strong>A record of every run.</strong> Every step leaves the same structured record: its inputs, its prompt, the agent's events, its validated output, its check findings and its cost. Results are comparable across items, runs and versions without any extra instrumentation.</li>
+<li><strong>Repeatable runs.</strong> The same script runs unchanged on any list of items, in parallel, with any agent per step, and resumes where it stopped.</li>
 </ul>
-<p><strong>What changed after the lock, and why.</strong> The lock log records two more entries, both disclosed here. At 15:12, an operational change: the number of builds run at once was raised from 5 to 10 to shorten the run; the five builds then in flight were stopped before they were scored and built again; no rule, item or score was affected. At 15:54, a fix: a hash-based game number had given two take-apart versions the same game folder, so one version's spec step failed on the taken name (and was scored 0 by mistake) and the other's builds may have been disturbed. The pack now gives each version a unique recorded number; all builds and 13 engine records of both versions were voided and rebuilt. No other result was affected.</p>
-<p><strong>Pilot 1, a dry run.</strong> An earlier run on easier briefs is kept unchanged in the repository as a dry run, not a result. It showed the whole path working, and a ceiling: every way of working passed every comparison check. It also had three locks, a stage redesigned mid-run and an incident in which a file a running engine read was edited; its lessons (fix the design before the lock; never change files a running engine reads) shaped pilot 2, which used harder comparison briefs. Its sealed briefs were never opened, and are pilot 2's sealed set.</p>
-<p>One rule could not be kept as strictly as in the engine's own case study: the author wrote the briefs, the hidden tests and the pipeline, and saw one live test build (on an easier brief, in a separate folder) that checked the wiring before the lock. Nothing was tuned on it.</p>
+<p>What the layer does not contain is the statistics. Rating a way of working, how often it is right on unseen cases, with what uncertainty, and which of its parts that depends on, is done by an instrument built for it. This paper uses <a href="https://therealityengine.ca">the Reality Engine</a>, which tests AI systems "the way science tests ideas": every option on the same unseen cases, rules locked in advance, a sealed final check, and corrections that allow for luck among many candidates. The layer supplies the unit and the records; the instrument supplies the rating. Together they close the loop from generating work to measuring it: define a way of working, run it at scale, rate it on unseen cases, and keep or change it on the evidence.</p>
 
-<h2>06 The run at a glance</h2>
-<table>
-<thead><tr><th>Time (14 Nov 2026)</th><th>Event</th></tr></thead>
-<tbody>
-<tr><td>15:03</td><td>Plan locked and committed; comparison starts (4 ways of working × 36 checks)</td></tr>
-<tr><td>15:12</td><td>Operational change: 10 builds at once</td></tr>
-<tr><td>15:28</td><td>Comparison done: every way of working 36 of 36; winner Luna from FACTS on the tie-break</td></tr>
-<tr><td>15:54</td><td>Fix: unique game numbers; two take-apart versions voided and rebuilt</td></tr>
-<tr><td>16:34</td><td>Take-apart done: no part passed the effect test; the full script kept</td></tr>
-<tr><td>16:52</td><td>Build-out screen done: no new version led by the required +0.03; sealed set opened</td></tr>
-<tr><td>17:08</td><td>Final check done; trust report written</td></tr>
-</tbody>
-</table>
-<p>The run built 141 games and scored 918 hidden checks across 22 designs in just over two hours, on one workstation, with up to ten builds at once.</p>
-<p><img src="img/dashboard-p2-final@2x.png" alt="Figure 3: The run's dashboard at the end: progress, builds, usage and cost (scored work and stopped or voided work kept apart), and the comparison of the four ways of working."></p>
-<table>
-<thead><tr><th>Usage and cost</th><th>Tokens</th><th>Cost</th></tr></thead>
-<tbody>
-<tr><td>Claude Opus (specs, verification, Opus builds), as reported</td><td>14.9 million (1.9 M output, 3.3 M cache write, 9.7 M cache read)</td><td>$65.82</td></tr>
-<tr><td>GPT-6 Luna (Luna builds), at OpenAI's list price</td><td>73.5 million (67.1 M of them cached input, 1.5 M output)</td><td>≈ $1.92</td></tr>
-<tr><td>Stopped or voided work (never scored)</td><td></td><td>≈ $4.16</td></tr>
-<tr><td><strong>Total</strong></td><td></td><td><strong>≈ $71.90</strong></td></tr>
-</tbody>
-</table>
-<p>Luna ran on a ChatGPT subscription and Opus on a Claude subscription; the dollar figures are what the same tokens cost at API list prices (Luna: $0.10, $0.01 and $0.50 per million input, cached and output tokens; Opus: $4 and $20 per million input and output, cache reads $0.20).</p>
-
-<h2>07 Results</h2>
-<h3>Compare: every way of working got every check right</h3>
-<p>On the six hard briefs, all four ways of working passed all 36 hidden checks: 144 of 144. The engine ranked Luna from FACTS first on its tie-break and marked the top as tied. The difference was in the work it took: Opus never needed a fix round, while Luna needed fix rounds on 4 of its 12 builds (Reversi twice, Go, cribbage; six rounds in all) before every check passed.</p>
-<p><img src="img/p2-compare.svg" alt="Figure 4: The four ways of working on the hard comparison briefs. Every one passed every check, so every range collapses at 100 percent."></p>
-<h3>Take apart: which steps of the script carry its reliability</h3>
-<p>The winner's script (Luna, FACTS, every step on) was built in sixteen versions on the same six briefs:</p>
+<h2>07 A short experiment</h2>
+<p>One way of building software was defined in Jig and measured end to end. A brief describes a small browser game and the functions its rules must live in; the script has Claude Opus write the spec, a builder write the code, the real tests run, Opus verify every requirement, and up to two fix rounds follow. Each finished game was scored by six hidden acceptance checks, copied in only after the build. Four variants were compared on six hard briefs (poker hands, Reversi, checkers, Go capture rules, cribbage counting, chess move legality): the builder reading the spec as prose or as compact FACTS notes, built by Claude Opus or by the small, cheap GPT-6 Luna. Appendix B gives the method, the honesty rules and every result.</p>
+<p><strong>Every variant got every check right</strong>: 144 of 144. The difference was in the work it took: Opus never needed a fix round; Luna needed fix rounds on 4 of its 12 builds before every check passed.</p>
+<p><strong>Taking the script apart</strong> showed which steps carried that reliability. The winning variant (Luna, FACTS) was built in sixteen versions, with the test step, the verify step and the fix rounds each switched off, alone and in every combination:</p>
 <table>
 <thead><tr><th>Script version (Luna building)</th><th>Spec as FACTS</th><th>Spec as prose</th></tr></thead>
 <tbody>
 <tr><td>Full script (every step on)</td><td><strong>100%</strong></td><td>100%</td></tr>
-<tr><td>Test step off</td><td>94%</td><td>100%</td></tr>
-<tr><td>Verify step off</td><td>94%</td><td>100%</td></tr>
 <tr><td>Test step and verify off</td><td><strong>78%</strong></td><td>100%</td></tr>
 <tr><td>No fix rounds</td><td>89%</td><td>100%</td></tr>
-<tr><td>Test step off, no fix rounds</td><td>100%</td><td>92%</td></tr>
-<tr><td>Verify off, no fix rounds</td><td>100%</td><td>100%</td></tr>
 <tr><td>Test step, verify and fix rounds all off</td><td>86%</td><td>100%</td></tr>
 </tbody>
 </table>
-<p>With a FACTS spec, Luna's reliability rested on the script's checks: switch off the test step and verification together and it fell to 78 percent; take away the fix rounds and it fell to 89 percent. With a prose spec, Luna stayed close to perfect even with the checks switched off. The engine's estimates of each part's effect, with 95 percent ranges:</p>
-<p><img src="img/p2-parts.svg" alt="Figure 5: What each part of the script does. Effect on the share of checks passed of changing that part. Every range crosses zero: no part's effect is proven at this size."></p>
-<table>
-<thead><tr><th>Part changed</th><th>Effect</th><th>95% range</th><th>p</th></tr></thead>
-<tbody>
-<tr><td>Spec format FACTS → prose</td><td>+0.062</td><td>−0.011 to +0.136</td><td>0.08</td></tr>
-<tr><td>Test step switched off</td><td>−0.042</td><td>−0.102 to +0.019</td><td>0.14</td></tr>
-<tr><td>Verify step switched off</td><td>−0.021</td><td>−0.076 to +0.035</td><td>0.38</td></tr>
-<tr><td>Fix rounds 2 → 0</td><td>0.000</td><td>−0.113 to +0.113</td><td>1.00</td></tr>
-</tbody>
-</table>
-<p>No part passed the engine's effect test, so the keep rule kept the full script unchanged. The pattern is suggestive, not proven: six briefs at a ceiling cannot prove a step's worth at the 95 percent level, even where a version visibly loses checks. FACTS, the format that helped a small model reason about a system, gave a builder no advantage here, and may have made it more dependent on the checks.</p>
-<h3>Build out: nothing beat the full script</h3>
-<p>The designer, seeing only scores and counts, aimed its four new versions at the one cost it could still see, the fix rounds: a spec rule giving every game rule as an exactly named function with worked edge cases; a rule for a deterministic, seedable core with numbered checkable requirements; builder notes to write one test per rule before the interface; and builder notes to re-check every rule and edge case before finishing. On three fresh briefs every version, like the current best, passed all 18 checks, so none led by the required +0.03 and the rounds stopped.</p>
-<h3>The final check on unseen briefs</h3>
-<p><img src="img/p2-final.svg" alt="Figure 6: The final check on the six sealed briefs. The final design, the control and the runner-up each passed all 36 checks."></p>
-<p>On the six sealed briefs, opened once, the final design (Luna from FACTS, full script), the control (Opus from prose) and the runner-up (Luna from prose) each passed all 36 checks. Luna needed fix rounds on three of its sealed builds. Both leads are therefore 0 and not counted.</p>
-<h3>The trust report</h3>
-<table>
-<thead><tr><th>Question</th><th>Answer</th></tr></thead>
-<tbody>
-<tr><td>How often it is right</td><td><strong>100%</strong> of 36 sealed checks on 6 briefs. The engine's range is [100%, 100%], which overstates the certainty: with every case passing, the 95 percent lower bound is about 90 percent if checks are counted as independent, and about 54 percent per brief. The truth lies between.</td></tr>
-<tr><td>Reliability</td><td>Every run finished without a design failure (36 of 36)</td></tr>
-<tr><td>Why it fails</td><td>No failures on the sealed briefs</td></tr>
-<tr><td>Verdict</td><td>Luna from FACTS, full script. Equal to the control and the runner-up (leads 0, not counted)</td></tr>
-<tr><td>How hard we looked</td><td>4 ways of working, 8 new versions, 22 designs built, 918 scored checks, 4 stages; 0 changes kept</td></tr>
-<tr><td>Headroom</td><td>Closest rival: the control (lead 0). Best unproven change: the spec as prose (+0.062, −0.011 to +0.136)</td></tr>
-</tbody>
-</table>
-<h3>Cost</h3>
-<p>A game built the control's way (Opus writes the spec, builds and verifies) cost about $1.00 in Opus usage and took 4.4 minutes. Built the final design's way (Opus writes the spec and verifies, Luna builds) it cost about $0.52 and took 7.6 minutes, fix rounds included. The build step itself cost about $0.50 with Opus and about $0.016 with Luna, roughly a thirtieth.</p>
+<p><img src="img/p2-parts.svg" alt="Figure 2: What each part of the script does: the effect on the share of checks passed of changing that part, with its 95 percent range. Every range crosses zero."></p>
+<p>With a FACTS spec, the small builder's reliability rested on the script's own checks and fix loop; with a prose spec it held without them. No step's effect was proven at this size (every range crosses zero), so the full script was kept. <strong>On six sealed briefs, opened once, the final design passed all 36 checks</strong>, as did the strong-model control. With every case passing, the honest statement is a bound: the true rate is very likely above about 90 percent per check and above about 54 percent per brief. A game cost about $0.52 the small model's way and about $1.00 the strong model's way; the build step itself about a thirtieth.</p>
+<p><strong>What it shows.</strong> On small, well-specified builds the layer held completely, which is largely what one would expect today; the experiment confirms it rather than discovering it. Its value is as a demonstration of the thesis: a way of working defined precisely enough to be run, varied, taken apart and rated, so that a question such as "which of these steps actually matters?" has an answer with a range instead of an opinion. The pattern it found is a lead to follow, not a result. Finding where a way of working breaks, on harder and messier work, is what the layer makes possible next.</p>
 
-<h2>08 What can be improved</h2>
-<ul>
-<li><strong>A ceiling: simple builds are already reliable.</strong> The main limit of this pilot. Every way of working passed nearly every check, so the comparison could not separate them and the take-apart could not prove any step's worth. This confirms what is largely expected: on small, well-specified builds with a stated interface, current models get the logic right. It is not a new capability claim.</li>
-<li><strong>Size.</strong> Six briefs per stage, with checks clustered within briefs, can show only a large difference. A step that matters by a few percent needs many more briefs.</li>
-<li><strong>Logic, not play.</strong> The hidden checks test game rules through a stated interface. They say nothing about whether a game is pleasant to play, looks right, or handles the keyboard well.</li>
-<li><strong>Briefs that state an interface.</strong> Real requirements rarely spell out the functions they want. Briefs that leave the interface open would need another kind of hidden test, such as driving the page in a browser.</li>
-<li><strong>The sealed set is easier than the comparison set.</strong> It was written before pilot 1 and left unopened, so the trust score describes standard game logic, while the take-apart describes harder logic.</li>
-<li><strong>One author, no independent experts.</strong> The same person wrote the briefs, the tests and the pipeline.</li>
-<li><strong>Only the winner was taken apart.</strong> The script's steps were measured with Luna building; with Opus they may matter less (Opus never needed a fix round). Whether the spec step is needed at all was not tested.</li>
-<li><strong>Coarser boundaries for Luna.</strong> Codex cannot express Jig's per-command allow and deny lists, so Luna's builds ran in a workspace-write sandbox, a coarser boundary than Claude Code's.</li>
-<li><strong>Each brief built once.</strong> The scores measure how often a way of working is right across briefs, not how consistent it is when the same brief is built again.</li>
-</ul>
-
-<h2>09 Related work</h2>
-<p>Others have built agent pipelines for software, scored code with hidden tests, and let models correct their own output. As far as the author is aware, no earlier work measures a whole <em>way of working with AI</em> as a pre-registered candidate, takes its steps apart in a full factorial, and reports a trust score from a sealed set.</p>
-<table>
-<thead><tr><th>What this work does</th><th>Closest other work</th></tr></thead>
-<tbody>
-<tr><td>Describes AI work as steps with contracts: tool boundaries, an exact answer format, and code checks that must pass before a result is used</td><td>DSPy declares typed signatures for model calls and optimises their prompts (Khattab et al., 2023); LMQL constrains generation in a query language (Beurer-Kellner et al., 2023). Neither checks claims against the workspace or a recorded test run.</td></tr>
-<tr><td>Fixed, readable pipelines for building software</td><td>MetaGPT encodes standard operating procedures as roles that pass documents (Hong et al., 2023); ChatDev runs a team of chatting agents through a waterfall (Qian et al., 2023). Both organise the agents; neither makes the steps checkable contracts.</td></tr>
-<tr><td>Fix rounds driven by code checks and real tests</td><td>Reflexion and Self-Refine improve output with the model's own feedback (Shinn et al., 2023; Madaan et al., 2023). Here the feedback comes from tests that really ran and verification whose citations are checked.</td></tr>
-<tr><td>Scoring by hidden tests the builder never sees</td><td>HumanEval and SWE-bench score code by tests (Chen et al., 2021; Jimenez et al., 2023), and SWE-agent shows the interface shapes the result (Yang et al., 2024). They rank models and agents on public benchmarks; this work ranks ways of working, with rules locked before the run.</td></tr>
-<tr><td>Taking a way of working apart, step by step, in every combination</td><td>Ablations in agent papers usually remove one component at a time on a public benchmark. The Reality Engine's case study took a note format apart in a full factorial; here the parts are the steps of the working script itself.</td></tr>
-<tr><td>A pre-registered, sealed, clustered trust score for a way of working</td><td>The Reality Engine's first case study did this for note formats (Describing Reality for AI, 2026). Judges built from models (Zheng et al., 2023) are not used for the score here; hidden tests are.</td></tr>
-</tbody>
-</table>
-<p>Appendix C discusses each in more detail.</p>
-
-<h2>10 Conclusion and what comes next</h2>
-<p>Jig gives AI work a level of description: requirements, steps, results and checks, with the prompts, tools and records kept one level down. The Reality Engine measured that level as it would any AI system. On small, well-specified builds the level held completely: every way of working got every hidden check right, and the final design, a small and cheap builder inside Jig's script, got all 36 sealed checks right at about a thirtieth of the build cost of the strong model. That is largely what one would expect today, and the paper claims no more. What the pilot adds is the bridge itself: a way of working defined precisely enough to be measured, measured with locked rules and a sealed check, and taken apart to show which of its steps carry its reliability. The one pattern it found (with a FACTS spec, the small builder needed the script's checks and fix loop; with prose it did not) is a lead to follow, not a result.</p>
-<p>The next pilot must find where a way of working breaks, because only then can the take-apart show what each step is worth and the trust score tell a good method from a lucky one: briefs written by someone other than the author, harder and messier ones (several interacting modules, ambiguous requirements, changes to an existing codebase), interfaces left open and scored in a browser, the same brief built several times to measure consistency, and the take-apart repeated with the strong builder.</p>
-<h3>Where this is heading: experts as agents</h3>
-<p>Some quality cannot be captured by a test. Whether a memo is wise, a design usable, or an answer fair and safe is judged by people who know the field. The usual response is to have experts check AI output in bulk. That does not scale, and with the method in this paper it is mostly unnecessary. Code checks catch fabrication on every output for free; hidden tests score every output automatically where a test can be written; and the Reality Engine needs only a few hundred unseen cases to say how often a way of working is right, and small spot checks after that to see that it stays so. The expert's job moves from checking every output to <strong>setting the exam</strong>: writing the acceptance criteria and hidden tests, calibrating any AI judge, and auditing samples.</p>
-<p>The natural next step for Jig is to make a pool of human experts one more kind of agent. Jig already lets a script choose who does a step (<code>agent="opus"</code>, <code>agent="luna"</code>); a third choice, <code>agent="experts"</code>, would send the same step, with the same rubric and the same required answer format, to a group of qualified people, collect several judgements per item, measure how far they agree, and record the result like any other step. Nothing in the script above that step would need to change.</p>
-<p>The important part is routing, not volume. People are slow and costly, so a script sends them only what needs them:</p>
+<h2>08 Where this goes</h2>
+<p><strong>Harder work.</strong> Only when a way of working sometimes fails can its parts be shown to matter and its rating tell a good method from a lucky one: briefs written by others, several interacting modules, ambiguous requirements, changes to existing code, interfaces left open, the same work run several times to measure consistency.</p>
+<p><strong>Experts as agents.</strong> Some quality cannot be captured by a test: whether a memo is wise, a design usable, an answer fair and safe. Having experts check AI output in bulk does not scale, and at this layer it is mostly unnecessary: code checks catch fabrication on every output, tests score what can be tested, and measurement needs only a few hundred unseen cases. The expert's job moves from checking every output to <strong>setting the exam</strong>: writing acceptance criteria and tests, calibrating any AI judge, and auditing samples. The natural next step is to make a pool of human experts one more kind of agent at the layer, <code>agent="experts"</code>: the same step, the same rubric and the same answer format, done by several qualified people whose agreement is measured and recorded like any other step. The script decides what goes to them:</p>
 <table>
 <thead><tr><th>Send to experts when</th><th>Because</th></tr></thead>
 <tbody>
@@ -202,31 +111,48 @@ for attempt in range(max_fixes + 1):
 <tr><td>A new way of working, before it is trusted</td><td>Builds the evidence that decides how much sampling it needs later</td></tr>
 </tbody>
 </table>
-<p>The two halves of this paper then point at each other. Expert judgements become the Reality Engine's scorer wherever hidden tests cannot reach, and the reference against which AI judges are calibrated. In return, the engine's trust report says where experts are needed: a way of working measured within tolerance 99 percent of the time on unseen cases needs light sampling, one at 70 percent needs heavy review or a better design. Experts are spent where measured trust runs out. This is a direction, not a result: no expert pool was built or used here, and a design note in the Jig repository (<code>docs/design/expert-agents.md</code>) sketches how it would work.</p>
+<p>Measurement then decides where people are spent: a way of working rated right 99 percent of the time on unseen cases needs light sampling; one at 70 percent needs heavy review or a better design. This is a direction, not a result: no expert pool is built, and a design note in the Jig repository (<code>docs/design/expert-agents.md</code>) sketches how it would work.</p>
+
+<h2>09 Related work</h2>
+<p>The table places the layer among existing approaches along the dimensions that matter to this thesis. The other rows describe each approach's general design as its own documentation presents it; each is broader than one row can show. The last row lists only what Jig's code implements.</p>
+<table>
+<thead><tr><th>Approach</th><th>Abstraction layer (vs. raw scripts)</th><th>Deterministic boundary</th><th>Context and state isolation</th><th>Measurement and evaluation at scale</th><th>Bottleneck addressed</th></tr></thead>
+<tbody>
+<tr><td>Raw prompting, ad-hoc scripts</td><td>None: the prompt and the plumbing are the work</td><td>None beyond whatever the script parses</td><td>Conversation history or script variables, managed by hand</td><td>Manual: demos and spot checks</td><td>Getting a capable model to do a task at all</td></tr>
+<tr><td>DSPy (Khattab et al., 2023)</td><td>Modules with typed signatures, composed in Python</td><td>Typed input and output fields</td><td>Program variables</td><td>Built in for optimisation: prompts are compiled against a metric on an evaluation set</td><td>Brittle, hand-written prompts in multi-step programs</td></tr>
+<tr><td>LangGraph and agent frameworks (LangChain, 2024)</td><td>Nodes and edges of a stateful graph, in code</td><td>Code-defined control flow and a state schema</td><td>Shared graph state, checkpointed and persisted</td><td>Not part of the graph; tracing and evaluation are separate tools</td><td>Durable, resumable, long-running agent control flow</td></tr>
+<tr><td>MCP (Anthropic, 2024)</td><td>A protocol for tools, resources and prompts served to a model</td><td>A JSON Schema for each tool's input</td><td>Resources fetched by the host for the model</td><td>Not in scope</td><td>Connecting many tools and data sources to many models</td></tr>
+<tr><td>Skills and procedural SOPs (Anthropic, 2025; Hong et al., 2023)</td><td>Packaged instructions, sometimes with scripts, loaded into context</td><td>Little beyond bundled scripts: the model follows the guidance</td><td>Loaded into the model's context on demand</td><td>Not built in</td><td>Missing or inconsistent know-how and procedure</td></tr>
+<tr><td><strong>Abstraction for AI Work (Jig)</strong></td><td><strong>A restricted script of contracted steps; prompts, tool permissions, answer formats and checks live one level down in step definitions</strong></td><td><strong>Per step: tool policy enforced by the agent host, an output JSON Schema, deterministic evidence checks, a model-free test step, a computed verdict. Per script: a fixed syntax, loop, step and size limits</strong></td><td><strong>A persistent artifact per item (manifest, append-only step outputs, its own workspace); context injected only from named, recorded results; untrusted inputs fenced; each batch item in its own process and folder</strong></td><td><strong>Every way of working is a versioned definition; every step leaves a structured record of output, check findings and cost; batches run a script over many items in parallel with per-item summaries. The statistics (ratings, ranges) come from an external instrument, here the Reality Engine</strong></td><td><strong>Unverified self-reported agent success, unbounded tool use, and work that cannot be compared, audited or measured</strong></td></tr>
+</tbody>
+</table>
+<p>Closest in spirit is DSPy, which also lifts AI work above the prompt and builds evaluation into the loop; it optimises prompts against a metric, where this layer checks each claim against the workspace and keeps the work's definition explicit for people. MetaGPT and ChatDev organise agents into roles and procedures (Hong et al., 2023; Qian et al., 2023); Reflexion and Self-Refine let a model correct itself with its own feedback (Shinn et al., 2023; Madaan et al., 2023), where here the feedback is tests that really ran. HumanEval and SWE-bench score code by tests (Chen et al., 2021; Jimenez et al., 2023), and SWE-agent shows the interface shapes the result (Yang et al., 2024); they rank models on public benchmarks, where this layer makes a <em>way of working</em> the thing ranked.</p>
 
 <h2>Appendix A — Jig: use it yourself</h2>
-<h3>A.1 The trial pipeline</h3>
-<p>The exact script every version ran (<code>experiments/trust/jig_trust/trial.jig</code>, shortened here). The variables <code>format</code>, <code>builder</code>, <code>tests</code>, <code>verify_step</code> and <code>max_fixes</code> are what the engine changed.</p>
-<pre><code>STACK = ["React + TypeScript + Vite, no backend",
-         "Vitest + @testing-library/react with jsdom for tests",
-         "Game logic in pure functions separate from rendering, so it can be unit tested"]
-TEST = ["npm install --no-audit --no-fund",
-        "npx vitest run --reporter=junit --outputFile=test-results/junit.xml",
-        "npm run build"]
-RUN = TEST if tests == "on" else ["npm install --no-audit --no-fund", "npm run build"]
-
-spec = specify(f"Build the browser game described in the brief ({id})", brief=brief,
+<h3>A.1 The syntax, and a skill that writes it</h3>
+<p>Jig's syntax looks like Python but is its own small language: command calls (each one a step that calls an AI agent or a procedure), variables, <code>if</code>, <code>for</code> and <code>while</code>, lists, maps, queues and sets, and a handful of builtins. It is never run as Python: the runner interprets it, and imports, functions and anything not on its list are rejected before anything runs.</p>
+<ul>
+<li><strong><a href="https://runcor-ai.github.io/jig/guide">The Jig guide</a></strong>: the language and every command from the beginning, for people who have not written code.</li>
+<li><strong><a href="https://runcor-ai.github.io/jig/language">The language reference</a></strong>: every statement, operator, data type and builtin.</li>
+<li><strong><a href="https://runcor-ai.github.io/jig/commands">Commands</a></strong>: how a step is defined (its prompt, tool policy, answer format and checks) and how to add your own.</li>
+<li><strong><a href="https://github.com/runcor-ai/jig/blob/master/docs/ARCHITECTURE.md">Architecture</a></strong>: what the code enforces and where its boundaries are, claim by claim.</li>
+</ul>
+<p>People do not need to learn the syntax to use Jig. The repository includes a Claude Code skill, <a href="https://github.com/runcor-ai/jig/tree/master/.claude/skills/jig-script"><code>jig-script</code></a>, that turns a plain-language request ("build these three games from the briefs in a folder, check every requirement and fix what fails") into a commented Jig script, writes any batch file or new step the request needs, and checks the result offline (every command exists and every parameter is one it accepts) before anything is run.</p>
+<h3>A.2 FACTS notes in a spec</h3>
+<p>With <code>format="facts"</code>, <code>specify</code> also writes the spec as FACTS notes, the format that won the Reality Engine's first case study: one short fact per line under THINGS, VALUES, RULES, LINKS and TIMING. The build step then reads the notes instead of the prose spec, and Jig checks that the notes have all five headings and name every requirement.</p>
+<pre><code>## THINGS
+- logic: src/logic.ts
+- Game: { board: Cell[]; turn: Mark }
+## VALUES
+- board.length: 9
+- board.order: row by row, index 0 = top left</code></pre>
+<h3>A.3 The experiment's script</h3>
+<p>Every version in the experiment ran this script (<code>experiments/trust/jig_trust/trial.jig</code>, shortened); the engine changed only the variables <code>format</code>, <code>builder</code>, <code>tests</code>, <code>verify_step</code> and <code>max_fixes</code>.</p>
+<pre><code>spec = specify(f"Build the browser game described in the brief ({id})", brief=brief,
                constraints=STACK, id=id, format=format, agent="opus")
 if spec.status != "completed":
     fail(f"{id}: specify failed")
-musts = []
-for r in spec.output.requirements:
-    if r.priority == "must":
-        musts.append(r.id)
 b = build(spec, test_run=RUN, agent=builder)
-if b.status != "completed":
-    fail(f"{id}: build failed")
-
 for attempt in range(max_fixes + 1):
     tests_ok = true
     if tests == "on":
@@ -241,61 +167,115 @@ for attempt in range(max_fixes + 1):
                 gaps.append(f"{item.id}: {item.notes}")
                 if item.id in musts:
                     verify_ok = false
-    if not tests_ok:
-        gaps.append("the test run failed; make every test and the production build pass")
     if (tests_ok and verify_ok) or attempt == max_fixes or len(gaps) == 0:
         break
     build(spec, test_run=RUN, notes="; ".join(gaps), agent=builder)</code></pre>
-<h3>A.2 FACTS notes in a spec</h3>
-<p>With <code>format="facts"</code>, <code>specify</code> also writes the spec as FACTS notes, using the Reality Engine's published rule: "Write every fact as one short bullet in key-value form: 'name: value' or 'a -&gt; b: relation'. One fact per bullet, no prose, no repetition. Put each fact under the section it belongs to." Jig checks that the notes have all five headings and name every requirement. An excerpt:</p>
-<pre><code>## THINGS
-- logic: src/logic.ts
-- Mark: 'X' | 'O'
-- Game: { board: Cell[]; turn: Mark }
-## VALUES
-- board.length: 9
-- board.order: row by row, index 0 = top left</code></pre>
-<h3>A.3 Running it</h3>
-<pre><code>py -m jig run trial.jig --var id=TICTAC-001 --var brief=requirements/tictac.md \
-    --var format=facts --var builder=luna --var tests=on --var verify_step=on --var max_fixes=2 \
-    --var spec_guidance= --var build_guidance= --continue-on-error</code></pre>
 
-<h3>A.4 The syntax, and a skill that writes it</h3>
-<p>Jig's syntax looks like Python but is its own small language: command calls (each one a step that calls an AI agent or a procedure), variables, <code>if</code>, <code>for</code> and <code>while</code>, lists, maps, queues and sets, and a handful of builtins. It is never run as Python: the runner interprets it, and imports, functions and anything not on its list are rejected before anything runs.</p>
+<h2>Appendix B — The experiment in full</h2>
+<h3>B.1 Method</h3>
+<p><strong>Ways of working.</strong> OPUS_PROSE (the control: Opus builds from the prose spec, as the game factory works today), OPUS_FACTS, LUNA_PROSE and LUNA_FACTS. Claude Opus always wrote the spec and did the verifying; the stack, the test commands and up to two fix rounds were the same for all.</p>
+<p><strong>Items.</strong> Eighteen briefs, each asking for a playable game with its rules as named functions in <code>src/logic.ts</code>, each with six hidden acceptance checks: six hard briefs for the comparison and take-apart; three to screen and three to confirm in build-out (sliding puzzle, sea battle, towers; number grid, peg jump, five-letter word guess); and six sealed (the game of life, a code breaker, a box pusher, blackjack, lights out, dice poker). The six checks of a brief share one build and form a cluster, so ranges resample briefs, not checks. A check scores 1 if it passes; a build that failed or produced no logic scores 0 on all six. The user interface is not scored.</p>
+<p><strong>Stages.</strong> Compare the four; take the winner's script apart (spec format, test step, verify step, fix rounds; sixteen versions); build out (a designer, Claude Opus with no tools and only scores and counts in view, writes new versions of an extra spec rule and extra builder notes, screened on fresh briefs); confirm the best design against the control and the runner-up on the sealed briefs, opened once.</p>
+<p><img src="img/p2-pipeline.svg" alt="Figure 3: The experiment. Jig defines the way of working; the Reality Engine compares, takes apart, builds out and confirms it, scoring every game with hidden tests."></p>
+<h3>B.2 How it was kept honest</h3>
 <ul>
-<li><strong><a href="https://runcor-ai.github.io/jig/guide">The Jig guide</a></strong>: the language and every command from the beginning, for people who have not written code.</li>
-<li><strong><a href="https://runcor-ai.github.io/jig/language">The language reference</a></strong>: every statement, operator, data type and builtin.</li>
-<li><strong><a href="https://runcor-ai.github.io/jig/commands">Commands</a></strong>: how a step is defined (its prompt, tool policy, answer format and checks) and how to add your own.</li>
+<li><strong>Locked before any build.</strong> The plan, the engine and the pack's code were fingerprinted at 15:03 on 14 November 2026 (lock <code>2660f8ee5c4e8f2f</code>) and committed before the first build. The pack also fingerprints every brief, hidden test, reference implementation and the script (<code>frozen.py</code>) and refuses to start if any has changed.</li>
+<li><strong>Hidden tests proven first.</strong> All 144 hidden tests of all 24 briefs written pass on reference implementations (<code>check_references.py</code>).</li>
+<li><strong>The builder never sees the exam.</strong> Hidden tests are copied in only after the pipeline finishes; any build whose agent logs mention them is void.</li>
+<li><strong>Failures count; nothing is deleted.</strong> Every voided build and record is kept, renamed, with its reason.</li>
+<li><strong>After the lock.</strong> Two further entries in the lock log: at 15:12, builds run at once raised from 5 to 10 (operational; the builds in flight were stopped before scoring and rebuilt); at 15:54, a fix after a hash collision gave two take-apart versions the same game folder (both versions' builds and 13 engine records voided and rebuilt; nothing else affected).</li>
+<li><strong>Pilot 1</strong>, an earlier run on easier briefs, is kept as a dry run, not a result: it showed the path working and a ceiling, and its lessons (fix the design before the lock; never change files a running engine reads) shaped this run. Its sealed briefs were never opened and are this run's sealed set.</li>
+<li><strong>One author.</strong> The author wrote the briefs, the tests and the pipeline, and saw one live wiring test before the lock; nothing was tuned on it.</li>
 </ul>
-<p>People do not need to learn the syntax to use Jig. The repository includes a Claude Code skill, <a href="https://github.com/runcor-ai/jig/tree/master/.claude/skills/jig-script"><code>jig-script</code></a>, that turns a plain-language request ("build these three games from the briefs in a folder, check every requirement and fix what fails") into a commented Jig script, writes any batch file or new command the request needs, and checks the result offline (every command exists and every parameter is one it accepts) before anything is run. A person describes the work; the skill writes the script; Jig runs it under its contracts; the Reality Engine says how far that way of working can be trusted.</p>
-
-<h2>Appendix B — The data and the code</h2>
+<h3>B.3 The run</h3>
+<table>
+<thead><tr><th>Time (14 Nov 2026)</th><th>Event</th></tr></thead>
+<tbody>
+<tr><td>15:03</td><td>Plan locked and committed; comparison starts</td></tr>
+<tr><td>15:28</td><td>Comparison done: every way of working 36 of 36; winner Luna from FACTS on the tie-break</td></tr>
+<tr><td>16:34</td><td>Take-apart done: no part passed the effect test; the full script kept</td></tr>
+<tr><td>16:52</td><td>Build-out screen done: no new version led by the required +0.03; sealed set opened</td></tr>
+<tr><td>17:08</td><td>Final check done; trust report written</td></tr>
+</tbody>
+</table>
+<p>141 games built and 918 hidden checks scored across 22 designs, on one workstation, up to ten builds at once.</p>
+<p><img src="img/dashboard-p2-final@2x.png" alt="Figure 4: The run's dashboard at the end: progress, builds, usage and cost (scored and stopped work kept apart), and the comparison of the four ways of working."></p>
+<h3>B.4 Results</h3>
+<p><img src="img/p2-compare.svg" alt="Figure 5: The four ways of working on the hard comparison briefs: every one passed every check."></p>
+<table>
+<thead><tr><th>Script version (Luna building)</th><th>Spec as FACTS</th><th>Spec as prose</th></tr></thead>
+<tbody>
+<tr><td>Full script</td><td>100%</td><td>100%</td></tr>
+<tr><td>Test step off</td><td>94%</td><td>100%</td></tr>
+<tr><td>Verify step off</td><td>94%</td><td>100%</td></tr>
+<tr><td>Test step and verify off</td><td>78%</td><td>100%</td></tr>
+<tr><td>No fix rounds</td><td>89%</td><td>100%</td></tr>
+<tr><td>Test step off, no fix rounds</td><td>100%</td><td>92%</td></tr>
+<tr><td>Verify off, no fix rounds</td><td>100%</td><td>100%</td></tr>
+<tr><td>Test step, verify and fix rounds all off</td><td>86%</td><td>100%</td></tr>
+</tbody>
+</table>
+<table>
+<thead><tr><th>Part changed</th><th>Effect</th><th>95% range</th><th>p</th></tr></thead>
+<tbody>
+<tr><td>Spec format FACTS → prose</td><td>+0.062</td><td>−0.011 to +0.136</td><td>0.08</td></tr>
+<tr><td>Test step switched off</td><td>−0.042</td><td>−0.102 to +0.019</td><td>0.14</td></tr>
+<tr><td>Verify step switched off</td><td>−0.021</td><td>−0.076 to +0.035</td><td>0.38</td></tr>
+<tr><td>Fix rounds 2 → 0</td><td>0.000</td><td>−0.113 to +0.113</td><td>1.00</td></tr>
+</tbody>
+</table>
+<p><strong>Build-out.</strong> The designer's four versions (every rule as a named function with worked edge cases; a deterministic, seedable core with numbered checkable requirements; one test per rule before the interface; a final re-check of every rule and edge case) and the current best all passed every check on three fresh briefs, so the rounds stopped.</p>
+<p><img src="img/p2-final.svg" alt="Figure 6: The final check on the six sealed briefs: the final design, the control and the runner-up each passed all 36 checks."></p>
+<table>
+<thead><tr><th>Trust report</th><th>Answer</th></tr></thead>
+<tbody>
+<tr><td>How often it is right</td><td>100% of 36 sealed checks on 6 briefs; the reported range [100%, 100%] overstates the certainty: the 95 percent lower bound is about 90 percent per check and about 54 percent per brief</td></tr>
+<tr><td>Reliability</td><td>Every run finished without a design failure</td></tr>
+<tr><td>Why it fails</td><td>No failures on the sealed briefs</td></tr>
+<tr><td>Verdict</td><td>Luna from FACTS, full script; equal to the control and the runner-up (leads 0, not counted)</td></tr>
+<tr><td>How hard we looked</td><td>4 ways of working, 8 new versions, 22 designs built, 918 scored checks, 4 stages; 0 changes kept</td></tr>
+<tr><td>Headroom</td><td>Best unproven change: the spec as prose (+0.062, −0.011 to +0.136)</td></tr>
+</tbody>
+</table>
+<h3>B.5 Cost</h3>
+<table>
+<thead><tr><th>Usage</th><th>Tokens</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td>Claude Opus (specs, verification, Opus builds), as reported</td><td>14.9 million</td><td>$65.82</td></tr>
+<tr><td>GPT-6 Luna (Luna builds), at OpenAI's list price</td><td>73.5 million (67.1 M cached)</td><td>≈ $1.92</td></tr>
+<tr><td>Stopped or voided work (never scored)</td><td></td><td>≈ $4.16</td></tr>
+<tr><td><strong>Total</strong></td><td></td><td><strong>≈ $71.90</strong></td></tr>
+</tbody>
+</table>
+<p>A game built the control's way cost about $1.00 and took 4.4 minutes; the final design's way about $0.52 and 7.6 minutes, fix rounds included. Luna ran on a ChatGPT subscription and Opus on a Claude subscription; the dollar figures are what the same tokens cost at API list prices.</p>
+<h3>B.6 Limits</h3>
 <ul>
-<li><strong>Jig</strong>, with the language, the commands, the Codex adapter and the FACTS option: <a href="https://github.com/runcor-ai/jig">github.com/runcor-ai/jig</a>.</li>
-<li><strong>The pack</strong> (<code>experiments/trust/jig_trust/</code>): the 24 briefs, the hidden tests, the reference implementations, the trial pipeline, <code>frozen.py</code> and <code>pack.py</code>. <code>check_references.py</code> proves the hidden tests; <code>plan_offline.json</code> runs the whole engine with stand-ins at no cost.</li>
-<li><strong>Pilot 2</strong> (<code>experiments/trust/work/pilot2/</code>): the lock log, the state with every decision as an event, every record (voided ones kept, renamed), the analysis and the trust report. The build records, including every voided build with its reason, are in the trials folder named by the plan.</li>
-<li><strong>Pilot 1</strong> (<code>experiments/trust/work/pilot1/</code>): the dry run, with <code>DRY_RUN.md</code>.</li>
-<li><strong>The dashboard</strong> (<code>experiments/trust/dashboard/</code>): a read-only view of any Reality Engine work folder, with usage and cost.</li>
-<li><strong>The Reality Engine</strong>: <a href="https://github.com/LLMJester/reality-engine">github.com/LLMJester/reality-engine</a>, run unchanged; the pack is loaded from the Jig repository.</li>
+<li><strong>A ceiling.</strong> Nearly every version passed nearly every check, so the comparison could not separate the ways of working and the take-apart could not prove any step's worth. Simple, well-specified builds are already reliable.</li>
+<li><strong>Size.</strong> Six briefs per stage can show only large differences.</li>
+<li><strong>Logic, not play</strong>; <strong>briefs that state their interface</strong>; <strong>a sealed set easier than the comparison set</strong>; <strong>one author</strong>; <strong>only the winner taken apart</strong>; <strong>each brief built once</strong>; <strong>a coarser tool boundary for Luna</strong> under Codex.</li>
 </ul>
 
-<h2>Appendix C — Related work in detail</h2>
-<p><strong>Levels of description.</strong> Anderson (1972) argued that each level of science has its own laws, and that "the ability to reduce everything to simple fundamental laws does not imply the ability to start from those laws and reconstruct the universe". Dijkstra (1968) built an operating system as a hierarchy of layers, each using only the one below. Parnas (1972) proposed dividing a system so that each module hides a design decision. Meyer (1992) made the promises between components explicit as contracts. Jig applies the same ideas to steps done by AI agents.</p>
-<p><strong>Programming with language models.</strong> DSPy (Khattab et al., 2023) declares what a model call takes and returns, and compiles pipelines by optimising prompts against a metric. It is the closest in spirit, but it tunes prompts against a score rather than checking each claim against the real workspace, and it does not report a pre-registered trust score. LMQL (Beurer-Kellner et al., 2023) constrains what a model may generate.</p>
-<p><strong>Agent teams for software.</strong> MetaGPT (Hong et al., 2023) gives agents roles and standard operating procedures, and passes structured documents between them. ChatDev (Qian et al., 2023) runs chatting agents through design, coding and testing. SWE-agent (Yang et al., 2024) shows that the interface an agent works through changes how well it does.</p>
-<p><strong>Self-correction.</strong> Reflexion (Shinn et al., 2023) and Self-Refine (Madaan et al., 2023) let a model critique and revise its own output. In Jig, fix rounds are driven by external facts: tests that really ran, and verification whose citations are checked. The take-apart here measured what those rounds contribute.</p>
-<p><strong>Evaluation.</strong> HumanEval (Chen et al., 2021) and SWE-bench (Jimenez et al., 2023) score code with tests. Judges built from language models (Zheng et al., 2023) are common, but they are not used for scores here. The Reality Engine adds what these benchmarks do not set out to do: rules locked in advance, a fixed control, a sealed final check opened once, and corrections that allow for luck among many candidates.</p>
+<h2>Appendix C — The data and the code</h2>
+<ul>
+<li><strong>Jig</strong>: <a href="https://github.com/runcor-ai/jig">github.com/runcor-ai/jig</a>; what it enforces, claim by claim: <code>docs/ARCHITECTURE.md</code>.</li>
+<li><strong>The experiment's pack</strong> (<code>experiments/trust/jig_trust/</code>): the 24 briefs, hidden tests, reference implementations, the script, <code>frozen.py</code> and <code>pack.py</code>; <code>check_references.py</code> proves the hidden tests.</li>
+<li><strong>The runs</strong> (<code>experiments/trust/work/pilot2/</code>, and the dry run <code>pilot1/</code>): lock logs, every decision as an event, every record (voided ones kept), the analysis and the trust report.</li>
+<li><strong>The dashboard</strong> (<code>experiments/trust/dashboard/</code>): a read-only view of a run, with usage and cost.</li>
+<li><strong>The Reality Engine</strong>: <a href="https://github.com/LLMJester/reality-engine">github.com/LLMJester/reality-engine</a>, run unchanged.</li>
+</ul>
 
 <h2>References</h2>
 <ul>
 <li>Anderson, P. W. (1972). More is different. <em>Science</em>, 177(4047), 393–396.</li>
-<li>Beurer-Kellner, L., Fischer, M., &amp; Vechev, M. (2023). Prompting is programming: A query language for large language models. <em>PLDI 2023</em>. arXiv:2212.06094.</li>
+<li>Anthropic (2024). Model Context Protocol. <a href="https://modelcontextprotocol.io">modelcontextprotocol.io</a>.</li>
+<li>Anthropic (2025). Agent Skills. Claude documentation.</li>
 <li>Chen, M., et al. (2021). Evaluating large language models trained on code. arXiv:2107.03374.</li>
-<li>Describing Reality for AI (2026). White paper, final v0.1.0, run 5 (29–31 October 2026, updated 1 November 2026). <a href="https://therealityengine.ca/paper/">therealityengine.ca/paper</a>.</li>
+<li>Describing Reality for AI (2026). Final v0.1.0, run 5 (29–31 October 2026). <a href="https://therealityengine.ca/paper/">therealityengine.ca/paper</a>.</li>
 <li>Dijkstra, E. W. (1968). The structure of the "THE"-multiprogramming system. <em>Communications of the ACM</em>, 11(5), 341–346.</li>
 <li>Hong, S., et al. (2023). MetaGPT: Meta programming for a multi-agent collaborative framework. arXiv:2308.00352.</li>
 <li>Jimenez, C. E., et al. (2023). SWE-bench: Can language models resolve real-world GitHub issues? arXiv:2310.06770.</li>
 <li>Khattab, O., et al. (2023). DSPy: Compiling declarative language model calls into self-improving pipelines. arXiv:2310.03714.</li>
+<li>LangChain (2024). LangGraph. <a href="https://github.com/langchain-ai/langgraph">github.com/langchain-ai/langgraph</a>.</li>
 <li>Madaan, A., et al. (2023). Self-Refine: Iterative refinement with self-feedback. arXiv:2303.17651.</li>
 <li>Meyer, B. (1992). Applying "design by contract". <em>IEEE Computer</em>, 25(10), 40–51.</li>
 <li>OpenAI (2026). GPT-6 Luna, model and pricing. <a href="https://developers.openai.com/docs/models/gpt-6-luna">developers.openai.com/docs/models/gpt-6-luna</a>.</li>
@@ -304,5 +284,4 @@ for attempt in range(max_fixes + 1):
 <li>Shinn, N., et al. (2023). Reflexion: Language agents with verbal reinforcement learning. arXiv:2303.11366.</li>
 <li>The Reality Engine (2026). How it works. <a href="https://therealityengine.ca/how-it-works.html">therealityengine.ca/how-it-works.html</a>.</li>
 <li>Yang, J., et al. (2024). SWE-agent: Agent-computer interfaces enable automated software engineering. arXiv:2405.15793.</li>
-<li>Zheng, L., et al. (2023). Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. arXiv:2306.05685.</li>
 </ul>

@@ -1,8 +1,17 @@
 # Jig v0.3
 
-Jig is a small scripting language for LLM agents. You write short scripts. Each command becomes a
-tool-restricted agent call (Claude Code today), its output is checked against a JSON schema plus
-deterministic checks, failures are retried with feedback, and everything is recorded under `.jig/`.
+**Jig is a layer of abstraction for AI work.** AI work cannot scale through ad-hoc prompts or brittle
+orchestration scripts. Working with an agent directly means working in the weeds: wording prompts, granting tools,
+and accepting the agent's own report that the job is done. Orchestration scripts move the weeds rather than leaving
+them: the prompts are still in the code, success is whatever the script happens to parse, and changing one step
+means editing plumbing. That works for one task watched closely. Under variance, many people and many runs, it
+breaks down, and nothing is precise enough to measure.
+
+Jig separates the **definition of the work** from the **mechanics of executing it**. The script says which steps
+run, in what order, with which inputs and which agent. Each step's prompt, tools, answer format and checks are
+written once, one level down, and the runtime runs them on whichever agent host the script names. Because a way of
+working is then a precise, versioned definition that leaves the same record on every run, it can be run on many
+cases, compared, taken apart and rated.
 
 ```python
 spec = specify("A simple Pong game: two paddles, a ball, score to 10, player vs computer",
@@ -12,11 +21,33 @@ test(spec, run=["npm install", "npx vitest run --reporter=junit --outputFile=tes
 verify(spec)
 ```
 
+**What is encapsulated.** Each step (`specify`, `build`, `test`, `verify`, `research`, or one you define) is a
+contract written once: its prompt template, the tools its agent may use, the exact JSON shape of its answer, and the
+checks run on that answer. A script never contains a prompt or a tool permission.
+
+**What stays explicit.** The script: which steps run, in what order, with which inputs and which agent
+(`agent="opus"`, `agent="luna"`), and what happens when a check fails. Every agent call is its own line. Plain logic
+(`if`, `for`, lists) runs locally, and the script is never executed as Python.
+
+**How correctness is enforced.** An answer is accepted only if it matches its schema and passes deterministic checks
+against the real workspace and records: files it claims exist, functions it cites are in those files, tests it cites
+really ran, sources it cites were really retrieved. `test` runs the real test commands with no model involved, and
+the verify verdict is computed from the requirement statuses and the recorded test result. A failed check gets one
+retry with the findings listed; then the step fails. Everything is recorded under `.jig/`.
+
+**What it does not do.** The checks catch fabricated and missing evidence; they do not judge meaning, so whether the
+result is *right* rests on the tests you supply. Tool limits are enforced by the agent host (Claude Code or Codex),
+with a Docker sandbox for real isolation. How often a whole script gets it right is a separate question, measured
+with [The Reality Engine](https://therealityengine.ca) in the paper's short experiment: Jig makes a way of working
+measurable (versioned definitions, uniform per-step records, batches); the ratings themselves are computed outside
+it. The details, with every claim tied to the code and a comparison with DSPy, LangGraph, MCP and skills:
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 Commands are plugins. The five built-ins use exactly the format you use to add your own.
 
-**Website:** <https://runcor-ai.github.io/jig/>, with the guide, the pilot study
-([Abstraction for AI Work](https://runcor-ai.github.io/jig/paper/): Jig measured by The Reality Engine) and three games Jig built
-that you can play.
+**Website:** <https://runcor-ai.github.io/jig/>, with the guide, the thought paper
+([Abstraction for AI Work](https://runcor-ai.github.io/jig/paper/), with a short experiment) and three games Jig
+built that you can play.
 
 ## Quick start
 
