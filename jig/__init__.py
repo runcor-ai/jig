@@ -1,2 +1,2 @@
-"""Jig v0.3: a model-independent command language for invoking, constraining and evaluating AI agents."""
-__version__ = "0.3.0"
+"""Jig v0.4: a control plane for AI work: contracted steps, checked by code, done by any worker."""
+__version__ = "0.4.0"

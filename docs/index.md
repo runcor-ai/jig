@@ -4,23 +4,33 @@ title: Jig
 
 # Jig
 
-**Work with AI at the right level: requirements, steps, results and checks, not prompts and tokens.**
+**The AI control plane: define the work once, and every step is permitted, verified and measured, whoever
+does it.**
 
-A biologist explaining how a heart pumps does not talk about quantum physics. Every field controls
-complexity by working at the right level of description. Jig does that for AI work. You describe the work
-in a short script, as steps such as `specify`, `build`, `test` and `verify`. Each step keeps the detail
-below it out of sight: its instructions to the agent, the tools it may use, the format its answer must
-have, and the code checks that run before anyone can use the answer. Everything is recorded.
+Orchestration frameworks manage how agents run and coordinate. Jig sits above them. You describe the work in a
+short script of steps, such as `specify`, `build`, `test` and `verify`. Each step runs under a contract written
+once, one level down: its instructions, the tools it may use, the exact format of its answer, and the code checks
+that run before anyone can use the answer. Every step is recorded, so a way of working can be run on many cases
+and rated.
+
+A step can be done by an AI model (`agent="opus"`, `agent="luna"`), by plain code (`test` runs the real tests),
+or by another Jig script. Human experts as a worker are planned. A whole game factory is a few lines over one
+step, `make_game`, which is itself a Jig script:
 
 ```python
-spec = specify("Build the browser game described in the brief", brief="requirements/pong.md",
-               constraints=["React + TypeScript + Vite, no backend"], id="PONG-001")
-build(spec)
-test(spec, run=["npm install", "npx vitest run --reporter=junit --outputFile=test-results/junit.xml"])
-v = verify(spec)                     # every requirement checked; the verdict is computed by code
-if v.output.verdict.result != "pass":
-    build(spec, notes=v.output.summary)
+GAMES = [{"id": "PONG-003", "file": "pong.md"},
+         {"id": "TETRIS-002", "file": "tetris.md"},
+         {"id": "SNAKE-002", "file": "snake.md"}]
+
+results = make_game(each=GAMES, parallel=3)     # game.jig, once per game, all at the same time
+for r in results:
+    if r.status != "completed":
+        print(f"{r.output.id} needs a look")
 ```
+
+Each game runs [factory/game.jig](https://github.com/runcor-ai/jig/blob/master/factory/game.jig): specify,
+build, the real tests, every requirement verified against the code, up to two fix rounds, and a review. On
+14 November 2026 the three games were built at the same time in 5 minutes, and all passed.
 
 ## Read
 

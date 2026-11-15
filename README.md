@@ -1,4 +1,4 @@
-# Jig v0.3
+# Jig v0.4
 
 **Jig is a layer of abstraction for AI work.** The machinery for AI work is now strong: orchestration frameworks,
 agent teams, and harnesses with deterministic hooks. What is missing is a level above it. The way of working is
