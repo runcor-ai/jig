@@ -126,7 +126,7 @@ for attempt in range(3):
 <tr><td><strong>Abstraction for AI Work (Jig)</strong></td><td><strong>A restricted script of contracted steps; prompts, tool permissions, answer formats and checks live one level down in step definitions</strong></td><td><strong>Per step: tool policy enforced by the agent host, an output JSON Schema, deterministic evidence checks, a model-free test step, a computed verdict. Per script: a fixed syntax, loop, step and size limits</strong></td><td><strong>A persistent artifact per item (manifest, append-only step outputs, its own workspace); context injected only from named, recorded results; untrusted inputs fenced; each batch item in its own process and folder</strong></td><td><strong>Every way of working is a versioned definition; every step leaves a structured record of output, check findings and cost; batches run a script over many items in parallel with per-item summaries. The statistics (ratings, ranges) come from an external instrument, here the Reality Engine</strong></td><td><strong>Unverified self-reported agent success, unbounded tool use, and work that cannot be compared, audited or measured</strong></td></tr>
 </tbody>
 </table>
-<p>Closest in spirit is DSPy, which also lifts AI work above the prompt and builds evaluation into the loop; it optimises prompts against a metric, where this layer checks each claim against the workspace and keeps the work's definition explicit for people. MetaGPT and ChatDev organise agents into roles and procedures (Hong et al., 2023; Qian et al., 2023); Reflexion and Self-Refine let a model correct itself with its own feedback (Shinn et al., 2023; Madaan et al., 2023), where here the feedback is tests that really ran. HumanEval and SWE-bench score code by tests (Chen et al., 2021; Jimenez et al., 2023), and SWE-agent shows the interface shapes the result (Yang et al., 2024); they rank models on public benchmarks, where this layer makes a <em>way of working</em> the thing ranked.</p>
+<p>Closest in spirit is DSPy, which also lifts AI work above the prompt and builds evaluation into the loop; it optimises prompts against a metric, where this layer checks each claim against the workspace and keeps the work's definition explicit for people. MetaGPT and ChatDev organise agents into roles and procedures (Hong et al., 2023; Qian et al., 2023); Reflexion and Self-Refine let a model correct itself with its own feedback (Shinn et al., 2023; Madaan et al., 2023), where here the feedback is tests that really ran. HumanEval and SWE-bench score code by tests (Chen et al., 2021; Jimenez et al., 2023), and SWE-agent shows the interface shapes the result (Yang et al., 2024); they rank models on public benchmarks, where this layer makes a <em>way of working</em> the thing ranked. Appendix D compares the families in detail, with a checklist of features.</p>
 
 <h2>Appendix A — Jig: use it yourself</h2>
 <h3>A.1 The syntax, and a skill that writes it</h3>
@@ -264,6 +264,47 @@ for attempt in range(max_fixes + 1):
 <li><strong>The Reality Engine</strong>: <a href="https://github.com/LLMJester/reality-engine">github.com/LLMJester/reality-engine</a>, run unchanged.</li>
 </ul>
 
+<h2>Appendix D — Related work in detail</h2>
+<p>The full comparison behind section 09: each family of related work, with example work, what it abstracts, how it checks output and measures, and how this work differs; then a checklist of 16 features.</p>
+<table>
+<thead><tr><th>Approach</th><th>Example work</th><th>What it abstracts</th><th>How output is checked</th><th>Measurement</th><th>How this work differs</th></tr></thead>
+<tbody>
+<tr><td>Raw prompting and ad-hoc scripts</td><td>Chat use; hand-written scripts calling a model API</td><td>Nothing: the prompt and the plumbing are the work</td><td>Whatever the script parses, or a person reading the output</td><td>Demos and spot checks</td><td>The baseline this paper argues against: the definition of the work is mixed with its mechanics</td></tr>
+<tr><td>Pipeline optimisation</td><td>DSPy Khattab et al., 2023</td><td>Modules with typed signatures in a Python program</td><td>Typed fields; metrics and assertions written by the developer</td><td>Built in: prompts and examples compiled against a metric on an evaluation set</td><td>The closest in spirit. DSPy optimises prompts against a metric; this layer keeps prompts fixed, checks each claim against the workspace, and leaves the rating to a separate instrument</td></tr>
+<tr><td>Graph and agent frameworks</td><td>LangGraph LangChain, 2024</td><td>Nodes and edges of a stateful graph, in code</td><td>Code in the nodes; a state schema; human interrupts at chosen nodes</td><td>Separate tools for tracing and evaluation</td><td>Control flow lives in general code with prompts inside the nodes; here the work is a restricted script and the prompts live one level down</td></tr>
+<tr><td>Role-based multi-agent procedures</td><td>MetaGPT Hong et al., 2023; ChatDev Qian et al., 2023</td><td>Roles and standard procedures handing documents to each other</td><td>Mostly other agents' reviews; MetaGPT also runs generated code</td><td>Benchmarks, with ablations of roles in the papers</td><td>Agents check agents; here code checks agents, and the procedure is a readable script rather than a fixed company of roles</td></tr>
+<tr><td>Self-correction</td><td>Reflexion Shinn et al., 2023; Self-Refine Madaan et al., 2023</td><td>A loop of attempt, feedback and retry</td><td>The model's own feedback; for code, tests (Reflexion writes its own)</td><td>Benchmarks, with ablations</td><td>Here the feedback in a fix round is tests that really ran and a verifier's cited gaps, and the loop is visible in the script with a fixed cap</td></tr>
+<tr><td>Tool protocols</td><td>MCP Anthropic, 2024</td><td>Tools, resources and prompts served to any model</td><td>A JSON Schema for each tool's input; the host approves calls</td><td>Not in scope</td><td>A layer below this one: it connects tools; it does not define, check or measure work</td></tr>
+<tr><td>Skills and procedural guidance</td><td>Agent Skills Anthropic, 2025</td><td>Packaged instructions, sometimes with scripts, loaded into context on demand</td><td>Little beyond bundled scripts: the model follows the guidance</td><td>Not built in</td><td>Guidance the model may follow; here a contract the runtime enforces. Jig uses a skill only to write scripts</td></tr>
+<tr><td>Coding agents and benchmarks</td><td>SWE-agent Yang et al., 2024; SWE-bench Jimenez et al., 2023; HumanEval Chen et al., 2021</td><td>An agent-computer interface; a fixed set of test tasks</td><td>Real tests run on the result</td><td>Held-out benchmark scores, with interface ablations</td><td>They rate models on public tasks; this layer makes a way of working the thing that is defined, varied and rated</td></tr>
+<tr><td>Spec-driven development</td><td>Spec Kit GitHub, 2025; Kiro AWS, 2025</td><td>Specifications, plans and task lists that guide a coding agent</td><td>The agent and the developer, with tests where written</td><td>Not built in</td><td>Specs guide one agent session; here the spec is one recorded step among checked steps, and the whole procedure is scripted and repeatable</td></tr>
+<tr><td><strong>This work</strong></td><td>Jig, this paper</td><td><strong>A restricted script of contracted steps; prompts, tools, answer formats and checks one level down</strong></td><td><strong>Schema, evidence checks against the workspace and records, a test step with no model, a computed verdict</strong></td><td><strong>Versioned definitions and uniform records; ratings by an external instrument (the Reality Engine)</strong></td><td>The reference row</td></tr>
+</tbody>
+</table>
+<p>Feature checklist. Each column is one family of related work from the table above; the last column is this work. ✓ = yes, ~ = partly or only in some work, ✗ = no or not reported.</p>
+<table>
+<thead><tr><th>Feature</th><th>Prompts, scripts</th><th>DSPy</th><th>Graphs</th><th>Roles</th><th>Self-fix</th><th>MCP</th><th>Skills</th><th>Benchmarks</th><th>Spec-driven</th><th>This work</th></tr></thead>
+<tbody>
+<tr><td>Work defined above the prompt</td><td>✗</td><td>✓</td><td>~</td><td>~</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>~</td><td>✓</td></tr>
+<tr><td>A restricted language for the work, never run as general code</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td></tr>
+<tr><td>Every step's answer must match a schema</td><td>✗</td><td>✓</td><td>~</td><td>~</td><td>✗</td><td>~</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td></tr>
+<tr><td>Tool limits per step, enforced outside the model</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>✗</td><td>~</td><td>~</td><td>~</td><td>✗</td><td>✓</td></tr>
+<tr><td>Claims checked against evidence (files, functions, tests, sources)</td><td>✗</td><td>~</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td></tr>
+<tr><td>Tests run with no model, feeding a computed verdict</td><td>✗</td><td>~</td><td>~</td><td>~</td><td>~</td><td>✗</td><td>✗</td><td>✓</td><td>~</td><td>✓</td></tr>
+<tr><td>Agent chosen per step without changing the work</td><td>✗</td><td>✓</td><td>✓</td><td>~</td><td>✗</td><td>~</td><td>✗</td><td>~</td><td>~</td><td>✓</td></tr>
+<tr><td>A persistent record per item, with resume</td><td>✗</td><td>✗</td><td>✓</td><td>~</td><td>✗</td><td>✗</td><td>✗</td><td>~</td><td>~</td><td>✓</td></tr>
+<tr><td>Untrusted inputs fenced as data</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td></tr>
+<tr><td>One definition run over many items in parallel</td><td>~</td><td>~</td><td>~</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td><td>✗</td><td>✓</td></tr>
+<tr><td>A uniform record of every step (prompt, output, findings, cost)</td><td>✗</td><td>~</td><td>~</td><td>~</td><td>✗</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>✓</td></tr>
+<tr><td>Written from a plain-language request</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>~</td><td>✓</td></tr>
+<tr><td>Optimises its own prompts automatically</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td></tr>
+<tr><td>Way of working rated on unseen cases, with a range</td><td>✗</td><td>~</td><td>✗</td><td>~</td><td>~</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>~</td></tr>
+<tr><td>Way of working taken apart step by step</td><td>✗</td><td>✗</td><td>✗</td><td>~</td><td>~</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>~</td></tr>
+<tr><td>Human experts as a step</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>✗</td><td>~</td><td>✗</td><td>✗</td><td>~</td><td>✗</td></tr>
+</tbody>
+</table>
+<p>Ratings summarise each family's published design and the work cited for it, not every system in the family; a family can gain a feature at any release. Two of this work's partial ticks, rating a way of working on unseen cases and taking it apart, come from an external instrument (the Reality Engine) rather than from Jig itself, and have been done once, in the experiment of section 07. Human experts as a step is a direction (section 08), not built. Among the work reviewed, no other family combines a restricted language for the work, evidence checks on every step and fenced inputs; the price is that Jig does not optimise its own prompts, which DSPy does.</p>
+
 <h2>References</h2>
 <ul>
 <li>Anderson, P. W. (1972). More is different. <em>Science</em>, 177(4047), 393–396.</li>
@@ -273,7 +314,9 @@ for attempt in range(max_fixes + 1):
 <li>Describing Reality for AI (2026). Final v0.1.0, run 5 (29–31 October 2026). <a href="https://therealityengine.ca/paper/">therealityengine.ca/paper</a>.</li>
 <li>Dijkstra, E. W. (1968). The structure of the "THE"-multiprogramming system. <em>Communications of the ACM</em>, 11(5), 341–346.</li>
 <li>Hong, S., et al. (2023). MetaGPT: Meta programming for a multi-agent collaborative framework. arXiv:2308.00352.</li>
+<li>GitHub (2025). Spec Kit. <a href="https://github.com/github/spec-kit">github.com/github/spec-kit</a>.</li>
 <li>Jimenez, C. E., et al. (2023). SWE-bench: Can language models resolve real-world GitHub issues? arXiv:2310.06770.</li>
+<li>AWS (2025). Kiro. <a href="https://kiro.dev">kiro.dev</a>.</li>
 <li>Khattab, O., et al. (2023). DSPy: Compiling declarative language model calls into self-improving pipelines. arXiv:2310.03714.</li>
 <li>LangChain (2024). LangGraph. <a href="https://github.com/langchain-ai/langgraph">github.com/langchain-ai/langgraph</a>.</li>
 <li>Madaan, A., et al. (2023). Self-Refine: Iterative refinement with self-feedback. arXiv:2303.17651.</li>
