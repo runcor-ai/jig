@@ -15,7 +15,7 @@
 
   <rect x="20" y="128" width="290" height="300" rx="10" fill="#eaf1fb" stroke="#2a78d6" stroke-width="1.5"/>
   <text x="36" y="154" font-weight="600" fill="#0b0b0b">A Jig script</text>
-  <g font-family="Consolas, ui-monospace, monospace" font-size="13.5" fill="#0b0b0b">
+  <g font-family="Consolas, ui-monospace, monospace" font-size="12.5" fill="#0b0b0b">
     <text x="36" y="186"><tspan fill="#2a78d6" font-weight="600">spec = specify</tspan>(brief, format="facts")</text>
     <text x="36" y="212"><tspan fill="#2a78d6" font-weight="600">build</tspan>(spec, agent="luna")</text>
     <text x="36" y="238"><tspan fill="#898781">for</tspan> attempt <tspan fill="#898781">in</tspan> range(3):</text>
@@ -73,10 +73,11 @@
 
   <!-- 5. result back -->
   <rect x="20" y="452" width="500" height="96" rx="10" fill="#fcfcfb" stroke="#1baf7a" stroke-width="1.5"/>
-  <text x="36" y="478" font-weight="600" fill="#0b0b0b">5  The result goes back to the script</text>
+  <text x="36" y="478" font-weight="600" fill="#0b0b0b">The result goes back to the script</text>
   <text x="36" y="502" fill="#0b0b0b">spec.status · v.output.verdict · t.status ...</text>
   <text x="36" y="526" fill="#52514e" font-size="13.5">so the next line can decide: stop, fix, or move on</text>
-  <line x1="556" y1="446" x2="524" y2="490" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
+  <path d="M 560 446 H 545 Q 540 446 540 451 V 495 Q 540 500 535 500 H 523" fill="none" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
+  <text x="516" y="444" font-size="13" letter-spacing="2" fill="#898781" text-anchor="end">5  BACK TO THE SCRIPT</text>
   <line x1="165" y1="452" x2="165" y2="432" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
 
   <!-- records and rating -->
