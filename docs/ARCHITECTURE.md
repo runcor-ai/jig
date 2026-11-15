@@ -65,7 +65,7 @@ post-processors `tests_must_pass` and `verify_verdict` (`jig/procedures.py`).
 | "Retries with feedback" | One retry on validation failure, only for idempotent commands; `build` is not retried automatically | Repair of a build happens through the script's own fix rounds, not the runtime |
 | "Everything is recorded" | True for every step. The artifact keeps the latest output per stage in its manifest and every output on disk | `$spec` and `$context` read the latest output of each stage |
 | Experts as agents | Design only (`docs/design/expert-agents.md`) | Not built |
-| "A way of working becomes a step at the level above" | A script command runs a whole script as one step and returns its checked `result` (`factory/factory.jig` over `make_game`). Calls run one after another inside a script | Composition is built; running nested calls in parallel is not (use `jig batch`). `make_game` is tested offline; it has not yet been run live |
+| "A way of working becomes a step at the level above" | A script command runs a whole script as one step and returns its checked `result` (`factory/factory.jig` over `make_game`). Calls run one after another inside a script | Composition is built; running nested calls in parallel is not (use `jig batch`). `make_game` is tested offline and was run live once (14 Nov 2026: PONG-002, every inner step completed, 35 tests passed, verify pass, 5 minutes, $0.81) |
 
 ## 3. Three sharper framings
 
