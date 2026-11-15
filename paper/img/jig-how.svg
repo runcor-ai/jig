@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640" font-family="Segoe UI, system-ui, sans-serif" font-size="15">
-  <rect width="1000" height="640" fill="#fcfcfb"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 640" width="1024" height="640" font-family="Segoe UI, system-ui, sans-serif" font-size="15">
+  <rect width="1024" height="640" fill="#fcfcfb"/>
   <defs>
     <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#52514e"/></marker>
     <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1baf7a"/></marker>
@@ -69,7 +69,7 @@
   <text x="576" y="444" fill="#0b0b0b">files it claims exist · functions it cites are in the file</text>
   <text x="576" y="466" fill="#0b0b0b">tests it cites really ran · the verdict is computed</text>
   <text x="576" y="488" fill="#52514e" font-size="13.5">a failed check: one retry, with the problems listed</text>
-  <path d="M 980 446 C 1000 446, 1000 243, 984 243" fill="none" stroke="#eb6834" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ao)"/>
+  <path d="M 980 430 H 1000 Q 1006 430 1006 424 V 249 Q 1006 243 1000 243 H 983" fill="none" stroke="#eb6834" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ao)"/>
 
   <!-- 5. result back -->
   <rect x="20" y="452" width="500" height="96" rx="10" fill="#fcfcfb" stroke="#1baf7a" stroke-width="1.5"/>
