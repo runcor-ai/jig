@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 410" width="1024" height="410" font-family="Segoe UI, system-ui, sans-serif" font-size="15">
+  <rect width="1024" height="410" fill="#fcfcfb"/>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#52514e"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1baf7a"/></marker>
+  </defs>
+
+  <!-- 1. the factory script -->
+  <text x="20" y="28" font-size="13" letter-spacing="2" fill="#898781">1  THE FACTORY SCRIPT</text>
+  <rect x="20" y="40" width="300" height="250" rx="10" fill="#eaf1fb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="36" y="66" font-weight="600" fill="#0b0b0b">factory.jig</text>
+  <g font-family="Consolas, ui-monospace, monospace" font-size="12.5" fill="#0b0b0b">
+    <text x="36" y="98">GAMES = [pong, tetris, snake]</text>
+    <rect x="30" y="118" width="282" height="46" rx="5" fill="#d6e5f8"/>
+    <text x="36" y="136">results = <tspan fill="#2a78d6" font-weight="600">make_game</tspan>(each=GAMES,</text>
+    <text x="181" y="155">parallel=3)</text>
+    <text x="36" y="190"><tspan fill="#898781">for</tspan> r <tspan fill="#898781">in</tspan> results:</text>
+    <text x="52" y="212"><tspan fill="#898781">if</tspan> r.status == "completed":</text>
+    <text x="68" y="234">passed.append(r.output.id)</text>
+  </g>
+  <text x="36" y="272" fill="#52514e" font-size="13.5">one line, one step: a whole Jig script</text>
+
+  <!-- 2. one process per game -->
+  <text x="380" y="28" font-size="13" letter-spacing="2" fill="#898781">2  GAME.JIG, ONCE PER GAME, ALL AT ONCE</text>
+  <path d="M 312 141 H 345 Q 350 141 350 136 V 83 Q 350 78 355 78 H 377" fill="none" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M 312 141 H 345 Q 350 141 350 146 V 157 Q 350 162 355 162 H 377" fill="none" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M 312 141 H 345 Q 350 141 350 146 V 241 Q 350 246 355 246 H 377" fill="none" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
+
+  <rect x="380" y="40" width="330" height="76" rx="10" fill="#eaf1fb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="396" y="64" font-weight="600" fill="#0b0b0b">game.jig · PONG-003</text>
+  <rect x="380" y="124" width="330" height="76" rx="10" fill="#eaf1fb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="396" y="148" font-weight="600" fill="#0b0b0b">game.jig · TETRIS-002</text>
+  <rect x="380" y="208" width="330" height="76" rx="10" fill="#eaf1fb" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="396" y="232" font-weight="600" fill="#0b0b0b">game.jig · SNAKE-002</text>
+  <g font-size="13.5" fill="#0b0b0b">
+    <text x="396" y="85">specify → build → test → verify → fix → review</text>
+    <text x="396" y="169">specify → build → test → verify → fix → review</text>
+    <text x="396" y="253">specify → build → test → verify → fix → review</text>
+  </g>
+  <g font-size="12.5" fill="#52514e">
+    <text x="396" y="104">own process and folder · every step checked, recorded</text>
+    <text x="396" y="188">own process and folder · every step checked, recorded</text>
+    <text x="396" y="272">own process and folder · every step checked, recorded</text>
+  </g>
+
+  <!-- 3. results -->
+  <text x="764" y="28" font-size="13" letter-spacing="2" fill="#898781">3  RESULTS, IN ORDER</text>
+  <line x1="710" y1="78" x2="761" y2="78" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
+  <line x1="710" y1="162" x2="761" y2="162" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
+  <line x1="710" y1="246" x2="761" y2="246" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
+  <rect x="764" y="40" width="240" height="250" rx="10" fill="#fcfcfb" stroke="#1baf7a" stroke-width="1.5"/>
+  <g font-size="14">
+    <text x="780" y="75" font-weight="600" fill="#0b0b0b">PONG-003 · completed</text>
+    <text x="780" y="95" fill="#52514e" font-size="13">48 tests · verify pass · 0 fixes</text>
+    <text x="780" y="159" font-weight="600" fill="#0b0b0b">TETRIS-002 · completed</text>
+    <text x="780" y="179" fill="#52514e" font-size="13">31 tests · verify pass · 0 fixes</text>
+    <text x="780" y="243" font-weight="600" fill="#0b0b0b">SNAKE-002 · completed</text>
+    <text x="780" y="263" fill="#52514e" font-size="13">21 tests · verify pass · 0 fixes</text>
+  </g>
+
+  <!-- back to the factory -->
+  <path d="M 884 290 V 317 Q 884 322 879 322 H 175 Q 170 322 170 317 V 294" fill="none" stroke="#1baf7a" stroke-width="2" marker-end="url(#ag)"/>
+  <text x="380" y="344" fill="#52514e" font-size="13.5">each result checked against make_game's answer format, then returned to the factory as a list</text>
+
+  <rect x="20" y="358" width="984" height="40" rx="10" fill="#f6f6f3" stroke="#c3c2b7"/>
+  <text x="36" y="383" fill="#52514e" font-size="13.5">Run 14 Nov 2026: three games at the same time, 5.0 minutes in all. make_game is defined once, in commands/make_game.yaml.</text>
+</svg>

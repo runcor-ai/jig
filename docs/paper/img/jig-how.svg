@@ -49,17 +49,19 @@
   <line x1="640" y1="243" x2="676" y2="243" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
 
   <!-- 3. the agent -->
-  <text x="680" y="30" font-size="13" letter-spacing="2" fill="#898781">3  EXECUTION: AN AGENT, OR CODE</text>
+  <text x="680" y="30" font-size="13" letter-spacing="2" fill="#898781">3  WHO DOES THE STEP</text>
   <rect x="680" y="128" width="300" height="230" rx="10" fill="#fdf0e9" stroke="#eb6834" stroke-width="1.5"/>
-  <text x="696" y="154" font-weight="600" fill="#0b0b0b">An AI agent does the step</text>
-  <text x="696" y="180" fill="#0b0b0b">Claude Opus through Claude Code,</text>
-  <text x="696" y="202" fill="#0b0b0b">or GPT-6 Luna through Codex,</text>
-  <text x="696" y="224" fill="#0b0b0b">inside its tool boundary</text>
-  <line x1="696" y1="244" x2="964" y2="244" stroke="#e1e0d9"/>
-  <text x="696" y="270" font-weight="600" fill="#0b0b0b">or no AI at all</text>
-  <text x="696" y="294" fill="#0b0b0b">test runs the real test commands</text>
-  <text x="696" y="316" fill="#0b0b0b">and reads the real reports</text>
-  <text x="696" y="342" fill="#52514e" font-size="13.5">facts, not a model's opinion</text>
+  <text x="696" y="152" font-weight="600" fill="#0b0b0b">An AI agent does the step</text>
+  <text x="696" y="174" fill="#0b0b0b" font-size="14">Claude Opus through Claude Code,</text>
+  <text x="696" y="193" fill="#0b0b0b" font-size="14">or GPT-6 Luna through Codex,</text>
+  <text x="696" y="212" fill="#0b0b0b" font-size="14">inside its tool boundary</text>
+  <line x1="696" y1="226" x2="964" y2="226" stroke="#e1e0d9"/>
+  <text x="696" y="249" font-weight="600" fill="#0b0b0b">or no AI at all</text>
+  <text x="696" y="270" fill="#0b0b0b" font-size="14">test runs the real tests and reads</text>
+  <text x="696" y="289" fill="#0b0b0b" font-size="14">the real reports: facts, not opinion</text>
+  <line x1="696" y1="303" x2="964" y2="303" stroke="#e1e0d9"/>
+  <text x="696" y="326" font-weight="600" fill="#0b0b0b">or a whole Jig script</text>
+  <text x="696" y="346" fill="#0b0b0b" font-size="14">make_game runs game.jig (Figure 2)</text>
   <line x1="830" y1="358" x2="830" y2="390" stroke="#52514e" stroke-width="2" marker-end="url(#ar)"/>
 
   <!-- 4. checks -->
