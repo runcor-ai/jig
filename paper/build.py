@@ -149,7 +149,7 @@ def transform(src):
             for j, td in enumerate(tr.xpath("./td|./th")):
                 if j < len(heads):
                     td.set("data-label", heads[j])
-                if re.fullmatch(r"[\s\d.,%+\-−–~✓✗Xx×()/]{1,14}", cell_text(td) or "?") and j > 0:
+                if re.fullmatch(r"[\s\d.,%+\-−–~✓✗◐Xx×()/]{1,14}", cell_text(td) or "?") and j > 0:
                     td.set("class", "num")
                 # One wrapper per cell, so a cell laid out as a grid (cards) has exactly two items.
                 v = LH.Element("div")
@@ -351,7 +351,7 @@ def extra_css():
 
 
 # The cover's status: the byline's date is the paper's as-of date, not when the run started, so the run is named here.
-STATUS = "Version 0.4"
+STATUS = "Version 0.5"
 RUN_LINE = "With a short experiment &nbsp;·&nbsp; 14 Nov 2026"
 
 
@@ -374,7 +374,7 @@ def page(body, toc, subtitle, started, updated):
     <p class="sub">{htmlmod.escape(subtitle or "Controlling complexity by working with AI at the right level, and measuring that the level holds")}</p>
     <div class="lede">
       <p>A biologist explaining a heartbeat does not talk about quantum physics. Every field controls complexity by working at the right level. AI tooling has built powerful machinery: agent teams, hooked harnesses, orchestration frameworks. The way of working itself is still buried inside it, hard to read, change or measure as a unit.</p>
-      <p>This paper argues for a level above that machinery: scripts of contracted steps, with the prompts one level down, and every claim checked and every way of working measured before it is trusted.</p>
+      <p>This paper argues for a level above that machinery: not another orchestrator, but a control plane that governs what work is permitted, what counts as evidence, and how reliable a way of working is shown to be, whoever does each step.</p>
     </div>
   </div>
   <div class="foot">
