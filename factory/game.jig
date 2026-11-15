@@ -6,6 +6,9 @@
 #
 #   py -m jig batch factory/games.yaml --script factory/game.jig --parallel 3 --continue-on-error
 #
+# Another script can also call it as one step, make_game (commands/make_game.yaml);
+# factory/factory.jig does that for three games.
+#
 # Each row in games.yaml gives this script two values:
 #   id    the game's name and folder, e.g. PONG-001, so it is built in apps/PONG-001/
 #   file  its requirements file in requirements/, e.g. pong.md
@@ -113,6 +116,9 @@ r = review(spec, criteria=["correctness", "readability", "security"])
 # One summary line per game, e.g. "PONG-001: tests completed, verify pass, 1 fix(es), ..."
 verdict = v.output.verdict.result if v.output else "none"
 print(f"{id}: tests {t.status}, verify {verdict}, {fixes} fix(es), review {r.status}")
+
+# What this script hands back when another script calls it as a step (make_game).
+result = {"id": id, "tests": t.status, "verdict": verdict, "fixes": fixes, "review": r.status}
 
 # The game only counts as a success if its tests pass AND verify says "pass".
 # Otherwise mark this game failed, so the batch summary shows it clearly.

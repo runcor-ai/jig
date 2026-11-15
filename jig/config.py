@@ -58,6 +58,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "max_while_iterations": 10,   # a while loop whose condition is still true after this fails the script
         "max_steps": 100000,          # statements executed per run (stops runaway loops)
         "max_items": 100000,          # longest list/map/queue/set/string a script may build
+        "max_depth": 3,               # scripts calling scripts (script commands), at most this deep
     },
 }
 

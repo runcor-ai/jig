@@ -14,14 +14,20 @@ Directories, in load order (later ones override earlier ones with the same name)
 Definition fields (all optional except `purpose`):
     purpose        one-line description
     version        string
-    target         {type: text | artifact | artifact_or_text | none, required: bool}
+    target         {type: text | artifact | artifact_or_text | none, required: bool, as: name}
+                   (as: the variable a script command's target becomes; default `target`)
     parameters     name -> {type, default, enum?, items?, description}
                    types: string | integer | number | boolean | list | object | path
                    (path: file inside the project, inserted into the prompt as untrusted data)
     artifact       create | use | optional | none        (default: optional)
     requires       stages of the artifact that must have completed, e.g. [specify]
-    mode           agent | procedure                      (procedure = built-in runner, e.g. run_tests)
+    mode           agent | procedure | script             (procedure = built-in runner, e.g. run_tests;
+                                                           script = another Jig script run as one step)
     procedure      name of a built-in procedure when mode is procedure
+    script         the .jig file when mode is script: relative to the project for project commands,
+                   to the command's own directory for built-in and user commands. Its target and
+                   parameters become its variables; whatever it assigns to `result` is the step's output
+    continue_on_error  mode script only: the inner script handles its own failed steps (default: false)
     tool_policy    name of a policy in jig config, or inline {tools, allow, deny} (default: none)
     prompt         template file (default: <name>.md)
     output_schema  schema file (default: <name>.schema.json) or an inline schema mapping
@@ -92,6 +98,7 @@ def _normalize(name: str, raw: dict) -> dict:
     spec["validators"] = list(spec.get("validators") or [])
     spec["postprocess"] = list(spec.get("postprocess") or [])
     spec.setdefault("idempotent", spec["mode"] == "agent")
+    spec["continue_on_error"] = bool(spec.get("continue_on_error", False))
     return spec
 
 
@@ -113,8 +120,18 @@ def _check(name: str, spec: dict, path: Path, prompt: str | None, schema: Any,
             p.append(f"parameter '{pname}' is reserved")
         if not isinstance(ps, dict) or ps.get("type") not in PARAM_TYPES:
             p.append(f"parameter '{pname}' needs type in {sorted(PARAM_TYPES)}")
-    if spec["mode"] not in ("agent", "procedure"):
-        p.append("mode must be agent or procedure")
+    if spec["mode"] not in ("agent", "procedure", "script"):
+        p.append("mode must be agent, procedure or script")
+    if spec["mode"] == "script":
+        if not isinstance(spec.get("script"), str) or not spec["script"].endswith(".jig"):
+            p.append("a script command needs `script: <file>.jig`")
+        var = spec["target"].get("as", "target")
+        if not (isinstance(var, str) and var.isidentifier() and not var.startswith("_")):
+            p.append("target.as must be a variable name")
+        elif var in spec["parameters"] and spec["target"]["type"] != "none":
+            p.append(f"target.as '{var}' clashes with a parameter of the same name")
+    elif spec.get("continue_on_error"):
+        p.append("continue_on_error applies only to mode: script")
     if spec["mode"] == "agent" and prompt is None:
         p.append(f"agent command needs a prompt template ({spec.get('prompt') or name + '.md'})")
     if prompt is not None:
@@ -178,7 +195,7 @@ def _load_one(path: Path) -> tuple[str, dict, str | None, Any]:
     else:
         sfile = path.parent / (sch or f"{name}.schema.json")
         schema = json.loads(sfile.read_text(encoding="utf-8")) if sfile.is_file() else (
-            {"type": "object"} if spec["mode"] == "procedure" and not sch else None)
+            {"type": "object"} if spec["mode"] in ("procedure", "script") and not sch else None)
     return name, spec, prompt, schema
 
 
@@ -203,9 +220,41 @@ def load_commands(project_dir: Path, dirs: list[tuple[str, Path]] | None = None)
             if errs:
                 problems += errs
                 continue
+            if spec["mode"] == "script":
+                base = Path(project_dir) if source == "project" else path.parent
+                spec["script_path"] = str((base / spec["script"]).resolve())
             prev = commands.get(name)
             commands[name] = Command(name, spec, source, path, prompt, schema,
                                      overrides=prev.source if prev else None)
+    problems += _check_scripts(commands)
     if problems:
         raise CommandDefError("invalid command definition(s):\n  " + "\n  ".join(problems))
     return commands
+
+
+def script_variables(cmd: Command) -> set[str]:
+    """The variables a script command hands its script: its parameters, plus its target's variable."""
+    names = set(cmd["parameters"])
+    if cmd["target"]["type"] != "none":
+        names.add(cmd["target"].get("as", "target"))
+    return names
+
+
+def _check_scripts(commands: dict[str, Command]) -> list[str]:
+    """Every script command's script must exist and parse against the loaded commands, using only the
+    variables the command declares."""
+    from .parser import ParseError, parse
+    out = []
+    for c in commands.values():
+        if c["mode"] != "script":
+            continue
+        sp = Path(c["script_path"])
+        if not sp.is_file():
+            out.append(f"{c.path}: script {c['script']} does not exist ({sp})")
+            continue
+        try:
+            parse(sp.read_text(encoding="utf-8"), set(commands), predefined=script_variables(c))
+        except ParseError as e:
+            out.append(f"{c.path}: script {c['script']}: {e} (its variables are the target and parameters: "
+                       f"{', '.join(sorted(script_variables(c))) or 'none'})")
+    return out

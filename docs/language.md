@@ -93,6 +93,26 @@ would be shadowed.
 
 `print(...)` output is shown by `jig run` (prefixed `|`) and returned in `--json` output under `log`.
 
+## Calling another script
+
+A script can be defined as a command (`mode: script`, see [commands.md](commands.md#script-commands-a-script-as-one-step)),
+and is then called like any other step. The called script gets the command's target and parameters as
+variables, and hands back whatever it assigns to `result`:
+
+```python
+# factory/game.jig, at the end
+result = {"id": id, "tests": t.status, "verdict": verdict, "fixes": fixes, "review": r.status}
+
+# factory/factory.jig
+for g in GAMES:
+    r = make_game(g.file, id=g.id)
+    if r.status != "completed":
+        print(f"{g.id} needs a look")
+```
+
+The call waits until the called script has finished. Assigning `result` has no effect when a script is run
+directly.
+
 ## Limits
 
 These stop runaway scripts. Set them in `jig.yaml`:
@@ -102,6 +122,7 @@ script:
   max_while_iterations: 10   # a while loop whose condition is still true after this fails the script
   max_steps: 100000          # statements executed per run
   max_items: 100000          # longest list/map/queue/set/string
+  max_depth: 3               # scripts calling scripts, at most this deep
 ```
 
 A `while` loop always has a cap, because every pass can be a paid agent call. For an explicit cap per loop,

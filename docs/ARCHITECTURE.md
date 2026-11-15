@@ -32,6 +32,7 @@ artifact**:
 | Adapter | Who executes an agent step: Claude Code or Codex (or a fixture in tests) | `jig/adapters/` |
 | Procedure | A step with no model at all (`test`: runs commands, parses JUnit) | `jig/procedures.py` |
 | Script | A restricted program that composes steps: plain logic runs locally; only command calls reach an agent | `jig/parser.py`, `jig/script.py` |
+| Script command | A whole script used as one step (`mode: script`): its target and parameters become its variables, what it assigns to `result` is the step's output, checked against the command's schema; its steps are recorded on their own artifacts and listed in the step's `script.json`; `--replace` / `--resume` pass through; nesting is capped by `script.max_depth` (default 3) | `jig/loader.py` (`_check_scripts`), `jig/runtime.py` (`_run_script_step`) |
 
 ### How the concerns are separated
 
@@ -64,6 +65,7 @@ post-processors `tests_must_pass` and `verify_verdict` (`jig/procedures.py`).
 | "Retries with feedback" | One retry on validation failure, only for idempotent commands; `build` is not retried automatically | Repair of a build happens through the script's own fix rounds, not the runtime |
 | "Everything is recorded" | True for every step. The artifact keeps the latest output per stage in its manifest and every output on disk | `$spec` and `$context` read the latest output of each stage |
 | Experts as agents | Design only (`docs/design/expert-agents.md`) | Not built |
+| "A way of working becomes a step at the level above" | A script command runs a whole script as one step and returns its checked `result` (`factory/factory.jig` over `make_game`). Calls run one after another inside a script | Composition is built; running nested calls in parallel is not (use `jig batch`). `make_game` is tested offline; it has not yet been run live |
 
 ## 3. Three sharper framings
 

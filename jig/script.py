@@ -45,7 +45,7 @@ from .store import ID_RE, read_json, write_json
 HALT_STATUSES = {"failed", "blocked", "unavailable"}
 PY_ERRORS = (TypeError, ValueError, KeyError, IndexError, ZeroDivisionError, OverflowError,
              RecursionError)
-SCRIPT_DEFAULTS = {"max_while_iterations": 10, "max_steps": 100_000, "max_items": 100_000}
+SCRIPT_DEFAULTS = {"max_while_iterations": 10, "max_steps": 100_000, "max_items": 100_000, "max_depth": 3}
 
 
 @dataclass
@@ -571,13 +571,25 @@ def run_script(rt: Runtime, source: str, replace: bool = False, continue_on_erro
     bindings = {id(top[i]): aid for i, aid in planned.items()}
     it = Interp(rt, variables, replace=replace, resume=resume, continue_on_error=continue_on_error,
                 on_start=on_start, on_result=on_result, on_log=on_log, bindings=bindings, script_id=script_id)
-    it.run(stmts)
+    outer_flags = rt.script_flags
+    if rt.script_depth == 0:     # scripts called as steps (script commands) inherit --replace / --resume
+        rt.script_flags = {"replace": replace, "resume": resume}
+    try:
+        it.run(stmts)
+    finally:
+        rt.script_flags = outer_flags
     out = {"status": it.status,
            "bindings": {top[i].source.split("(")[0] + f"@{top[i].line}": a for i, a in planned.items()},
            "executed": len([r for r in it.results if r["result"].get("command")]), "total": len(calls),
            "step_failures": it.step_failures, "results": it.results, "log": it.log}
     if it.error:
         out["error"] = it.error
+    if "result" in it.vars:      # what a script hands back when it runs as a step (a script command)
+        try:
+            out["result"] = to_data(it.vars["result"])
+        except JigError as e:
+            out["status"] = "failed"
+            out["error"] = {"code": "E_SCRIPT", "message": f"result: {e.message}"}
     return out
 
 

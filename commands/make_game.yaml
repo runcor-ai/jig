@@ -1,0 +1,21 @@
+# A whole way of working used as one step: factory/game.jig (specify, build, test, verify,
+# up to 2 fix rounds, review) runs for one requirements file and hands back its result.
+#   make_game("pong.md", id="PONG-001")
+purpose: Build one browser game from a requirements file in requirements/, with tests, verify, fix rounds and review.
+version: "1.0.0"
+mode: script
+script: factory/game.jig
+target: {type: text, required: true, as: file}     # the requirements file becomes the script's `file`
+parameters:
+  id: {type: string, description: "The game's id and folder (apps/<id>/), e.g. PONG-001"}
+continue_on_error: true                             # game.jig's fix loop reacts to failed checks itself
+artifact: none
+output_schema:
+  type: object
+  required: [id, tests, verdict, fixes, review]
+  properties:
+    id: {type: string}
+    tests: {type: string}
+    verdict: {type: string}
+    fixes: {type: integer}
+    review: {type: string}

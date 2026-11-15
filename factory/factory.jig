@@ -1,0 +1,32 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# SOFTWARE FACTORY: three browser games, each built by make_game.
+#
+# make_game is factory/game.jig used as one step (commands/make_game.yaml): for one
+# requirements file it runs specify, build, test, verify, up to 2 fix rounds and
+# review, and hands back {id, tests, verdict, fixes, review}.
+#
+#   py -m jig run factory/factory.jig --continue-on-error
+#
+# The games are built one after another (about 5 minutes and $1 each). To build
+# them at the same time instead, use batch (see factory/game.jig).
+# ─────────────────────────────────────────────────────────────────────────────
+
+GAMES = [{"id": "PONG-001", "file": "pong.md"},
+         {"id": "TETRIS-001", "file": "tetris.md"},
+         {"id": "SNAKE-001", "file": "snake.md"}]
+
+passed = []
+for g in GAMES:
+    r = make_game(g.file, id=g.id)
+    # A game that still fails after its fix rounds is reported, and the others go on.
+    if r.status == "completed":
+        passed.append(g.id)
+    elif r.output and "tests" in r.output:
+        print(f"{g.id} needs a look: tests {r.output.tests}, verify {r.output.verdict}")
+    else:
+        print(f"{g.id} stopped early; see its record in .jig/")
+
+print(f"{len(passed)} of {len(GAMES)} games pass: {passed}")
+# The factory run counts as failed unless every game passes.
+if len(passed) != len(GAMES):
+    fail(f"{len(GAMES) - len(passed)} game(s) did not pass")

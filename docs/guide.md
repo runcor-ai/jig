@@ -587,6 +587,20 @@ item's earlier steps. Once the files exist, `draft(...)` works in any script. Ru
 validate them. The full format, all placeholders and all available checks are in
 [commands.md](commands.md). `commands/review.*` is a complete example.
 
+### A whole script as one command
+
+A command can also be a whole Jig script. `commands/make_game.yaml` turns `factory/game.jig` into the step
+`make_game`: its target becomes the script's `file`, its `id` parameter becomes `id`, and whatever the
+script assigns to `result` comes back as the step's output. So a way of working that has been tested and
+measured becomes one line at the level above:
+
+```python
+r = make_game("pong.md", id="PONG-001")
+print(r.output.verdict)
+```
+
+See [commands.md](commands.md#script-commands-a-script-as-one-step) for the details.
+
 ---
 
 ## 13. Limits and safety
@@ -598,6 +612,7 @@ script:
   max_while_iterations: 10   # passes of a while loop before the script stops
   max_steps: 100000          # statements per run
   max_items: 100000          # longest list, map, queue, set or text
+  max_depth: 3               # scripts calling scripts, at most this deep
 ```
 
 **Safety, in short.**
@@ -636,6 +651,22 @@ For each game, the script:
    or the verdict still do not pass, so the batch summary shows exactly which games made it.
 
 Every step is recorded, so `py -m jig show PONG-001 verify` shows the full evidence for each requirement.
+
+**The same factory in a few lines.** [`factory/factory.jig`](https://github.com/runcor-ai/jig/blob/master/factory/factory.jig)
+calls `game.jig` as one step, `make_game` (`commands/make_game.yaml`), once per game:
+
+```python
+for g in GAMES:
+    r = make_game(g.file, id=g.id)
+    if r.status == "completed":
+        passed.append(g.id)
+```
+
+```bash
+py -m jig run factory/factory.jig --continue-on-error
+```
+
+This builds the games one after another; the batch command above builds them at the same time.
 
 ---
 

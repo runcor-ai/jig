@@ -54,6 +54,15 @@ class ExecContext:
         return e
 
 
+def _why(res: dict) -> str:
+    """One line on why a step failed: its first error finding, or its error."""
+    err = res.get("error") or {}
+    errs = [f["message"] for f in (res.get("validation") or {}).get("findings", []) if f["severity"] == "error"]
+    if errs and err.get("code") in ("E_SCHEMA", "E_VALIDATION"):
+        return f"{res.get('command')}: {errs[0]}"
+    return f"{res.get('command')}: {err.get('code', res.get('status'))}: {err.get('message', '')}".rstrip(": ")
+
+
 def _status_for(code: str) -> str:
     if code == "E_MISSING_CONTEXT":
         return "blocked"
@@ -75,6 +84,8 @@ class Runtime:
         self._adapters = {self.adapter.name: self.adapter}
         self.sandbox = make_sandbox(sandbox) if isinstance(sandbox, str) or sandbox is None else sandbox
         self.echo = echo
+        self.script_depth = 0                            # scripts calling scripts (script commands)
+        self.script_flags: dict | None = None            # --replace / --resume of the outermost script run
 
     # ── contract ────────────────────────────────────────────────────────
     def normalize(self, command: str, target: Any = None, kwargs: dict | None = None,
@@ -120,6 +131,11 @@ class Runtime:
             if cmd["mode"] == "agent":
                 output, validation, execution = self._run_agent(ctx)
                 result["execution"].update(execution)
+            elif cmd["mode"] == "script":
+                output, inner_findings, execution = self._run_script_step(ctx)
+                result["execution"].update(execution)
+                validation = self.validate_output(cmd, output, ctx)
+                validation["findings"] = inner_findings + validation["findings"]
             else:
                 output = PROCEDURES[cmd["procedure"]](self, ctx)
                 validation = self.validate_output(cmd, output, ctx)
@@ -285,6 +301,55 @@ class Runtime:
             raise JigError("E_ARTIFACT_EXISTS", str(e)) from None
         ctx.manifest = m
         return m["id"]
+
+    # ── script commands: another Jig script run as one step ─────────────
+    def _run_script_step(self, ctx: ExecContext) -> tuple[Any, list[dict], dict]:
+        from .loader import script_variables
+        from .script import run_script
+        cmd = ctx.cmd
+        limits = self.config.get("script") or {}
+        depth, max_depth = self.script_depth, int(limits.get("max_depth", 3))
+        if depth >= max_depth:
+            raise JigError("E_SCRIPT", f"{cmd.name}: scripts nested more than {max_depth} deep "
+                                       f"(script.max_depth); does a script call itself?")
+        variables = {k: v for k, v in ctx.params.items() if k in script_variables(cmd)}
+        if cmd["target"]["type"] != "none":
+            variables[cmd["target"].get("as", "target")] = ctx.target
+        indent = "    " * (depth + 1)
+        echo = self.echo
+        on_start = (lambda st: echo(f"{indent}> {cmd.name}, line {st.line}: {st.source.splitlines()[0]}"))             if echo else None
+        on_result = (lambda st, res: echo(f"{indent}  {res['command']}: {res['status']}")) if echo else None
+        on_log = (lambda line: echo(f"{indent}| {line}")) if echo else None
+        flags = self.script_flags or {}
+        self.script_depth = depth + 1
+        try:
+            inner = run_script(self, Path(cmd["script_path"]).read_text(encoding="utf-8"),
+                               replace=flags.get("replace", False), resume=flags.get("resume", False),
+                               continue_on_error=cmd["continue_on_error"], variables=variables,
+                               on_start=on_start, on_result=on_result, on_log=on_log, script_id=cmd["script"])
+        finally:
+            self.script_depth = depth
+        costs = [r["result"].get("execution", {}).get("cost_usd") for r in inner["results"]
+                 if not r["result"].get("skipped")]
+        steps = [{"line": r["line"], "command": r["result"].get("command"), "status": r["result"].get("status"),
+                  "artifact_id": r["result"].get("artifact_id"),
+                  "run_id": (r["result"].get("execution") or {}).get("run_id")} for r in inner["results"]]
+        write_json(ctx.run_dir / "script.json", {"script": cmd["script"], "variables": variables,
+                                                 "status": inner["status"], "error": inner.get("error"),
+                                                 "steps": steps, "log": inner.get("log", [])})
+        findings = []
+        failed = [r for r in inner["results"] if r["result"].get("status") != "completed"]
+        first = f"; first failed step, line {failed[0]['line']}: {_why(failed[0]['result'])}" if failed else ""
+        if inner["status"] != "completed":
+            why = (inner.get("error") or {}).get("message") or f"{inner.get('step_failures', 0)} step(s) failed"
+            findings.append(finding("script_failed", f"{cmd['script']} {inner['status']}: {why}"
+                                                     f"{first if not inner.get('error') else ''}"))
+        elif "result" not in inner and failed:
+            findings.append(finding("script_failed", f"{cmd['script']} set no result{first}"))
+        execution = {"script": cmd["script"], "steps": len([s for s in steps if s["command"]]),
+                     "cost_usd": round(sum(c for c in costs if c), 6) if any(costs) else None}
+        output = inner.get("result")
+        return ({} if output is None else output), findings, execution
 
     # ── agent execution ─────────────────────────────────────────────────
     def agent_settings(self, cmd: Command) -> dict:
