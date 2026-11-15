@@ -45,8 +45,7 @@ it. The details, with every claim tied to the code and a comparison with DSPy, L
 Commands are plugins. The five built-ins use exactly the format you use to add your own.
 
 **Website:** <https://runcor-ai.github.io/jig/>, with the guide, the thought paper
-([Abstraction for AI Work](https://runcor-ai.github.io/jig/paper/), with a short experiment) and three games Jig
-built that you can play.
+([Abstraction for AI Work](https://runcor-ai.github.io/jig/paper/), with a short experiment).
 
 ## Quick start
 
@@ -224,7 +223,7 @@ time in 5.0 minutes (reported usage $1.99).
 | `SNAKE-002` | 11 (10 must) | 21 passed | pass | 0 | 1 medium, 2 low |
 
 Review still flagged issues the tests passed, for example a Snake tick timer that restarts on every
-direction change. [Play both versions on the website](https://runcor-ai.github.io/jig/).
+direction change.
 
 Version 1, the first run, 14 November 2026, from the batch command above: all three completed side by side
 in 5.5 minutes (reported usage $2.50).
@@ -237,7 +236,6 @@ in 5.5 minutes (reported usage $2.50).
 
 The fix loop was not needed in this run. The review still found real defects that the tests passed,
 for example a Pong ball that can be bounced back after it has passed the paddle.
-[Play them on the website](https://runcor-ai.github.io/jig/).
 
 ## Earlier Pong example
 

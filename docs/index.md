@@ -22,34 +22,6 @@ if v.output.verdict.result != "pass":
     build(spec, notes=v.output.summary)
 ```
 
-## Play what it made
-
-Jig's game factory builds a browser game from a short requirements file: spec, code, real tests, every
-requirement checked against the code, up to two fix rounds, and a code review. It has built the same three
-games twice, from the same requirement files:
-
-| Game | Requirements | Version 1 | Version 2 |
-|---|---|---|---|
-| Pong | [pong.md](https://github.com/runcor-ai/jig/blob/master/requirements/pong.md) | 36 tests passed · **[Play](play/pong/)** | 48 tests passed · **[Play](play/pong-v2/)** |
-| Falling blocks | [tetris.md](https://github.com/runcor-ai/jig/blob/master/requirements/tetris.md) | 41 tests passed · **[Play](play/tetris/)** | 31 tests passed · **[Play](play/tetris-v2/)** |
-| Snake | [snake.md](https://github.com/runcor-ai/jig/blob/master/requirements/snake.md) | 26 tests passed · **[Play](play/snake/)** | 21 tests passed · **[Play](play/snake-v2/)** |
-
-Every game passed its tests and had every must-have requirement verified, with no fix rounds needed. The
-code review still found small defects in each, and the two versions differ: the requirements fix what a
-game must do, not how it is written.
-
-- **Version 1** came from a batch run of the one-game script,
-  [factory/game.jig](https://github.com/runcor-ai/jig/blob/master/factory/game.jig): 5.5 minutes for all three.
-- **Version 2** came from [factory/factory.jig](https://github.com/runcor-ai/jig/blob/master/factory/factory.jig),
-  a Jig script that calls `game.jig` as one step for all three games at the same time: 5.0 minutes, $1.99.
-
-```python
-GAMES = [{"id": "PONG-003", "file": "pong.md"},
-         {"id": "TETRIS-002", "file": "tetris.md"},
-         {"id": "SNAKE-002", "file": "snake.md"}]
-results = make_game(each=GAMES, parallel=3)     # game.jig, once per game, all at once
-```
-
 ## Read
 
 | | |
